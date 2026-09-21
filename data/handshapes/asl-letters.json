@@ -1,0 +1,1630 @@
+{
+  "skeletonVersion": "sfcs-1.0.0",
+  "note": "Hand-authored. Verified by the assertions in packages/engine/test/handshapes.test.ts. M, N, T and R are documented approximations.",
+  "movingLetters": [
+    "J",
+    "Z"
+  ],
+  "letters": {
+    "A": {
+      "spec": {
+        "id": "A",
+        "description": "Closed fist, thumb upright along the index side.",
+        "index": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -5,
+            -4,
+            32
+          ],
+          "proximal": [
+            1,
+            0,
+            0
+          ],
+          "distal": [
+            3,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.382,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0522,
+        "indexToMiddleTip": 0.0202
+      }
+    },
+    "B": {
+      "spec": {
+        "id": "B",
+        "description": "Four fingers straight and together, thumb across the palm.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "ring": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        },
+        "spread": 0
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 1,
+          "ring": 1,
+          "pinky": 1
+        },
+        "thumbToIndexTip": 0.0965,
+        "indexToMiddleTip": 0.025
+      }
+    },
+    "C": {
+      "spec": {
+        "id": "C",
+        "description": "Fingers and thumb curved into a C.",
+        "index": {
+          "flex": [
+            0.45,
+            0.45,
+            0.3
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.45,
+            0.45,
+            0.3
+          ]
+        },
+        "ring": {
+          "flex": [
+            0.45,
+            0.45,
+            0.3
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0.45,
+            0.45,
+            0.3
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            7,
+            -10,
+            37
+          ],
+          "proximal": [
+            1,
+            0,
+            0
+          ],
+          "distal": [
+            8,
+            0,
+            0
+          ]
+        },
+        "spread": 0.15
+      },
+      "measured": {
+        "reach": {
+          "index": 0.7771,
+          "middle": 0.7694,
+          "ring": 0.7695,
+          "pinky": 0.7806
+        },
+        "thumbToIndexTip": 0.0303,
+        "indexToMiddleTip": 0.0241
+      }
+    },
+    "D": {
+      "spec": {
+        "id": "D",
+        "description": "Index straight, other fingers meeting the thumb.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.7,
+            0.6,
+            0.35
+          ]
+        },
+        "ring": {
+          "flex": [
+            0.7,
+            0.6,
+            0.35
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0.7,
+            0.6,
+            0.35
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            29,
+            -26,
+            59
+          ],
+          "proximal": [
+            23,
+            0,
+            0
+          ],
+          "distal": [
+            19,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.5736,
+          "ring": 0.5739,
+          "pinky": 0.5987
+        },
+        "thumbToIndexTip": 0.1197,
+        "indexToMiddleTip": 0.1202
+      }
+    },
+    "E": {
+      "spec": {
+        "id": "E",
+        "description": "Fingers curled down onto a tucked thumb.",
+        "index": {
+          "flex": [
+            0.7,
+            0.95,
+            0.55
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.7,
+            0.95,
+            0.55
+          ]
+        },
+        "ring": {
+          "flex": [
+            0.7,
+            0.95,
+            0.55
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0.7,
+            0.95,
+            0.55
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -13,
+            -43,
+            60
+          ],
+          "proximal": [
+            65,
+            0,
+            0
+          ],
+          "distal": [
+            65,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.4496,
+          "middle": 0.4159,
+          "ring": 0.4189,
+          "pinky": 0.472
+        },
+        "thumbToIndexTip": 0.0301,
+        "indexToMiddleTip": 0.0208
+      }
+    },
+    "F": {
+      "spec": {
+        "id": "F",
+        "description": "Thumb and index pinched, other three fingers straight.",
+        "index": {
+          "flex": [
+            0.72,
+            0.55,
+            0.3
+          ]
+        },
+        "middle": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "ring": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -50,
+            31
+          ],
+          "proximal": [
+            70,
+            0,
+            0
+          ],
+          "distal": [
+            28,
+            0,
+            0
+          ]
+        },
+        "spread": 0.35
+      },
+      "measured": {
+        "reach": {
+          "index": 0.6066,
+          "middle": 1.0003,
+          "ring": 1.0012,
+          "pinky": 1.0078
+        },
+        "thumbToIndexTip": 0.0001,
+        "indexToMiddleTip": 0.1315
+      }
+    },
+    "G": {
+      "spec": {
+        "id": "G",
+        "description": "Index pointing sideways, thumb parallel below it.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -11,
+            -5,
+            27
+          ],
+          "proximal": [
+            0,
+            0,
+            0
+          ],
+          "distal": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wrist": [
+          180,
+          0,
+          -90
+        ]
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0766,
+        "indexToMiddleTip": 0.1148
+      }
+    },
+    "H": {
+      "spec": {
+        "id": "H",
+        "description": "Index and middle pointing sideways together.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        },
+        "spread": 0,
+        "wrist": [
+          180,
+          0,
+          -90
+        ]
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 1,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0965,
+        "indexToMiddleTip": 0.025
+      }
+    },
+    "I": {
+      "spec": {
+        "id": "I",
+        "description": "Pinky extended, other fingers closed.",
+        "index": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.382,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 1
+        },
+        "thumbToIndexTip": 0.0473,
+        "indexToMiddleTip": 0.0202
+      }
+    },
+    "J": {
+      "spec": {
+        "id": "J",
+        "description": "Pinky extended, tracing a J. Handshape only; movement is a clip.",
+        "index": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.382,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 1
+        },
+        "thumbToIndexTip": 0.0473,
+        "indexToMiddleTip": 0.0202
+      }
+    },
+    "K": {
+      "spec": {
+        "id": "K",
+        "description": "Index up, middle angled out, thumb between them.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.22,
+            0,
+            0
+          ],
+          "spread": -0.75
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -18,
+            54
+          ],
+          "proximal": [
+            11,
+            0,
+            0
+          ],
+          "distal": [
+            39,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.9744,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0778,
+        "indexToMiddleTip": 0.0504
+      }
+    },
+    "L": {
+      "spec": {
+        "id": "L",
+        "description": "Index up and thumb out, forming an L.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -1,
+            6,
+            -13
+          ],
+          "proximal": [
+            1,
+            0,
+            0
+          ],
+          "distal": [
+            2,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.1364,
+        "indexToMiddleTip": 0.1148
+      }
+    },
+    "M": {
+      "spec": {
+        "id": "M",
+        "description": "Three fingers folded over a buried thumb.",
+        "index": {
+          "flex": [
+            0.9,
+            0.75,
+            0.4
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.9,
+            0.75,
+            0.4
+          ]
+        },
+        "ring": {
+          "flex": [
+            0.9,
+            0.75,
+            0.4
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            1,
+            -31,
+            90
+          ],
+          "proximal": [
+            65,
+            0,
+            0
+          ],
+          "distal": [
+            65,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.4253,
+          "middle": 0.3924,
+          "ring": 0.3943,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0484,
+        "indexToMiddleTip": 0.021
+      }
+    },
+    "N": {
+      "spec": {
+        "id": "N",
+        "description": "Two fingers folded over a buried thumb.",
+        "index": {
+          "flex": [
+            0.9,
+            0.75,
+            0.4
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.9,
+            0.75,
+            0.4
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            1,
+            -31,
+            90
+          ],
+          "proximal": [
+            65,
+            0,
+            0
+          ],
+          "distal": [
+            65,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.4253,
+          "middle": 0.3924,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0484,
+        "indexToMiddleTip": 0.021
+      }
+    },
+    "O": {
+      "spec": {
+        "id": "O",
+        "description": "Fingertips and thumb meeting in a circle.",
+        "index": {
+          "flex": [
+            0.58,
+            0.62,
+            0.45
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.58,
+            0.62,
+            0.45
+          ]
+        },
+        "ring": {
+          "flex": [
+            0.58,
+            0.62,
+            0.45
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0.58,
+            0.62,
+            0.45
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            3,
+            -37,
+            41
+          ],
+          "proximal": [
+            49,
+            0,
+            0
+          ],
+          "distal": [
+            37,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.6257,
+          "middle": 0.612,
+          "ring": 0.6122,
+          "pinky": 0.6341
+        },
+        "thumbToIndexTip": 0.0002,
+        "indexToMiddleTip": 0.0222
+      }
+    },
+    "P": {
+      "spec": {
+        "id": "P",
+        "description": "K handshape rotated to point downward.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            0.22,
+            0,
+            0
+          ],
+          "spread": -0.75
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -18,
+            54
+          ],
+          "proximal": [
+            11,
+            0,
+            0
+          ],
+          "distal": [
+            39,
+            0,
+            0
+          ]
+        },
+        "wrist": [
+          120,
+          -90,
+          -60
+        ]
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.9744,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0778,
+        "indexToMiddleTip": 0.0504
+      }
+    },
+    "Q": {
+      "spec": {
+        "id": "Q",
+        "description": "G handshape rotated to point downward.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -11,
+            -5,
+            27
+          ],
+          "proximal": [
+            0,
+            0,
+            0
+          ],
+          "distal": [
+            0,
+            0,
+            0
+          ]
+        },
+        "wrist": [
+          120,
+          -90,
+          -60
+        ]
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0766,
+        "indexToMiddleTip": 0.1148
+      }
+    },
+    "R": {
+      "spec": {
+        "id": "R",
+        "description": "Index and middle crossed (approximated by opposed fan).",
+        "index": {
+          "flex": [
+            0.05,
+            0.05,
+            0
+          ],
+          "spread": -0.55
+        },
+        "middle": {
+          "flex": [
+            0.05,
+            0.05,
+            0
+          ],
+          "spread": 0.55
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.9816,
+          "middle": 0.9988,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0883,
+        "indexToMiddleTip": 0.0164
+      }
+    },
+    "S": {
+      "spec": {
+        "id": "S",
+        "description": "Fist with the thumb clamped across the front.",
+        "index": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            13,
+            -28,
+            89
+          ],
+          "proximal": [
+            55,
+            0,
+            0
+          ],
+          "distal": [
+            55,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.382,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0539,
+        "indexToMiddleTip": 0.0202
+      }
+    },
+    "T": {
+      "spec": {
+        "id": "T",
+        "description": "Fist with the thumb wedged between index and middle.",
+        "index": {
+          "flex": [
+            0.95,
+            0.9,
+            0.5
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -18,
+            54
+          ],
+          "proximal": [
+            11,
+            0,
+            0
+          ],
+          "distal": [
+            39,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.3679,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0536,
+        "indexToMiddleTip": 0.0247
+      }
+    },
+    "U": {
+      "spec": {
+        "id": "U",
+        "description": "Index and middle straight and together.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        },
+        "spread": 0
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 1,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0965,
+        "indexToMiddleTip": 0.025
+      }
+    },
+    "V": {
+      "spec": {
+        "id": "V",
+        "description": "Index and middle straight and apart.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ],
+          "spread": 1
+        },
+        "middle": {
+          "flex": [
+            0,
+            0,
+            0
+          ],
+          "spread": -1
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 1.0141,
+          "middle": 0.9826,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.1048,
+        "indexToMiddleTip": 0.0706
+      }
+    },
+    "W": {
+      "spec": {
+        "id": "W",
+        "description": "Index, middle and ring straight and spread.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ],
+          "spread": 1
+        },
+        "middle": {
+          "flex": [
+            0,
+            0,
+            0
+          ],
+          "spread": 0
+        },
+        "ring": {
+          "flex": [
+            0,
+            0,
+            0
+          ],
+          "spread": -1
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            6,
+            -17,
+            92
+          ],
+          "proximal": [
+            10,
+            0,
+            0
+          ],
+          "distal": [
+            30,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 1.0141,
+          "middle": 1,
+          "ring": 0.9983,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.122,
+        "indexToMiddleTip": 0.0469
+      }
+    },
+    "X": {
+      "spec": {
+        "id": "X",
+        "description": "Index hooked, other fingers closed.",
+        "index": {
+          "flex": [
+            0.15,
+            0.9,
+            0.6
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.6516,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.042,
+        "indexToMiddleTip": 0.0525
+      }
+    },
+    "Y": {
+      "spec": {
+        "id": "Y",
+        "description": "Thumb and pinky extended, middle fingers closed.",
+        "index": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -1,
+            6,
+            -13
+          ],
+          "proximal": [
+            1,
+            0,
+            0
+          ],
+          "distal": [
+            2,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 0.382,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 1
+        },
+        "thumbToIndexTip": 0.0779,
+        "indexToMiddleTip": 0.0202
+      }
+    },
+    "Z": {
+      "spec": {
+        "id": "Z",
+        "description": "Index extended, tracing a Z. Handshape only; movement is a clip.",
+        "index": {
+          "flex": [
+            0,
+            0,
+            0
+          ]
+        },
+        "middle": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "ring": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "pinky": {
+          "flex": [
+            1,
+            1,
+            0.85
+          ]
+        },
+        "thumb": {
+          "metacarpal": [
+            -3,
+            -32,
+            90
+          ],
+          "proximal": [
+            60,
+            0,
+            0
+          ],
+          "distal": [
+            60,
+            0,
+            0
+          ]
+        }
+      },
+      "measured": {
+        "reach": {
+          "index": 1,
+          "middle": 0.3299,
+          "ring": 0.3366,
+          "pinky": 0.4184
+        },
+        "thumbToIndexTip": 0.0965,
+        "indexToMiddleTip": 0.1148
+      }
+    }
+  }
+}

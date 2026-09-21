@@ -1,0 +1,22 @@
+{
+  "name": "signflow",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "pnpm --filter @signflow/web dev",
+    "build": "pnpm -r --filter './packages/*' build && pnpm --filter @signflow/web build",
+    "test": "vitest run",
+    "typecheck": "tsc -p packages/motion-format --noEmit && tsc -p packages/engine --noEmit && tsc -p packages/renderer-three --noEmit && tsc -p apps/web --noEmit",
+    "handshapes:report": "tsx tools/handshape-report.ts",
+    "export:data": "tsx tools/export-data.ts",
+    "screenshot": "node tools/screenshot.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "playwright": "^1.63.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^5.0.1"
+  }
+}
