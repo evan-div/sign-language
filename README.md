@@ -41,8 +41,12 @@ pnpm screenshot          # visual QC via headless Chromium (dev server must be r
 ```
 
 Geometry is necessary but not sufficient. **Milestone 2 is not complete until a
-fluent signer reads back 8 of 10 spelled words correctly.** M, N, T and R are
-known approximations and should be reviewed first.
+fluent signer reads back 8 of 10 spelled words correctly.**
+
+M, N and T are near-identical fists distinguished only by which gap the thumb
+tip emerges from, and R depends on two fingers genuinely crossing. Those
+positions are solved against explicit targets and asserted, but they are the
+subtlest letters in the set and are worth a reviewer's attention first.
 
 ## Layout
 

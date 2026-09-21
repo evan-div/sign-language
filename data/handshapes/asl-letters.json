@@ -57,6 +57,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.054,
+          0.102,
+          0.025
+        ],
         "reach": {
           "index": 0.382,
           "middle": 0.3299,
@@ -119,6 +124,11 @@
         "spread": 0
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 1,
           "middle": 1,
@@ -181,6 +191,11 @@
         "spread": 0.15
       },
       "measured": {
+        "thumbTip": [
+          0.045,
+          0.099,
+          0.044
+        ],
         "reach": {
           "index": 0.7771,
           "middle": 0.7694,
@@ -242,6 +257,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.01,
+          0.076,
+          0.073
+        ],
         "reach": {
           "index": 1,
           "middle": 0.5736,
@@ -303,6 +323,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.02,
+          0.09,
+          0.033
+        ],
         "reach": {
           "index": 0.4496,
           "middle": 0.4159,
@@ -365,6 +390,11 @@
         "spread": 0.35
       },
       "measured": {
+        "thumbTip": [
+          0.029,
+          0.073,
+          0.068
+        ],
         "reach": {
           "index": 0.6066,
           "middle": 1.0003,
@@ -431,6 +461,11 @@
         ]
       },
       "measured": {
+        "thumbTip": [
+          0.101,
+          0.06,
+          -0.016
+        ],
         "reach": {
           "index": 1,
           "middle": 0.3299,
@@ -498,6 +533,11 @@
         ]
       },
       "measured": {
+        "thumbTip": [
+          0.084,
+          -0.006,
+          -0.028
+        ],
         "reach": {
           "index": 1,
           "middle": 1,
@@ -559,6 +599,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 0.382,
           "middle": 0.3299,
@@ -620,6 +665,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 0.382,
           "middle": 0.3299,
@@ -682,6 +732,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.02,
+          0.1,
+          0.035
+        ],
         "reach": {
           "index": 1,
           "middle": 0.9744,
@@ -743,6 +798,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.108,
+          0.059,
+          0.021
+        ],
         "reach": {
           "index": 1,
           "middle": 0.3299,
@@ -756,25 +816,25 @@
     "M": {
       "spec": {
         "id": "M",
-        "description": "Three fingers folded over a buried thumb.",
+        "description": "Three fingers folded over the thumb; tip shows between ring and little.",
         "index": {
           "flex": [
-            0.9,
-            0.75,
+            0.92,
+            0.78,
             0.4
           ]
         },
         "middle": {
           "flex": [
-            0.9,
-            0.75,
+            0.92,
+            0.78,
             0.4
           ]
         },
         "ring": {
           "flex": [
-            0.9,
-            0.75,
+            0.92,
+            0.78,
             0.4
           ]
         },
@@ -787,48 +847,53 @@
         },
         "thumb": {
           "metacarpal": [
-            1,
-            -31,
-            90
+            3,
+            -28,
+            107
           ],
           "proximal": [
-            65,
+            60,
             0,
             0
           ],
           "distal": [
-            65,
+            60,
             0,
             0
           ]
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.021,
+          0.073,
+          0.028
+        ],
         "reach": {
-          "index": 0.4253,
-          "middle": 0.3924,
-          "ring": 0.3943,
+          "index": 0.4068,
+          "middle": 0.3707,
+          "ring": 0.373,
           "pinky": 0.4184
         },
-        "thumbToIndexTip": 0.0484,
-        "indexToMiddleTip": 0.021
+        "thumbToIndexTip": 0.0587,
+        "indexToMiddleTip": 0.0208
       }
     },
     "N": {
       "spec": {
         "id": "N",
-        "description": "Two fingers folded over a buried thumb.",
+        "description": "Two fingers folded over the thumb; tip shows between middle and ring.",
         "index": {
           "flex": [
-            0.9,
-            0.75,
+            0.92,
+            0.78,
             0.4
           ]
         },
         "middle": {
           "flex": [
-            0.9,
-            0.75,
+            0.92,
+            0.78,
             0.4
           ]
         },
@@ -848,31 +913,36 @@
         },
         "thumb": {
           "metacarpal": [
-            1,
-            -31,
-            90
+            0,
+            -32,
+            88
           ],
           "proximal": [
-            65,
+            60,
             0,
             0
           ],
           "distal": [
-            65,
+            60,
             0,
             0
           ]
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.004,
+          0.084,
+          0.032
+        ],
         "reach": {
-          "index": 0.4253,
-          "middle": 0.3924,
+          "index": 0.4068,
+          "middle": 0.3707,
           "ring": 0.3366,
           "pinky": 0.4184
         },
-        "thumbToIndexTip": 0.0484,
-        "indexToMiddleTip": 0.021
+        "thumbToIndexTip": 0.0509,
+        "indexToMiddleTip": 0.0208
       }
     },
     "O": {
@@ -926,6 +996,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.03,
+          0.081,
+          0.063
+        ],
         "reach": {
           "index": 0.6257,
           "middle": 0.612,
@@ -993,6 +1068,11 @@
         ]
       },
       "measured": {
+        "thumbTip": [
+          -0.035,
+          -0.1,
+          -0.02
+        ],
         "reach": {
           "index": 1,
           "middle": 0.9744,
@@ -1059,6 +1139,11 @@
         ]
       },
       "measured": {
+        "thumbTip": [
+          -0.016,
+          -0.101,
+          -0.06
+        ],
         "reach": {
           "index": 1,
           "middle": 0.3299,
@@ -1072,10 +1157,10 @@
     "R": {
       "spec": {
         "id": "R",
-        "description": "Index and middle crossed (approximated by opposed fan).",
+        "description": "Index and middle crossed, middle passing behind the index.",
         "index": {
           "flex": [
-            0.05,
+            0.18,
             0.05,
             0
           ],
@@ -1083,8 +1168,8 @@
         },
         "middle": {
           "flex": [
-            0.05,
-            0.05,
+            0,
+            0.16,
             0
           ],
           "spread": 0.55
@@ -1122,14 +1207,19 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
-          "index": 0.9816,
-          "middle": 0.9988,
+          "index": 0.9709,
+          "middle": 0.9929,
           "ring": 0.3366,
           "pinky": 0.4184
         },
-        "thumbToIndexTip": 0.0883,
-        "indexToMiddleTip": 0.0164
+        "thumbToIndexTip": 0.0831,
+        "indexToMiddleTip": 0.0226
       }
     },
     "S": {
@@ -1183,6 +1273,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.007,
+          0.077,
+          0.048
+        ],
         "reach": {
           "index": 0.382,
           "middle": 0.3299,
@@ -1196,7 +1291,7 @@
     "T": {
       "spec": {
         "id": "T",
-        "description": "Fist with the thumb wedged between index and middle.",
+        "description": "Fist closed around a thumb wedged between index and middle.",
         "index": {
           "flex": [
             0.95,
@@ -1244,6 +1339,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.02,
+          0.1,
+          0.035
+        ],
         "reach": {
           "index": 0.3679,
           "middle": 0.3299,
@@ -1306,6 +1406,11 @@
         "spread": 0
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 1,
           "middle": 1,
@@ -1369,6 +1474,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 1.0141,
           "middle": 0.9826,
@@ -1433,6 +1543,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.028,
+          0.08,
+          0.029
+        ],
         "reach": {
           "index": 1.0141,
           "middle": 1,
@@ -1494,6 +1609,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 0.6516,
           "middle": 0.3299,
@@ -1555,6 +1675,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          0.108,
+          0.059,
+          0.021
+        ],
         "reach": {
           "index": 0.382,
           "middle": 0.3299,
@@ -1616,6 +1741,11 @@
         }
       },
       "measured": {
+        "thumbTip": [
+          -0.006,
+          0.084,
+          0.028
+        ],
         "reach": {
           "index": 1,
           "middle": 0.3299,

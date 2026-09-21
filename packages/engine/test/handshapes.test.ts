@@ -153,8 +153,22 @@ describe('U, V and R are distinguished only by finger separation', () => {
     expect(sep('V')).toBeGreaterThan(sep('U') * 2);
   });
 
-  it('R brings them closer than U (approximating a cross)', () => {
-    expect(sep('R')).toBeLessThan(sep('U'));
+  it('R crosses them rather than just narrowing the gap', () => {
+    const s = solveLetter('R');
+    const w = jointPosition(s, 'right_wrist');
+    const index = tip(s, 'index').map((v, i) => v - w[i]!);
+    const middle = tip(s, 'middle').map((v, i) => v - w[i]!);
+
+    // Natural order puts the index further toward the thumb than the middle
+    // (x = 3.0cm vs 1.0cm at the knuckles). Crossed, that order inverts.
+    expect(index[0]!).toBeLessThan(middle[0]!);
+
+    // And they must separate in depth, or they simply occupy the same space:
+    // the middle passes behind the index, so the index sits nearer the viewer.
+    expect(index[2]! - middle[2]!).toBeGreaterThan(0.01);
+
+    // Crossed fingertips finish close together, not fanned apart.
+    expect(vec3Distance(tip(s, 'index'), tip(s, 'middle'))).toBeLessThan(0.026);
   });
 
   it('all three extend exactly index and middle', () => {
@@ -253,6 +267,80 @@ describe('oriented handshapes', () => {
         expect(reach(sb, finger), `${a}/${b} ${finger}`).toBeCloseTo(reach(sa, finger), 6);
       }
     }
+  });
+});
+
+describe('M, N and T differ only in where the thumb emerges', () => {
+  /**
+   * These three are near-identical fists. What tells them apart is which gap
+   * between the knuckles the thumb tip appears in, so that is what we assert.
+   * Knuckles sit at x = 3.0, 1.0, -1.0 and -3.0cm, giving gap centres at
+   * +2.0 (index|middle), 0.0 (middle|ring) and -2.0cm (ring|little).
+   */
+  const thumbTip = (letter: string) => {
+    const s = solveLetter(letter);
+    const wrist = jointPosition(s, 'right_wrist');
+    return tip(s, 'thumb').map((v, i) => v - wrist[i]!) as number[];
+  };
+
+  it('M shows the thumb between the ring and little fingers', () => {
+    expect(thumbTip('M')[0]!).toBeGreaterThan(-0.030);
+    expect(thumbTip('M')[0]!).toBeLessThan(-0.010);
+  });
+
+  it('N shows it one gap further in, between middle and ring', () => {
+    expect(thumbTip('N')[0]!).toBeGreaterThan(-0.010);
+    expect(thumbTip('N')[0]!).toBeLessThan(0.010);
+  });
+
+  it('T shows it in the index/middle gap, above the knuckle line', () => {
+    const t = thumbTip('T');
+    expect(t[0]!).toBeGreaterThan(0.010);
+    expect(t[0]!).toBeLessThan(0.030);
+    // Visible above the knuckles rather than buried in the fist.
+    expect(t[1]!).toBeGreaterThan(0.090);
+  });
+
+  it('gives T and K the same thumb, and separates them by the fingers', () => {
+    // Both wedge the thumb between index and middle; that is not the contrast.
+    // T closes a fist around it, K leaves index and middle standing.
+    const t = thumbTip('T');
+    const k = thumbTip('K');
+    expect(Math.hypot(...t.map((v, i) => v - k[i]!))).toBeLessThan(0.008);
+    expect(reach(solveLetter('T'), 'index')).toBeLessThan(CLOSED);
+    expect(reach(solveLetter('K'), 'index')).toBeGreaterThan(EXTENDED);
+  });
+
+  it('keeps S in front of the fingers where N tucks behind them', () => {
+    // Both are fists with the thumb near the midline; depth is the difference.
+    expect(thumbTip('S')[2]!).toBeGreaterThan(thumbTip('N')[2]! + 0.012);
+  });
+
+  it('separates every fist letter thumb by at least 1.5cm', () => {
+    const fists = ['M', 'N', 'T', 'S', 'A'];
+    const tooClose: string[] = [];
+    for (let i = 0; i < fists.length; i++) {
+      for (let j = i + 1; j < fists.length; j++) {
+        const a = thumbTip(fists[i]!);
+        const b = thumbTip(fists[j]!);
+        const d = Math.hypot(...a.map((v, k) => v - b[k]!));
+        if (d < 0.015) tooClose.push(`${fists[i]}/${fists[j]} (${(d * 100).toFixed(1)}cm)`);
+      }
+    }
+    expect(tooClose).toEqual([]);
+  });
+
+  it('folds the fingers over the thumb in M and N, less tightly than a bare fist', () => {
+    // Fingers draped over a thumb cannot close as far as they do in S.
+    for (const finger of ['index', 'middle']) {
+      expect(reach(solveLetter('M'), finger), finger).toBeGreaterThan(reach(solveLetter('S'), finger));
+      expect(reach(solveLetter('M'), finger), finger).toBeLessThan(CLOSED);
+    }
+  });
+
+  it('folds three fingers in M but only two in N', () => {
+    // The ring finger is the one that changes between them.
+    expect(reach(solveLetter('M'), 'ring')).toBeGreaterThan(reach(solveLetter('N'), 'ring'));
   });
 });
 

@@ -131,7 +131,8 @@ export function App() {
           <p className="footnote">
             Placeholder mannequin, procedurally rigged to the VRM&nbsp;1.0 humanoid bone
             standard. Handshapes are hand-authored and verified geometrically, not
-            extracted from video. M, N, T and R are known approximations.
+            extracted from video. M, N and T differ only in where the thumb shows
+            through; they are the subtlest letters here.
           </p>
         </section>
       </main>

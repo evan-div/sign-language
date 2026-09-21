@@ -6,14 +6,17 @@
  * fingertip assertions in test/handshapes.test.ts -- see that file for what
  * each letter is actually checked against.
  *
- * KNOWN APPROXIMATIONS (these are the letters a Deaf reviewer should look at
- * first, and the reason Milestone 2 has a human read-back criterion):
- *   - M, N, T bury the thumb under or between curled fingers. A bone hierarchy
- *     without collision response cannot express that contact properly; the
- *     thumb is placed plausibly but does not truly tuck.
- *   - R crosses index over middle. We approximate with opposed lateral fan,
- *     which reads as "close together and leaning" rather than genuinely crossed.
- *   - K and P place the thumb between index and middle. Contact is approximate.
+ * M, N and T are distinguished almost entirely by which gap the thumb tip
+ * emerges from -- between ring and little for M, middle and ring for N, index
+ * and middle for T -- so those positions are solved against explicit targets
+ * rather than eyeballed, and asserted in the tests. R is genuinely crossed:
+ * opposed fan swaps the fingers' sides and a little knuckle flexion separates
+ * them in depth so one passes behind the other.
+ *
+ * REMAINING APPROXIMATION: there is no collision response, so fingers resting
+ * on the thumb are positioned to look right rather than actually touching, and
+ * interpolating between two handshapes can pass a finger through another. K and
+ * P place the thumb between index and middle by position only.
  */
 
 import type { HandshapeSpec, ThumbSpec } from './spec.js';
@@ -50,10 +53,26 @@ const THUMB_PINCH_MID: ThumbSpec = { metacarpal: [29, -26, 59], proximal: [23, 0
 /** Thumb tucked beneath curled fingers (E). */
 const THUMB_TUCKED: ThumbSpec = { metacarpal: [-13, -43, 60], proximal: [65, 0, 0], distal: [65, 0, 0] };
 
-/** Thumb buried under curled fingers (M, N). */
-const THUMB_DEEP: ThumbSpec = { metacarpal: [1, -31, 90], proximal: [65, 0, 0], distal: [65, 0, 0] };
+/**
+ * Thumb laid across the palm under three folded fingers, emerging between the
+ * ring and little fingers (M).
+ */
+const THUMB_UNDER_THREE: ThumbSpec = { metacarpal: [3, -28, 107], proximal: [60, 0, 0], distal: [60, 0, 0] };
 
-/** Thumb wedged between two fingers (K, T). */
+/**
+ * The same, under two folded fingers, so it emerges one gap further in --
+ * between the middle and ring fingers (N). The gap the tip appears in is what
+ * distinguishes M from N; the folded fingers look nearly alike either way.
+ */
+const THUMB_UNDER_TWO: ThumbSpec = { metacarpal: [0, -32, 88], proximal: [60, 0, 0], distal: [60, 0, 0] };
+
+
+/**
+ * Thumb wedged between the index and middle fingers, tip showing above the
+ * knuckle line (K and T). The two letters genuinely share this thumb position;
+ * what separates them is the fingers -- T folds them into a fist around it,
+ * K leaves index and middle extended.
+ */
 const THUMB_BETWEEN: ThumbSpec = { metacarpal: [-3, -18, 54], proximal: [11, 0, 0], distal: [39, 0, 0] };
 
 /** Thumb laid over a folded pinky (W). */
@@ -132,14 +151,14 @@ export const ASL_LETTERS: Readonly<Record<string, HandshapeSpec>> = Object.freez
     index: OPEN, middle: CLOSED, ring: CLOSED, pinky: CLOSED, thumb: THUMB_OUT,
   },
   M: {
-    id: 'M', description: 'Three fingers folded over a buried thumb.',
-    index: { flex: [0.9, 0.75, 0.4] }, middle: { flex: [0.9, 0.75, 0.4] },
-    ring: { flex: [0.9, 0.75, 0.4] }, pinky: CLOSED, thumb: THUMB_DEEP,
+    id: 'M', description: 'Three fingers folded over the thumb; tip shows between ring and little.',
+    index: { flex: [0.92, 0.78, 0.4] }, middle: { flex: [0.92, 0.78, 0.4] },
+    ring: { flex: [0.92, 0.78, 0.4] }, pinky: CLOSED, thumb: THUMB_UNDER_THREE,
   },
   N: {
-    id: 'N', description: 'Two fingers folded over a buried thumb.',
-    index: { flex: [0.9, 0.75, 0.4] }, middle: { flex: [0.9, 0.75, 0.4] },
-    ring: CLOSED, pinky: CLOSED, thumb: THUMB_DEEP,
+    id: 'N', description: 'Two fingers folded over the thumb; tip shows between middle and ring.',
+    index: { flex: [0.92, 0.78, 0.4] }, middle: { flex: [0.92, 0.78, 0.4] },
+    ring: CLOSED, pinky: CLOSED, thumb: THUMB_UNDER_TWO,
   },
   O: {
     id: 'O', description: 'Fingertips and thumb meeting in a circle.',
@@ -158,8 +177,13 @@ export const ASL_LETTERS: Readonly<Record<string, HandshapeSpec>> = Object.freez
     thumb: THUMB_PARALLEL, wrist: WRIST_DOWNWARD,
   },
   R: {
-    id: 'R', description: 'Index and middle crossed (approximated by opposed fan).',
-    index: { flex: [0.05, 0.05, 0], spread: -0.55 }, middle: { flex: [0.05, 0.05, 0], spread: 0.55 },
+    id: 'R', description: 'Index and middle crossed, middle passing behind the index.',
+    // Opposed fan swaps the two fingers' sides; the extra knuckle flexion on the
+    // index carries it forward off the middle finger's plane, so the pair reads
+    // as crossed rather than merely overlapping.
+    // A little flexion on the middle finger too, so the two tips finish at
+    // similar heights instead of the middle standing a knuckle proud.
+    index: { flex: [0.18, 0.05, 0], spread: -0.55 }, middle: { flex: [0, 0.16, 0], spread: 0.55 },
     ring: CLOSED, pinky: CLOSED, thumb: THUMB_ACROSS,
   },
   S: {
@@ -167,7 +191,7 @@ export const ASL_LETTERS: Readonly<Record<string, HandshapeSpec>> = Object.freez
     index: CLOSED, middle: CLOSED, ring: CLOSED, pinky: CLOSED, thumb: THUMB_FRONT,
   },
   T: {
-    id: 'T', description: 'Fist with the thumb wedged between index and middle.',
+    id: 'T', description: 'Fist closed around a thumb wedged between index and middle.',
     index: { flex: [0.95, 0.9, 0.5] }, middle: CLOSED, ring: CLOSED, pinky: CLOSED,
     thumb: THUMB_BETWEEN,
   },

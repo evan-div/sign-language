@@ -83,16 +83,36 @@ parameterisation that would be subtly wrong, thumb joint rotations are stated
 as explicit Euler angles, solved numerically against target fingertip positions
 and then verified by assertion.
 
-## Known approximations
+## The fist letters, and R
 
-- **M, N, T** bury the thumb under or between curled fingers. A bone hierarchy
-  with no collision response cannot express that contact; the thumb is placed
-  plausibly but does not truly tuck.
-- **R** crosses index over middle, approximated by opposed lateral fan. It
-  reads as "close together and leaning" rather than genuinely crossed.
-- **K, P** place the thumb between index and middle; contact is approximate.
-- Interpolating between two letter handshapes can drive fingers through each
-  other. Real systems use collision avoidance; we do not yet.
+M, N and T are the same fist three times over. What separates them is which
+gap between the knuckles the thumb tip appears in: between ring and little for
+M, middle and ring for N, index and middle for T. Those targets are solved
+numerically and asserted, because a thumb "buried in the fist" is not a
+specification — the emergence point is the whole letter.
+
+T and K share a thumb position, and that is correct rather than a shortcut:
+both wedge the thumb between index and middle. The contrast is in the fingers,
+where T closes a fist around it and K leaves index and middle standing.
+
+R needs two fingers genuinely crossed. Opposed lateral fan swaps which side of
+the hand each finger occupies, but that alone leaves them in the same plane,
+overlapping rather than crossed. A little extra knuckle flexion on the index
+carries it forward off the middle finger's plane, so the middle passes behind
+it. The tests assert all three properties — swapped order, depth separation,
+and tips still close together — because any one alone can be satisfied by a
+handshape that does not read as R.
+
+## Remaining approximations
+
+- **No collision response.** Fingers resting on the thumb are positioned to
+  look right rather than actually touching, and interpolating between two
+  handshapes can drive a finger through another. Real systems use collision
+  avoidance; we do not yet.
+- **K and P** place the thumb between index and middle by position only.
+- The mannequin's finger segments are thick capsules, which under-resolves the
+  M/N/T thumb cue. A properly modelled hand would show it more clearly than
+  this placeholder can.
 
 ## What the tests can and cannot prove
 

@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   JOINTS, JOINT_COUNT, SKELETON_VERSION, TIP_SITES, CANONICAL_TO_VRM,
-  solveFK, tipPosition, jointPosition, vec3Distance,
+  solveFK, tipPosition, jointPosition, vec3Distance, vec3Sub,
 } from '../packages/motion-format/src/index.js';
 import { ASL_LETTERS, MOVING_LETTERS } from '../packages/engine/src/handshapes/letters.js';
 import { compileHandshape } from '../packages/engine/src/handshapes/compile.js';
@@ -53,7 +53,14 @@ function measure(letter: string) {
   const wrist = jointPosition(solved, 'right_wrist');
   const bind = solveFK({});
   const fingers = ['index', 'middle', 'ring', 'pinky'] as const;
+  const round3 = (v: number) => Number(v.toFixed(3));
   return {
+    /**
+     * Thumb tip relative to the wrist, in metres. This is the distinguishing
+     * feature for the fist letters: M, N and T are the same closed hand, and
+     * only the gap the thumb emerges from tells them apart.
+     */
+    thumbTip: vec3Sub(tipPosition(solved, 'right_thumb_tip'), wrist).map(round3),
     reach: Object.fromEntries(fingers.map((f) => [
       f,
       Number((vec3Distance(tipPosition(solved, `right_${f}_tip`), wrist) /
