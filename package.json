@@ -10,7 +10,8 @@
     "typecheck": "tsc -p packages/motion-format --noEmit && tsc -p packages/engine --noEmit && tsc -p packages/renderer-three --noEmit && tsc -p apps/web --noEmit",
     "handshapes:report": "tsx tools/handshape-report.ts",
     "export:data": "tsx tools/export-data.ts",
-    "screenshot": "node tools/screenshot.mjs"
+    "screenshot": "node tools/screenshot.mjs",
+    "solve:locations": "tsx tools/solve-locations.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

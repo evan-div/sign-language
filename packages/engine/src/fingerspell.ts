@@ -53,8 +53,10 @@ const DEFAULTS = {
   holdMs: 90,
   transitionMs: 115,
   doubleLetterMs: 75,
-  leadInMs: 280,
-  tailMs: 320,
+  // Raising the hand from rest to spelling position covers roughly 40cm; doing
+  // it much faster than this reads as a snap rather than a lift.
+  leadInMs: 460,
+  tailMs: 460,
   hand: 'right' as Hand,
   speed: 1,
 };
@@ -136,7 +138,7 @@ export function planFingerspell(word: string, options: FingerspellOptions = {}):
 }
 
 /** The static pose for one letter, layered onto the spelling posture. */
-function letterPose(letter: string, hand: Hand): Pose {
+export function letterPose(letter: string, hand: Hand): Pose {
   const spec = letterSpec(letter);
   if (!spec) return SPELLING_POSTURE;
   return applyHandshape(SPELLING_POSTURE, compileHandshape(spec, hand), hand);
@@ -206,19 +208,33 @@ export function sampleFingerspell(plan: FingerspellPlan, timeMs: number): Pose {
 
   const first = segments[0]!;
   const last = segments[segments.length - 1]!;
-  const progress = plan.durationMs > 0 ? timeMs / plan.durationMs : 0;
 
-  // Raising the hand from rest.
+  // Progress across the spelled word itself, not across the clip. Measuring it
+  // over the whole clip would make the drift non-zero at the first hold and
+  // still moving at the last, so the shoulder would jump at both boundaries
+  // where the edge cases below take over.
+  const spellSpan = Math.max(last.holdEndMs - first.holdStartMs, 1);
+  const progress = Math.min(1, Math.max(0, (timeMs - first.holdStartMs) / spellSpan));
+
+  // The drift has to be applied on these edges too, at the progress value the
+  // in-hold path would use. Leaving it off makes the shoulder snap back by a few
+  // degrees at the exact frame the first or last hold begins or ends.
+  const firstPose = withShoulder(letterPose(first.letter, hand), hand, driftRotation(0, hand));
+  const lastPose = withShoulder(letterPose(last.letter, hand), hand, driftRotation(1, hand));
+
+  // Raising the hand from rest. With no lead-in the plan is embedded inside a
+  // sentence, where the sequencer owns the approach, so we hold the first
+  // letter instead of inventing a rise from rest that would fight it.
   if (timeMs < first.holdStartMs) {
-    const t = ease(timeMs / Math.max(first.holdStartMs, 1));
-    return blendPoses(REST_POSTURE, letterPose(first.letter, hand), t);
+    if (first.holdStartMs <= 0) return firstPose;
+    return blendPoses(REST_POSTURE, firstPose, ease(timeMs / first.holdStartMs));
   }
 
-  // Lowering it again.
+  // Lowering it again, unless the sequencer owns the release too.
   if (timeMs >= last.holdEndMs) {
-    const span = Math.max(plan.durationMs - last.holdEndMs, 1);
-    const t = ease((timeMs - last.holdEndMs) / span);
-    return blendPoses(letterPose(last.letter, hand), REST_POSTURE, t);
+    if (plan.durationMs <= last.holdEndMs) return lastPose;
+    const t = ease((timeMs - last.holdEndMs) / (plan.durationMs - last.holdEndMs));
+    return blendPoses(lastPose, REST_POSTURE, t);
   }
 
   for (let i = 0; i < segments.length; i++) {
