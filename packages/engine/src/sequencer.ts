@@ -36,6 +36,11 @@ export interface SequenceOptions {
   readonly tailMs?: number;
   readonly speed?: number;
   readonly hand?: Hand;
+  /**
+   * A deliberate pause held at rest after the hands are down, distinct from the
+   * time it takes to lower them. Sentence-final punctuation sets this.
+   */
+  readonly endPauseMs?: number;
 }
 
 const DEFAULTS = {
@@ -44,6 +49,7 @@ const DEFAULTS = {
   tailMs: 380,
   speed: 1,
   hand: 'right' as Hand,
+  endPauseMs: 0,
 };
 
 /** Extra travel time per metre the hands have to cover. */
@@ -89,6 +95,8 @@ export interface SequencedSegment {
 export interface Sequence {
   readonly segments: readonly SequencedSegment[];
   readonly durationMs: number;
+  /** How long the hands take to come back down, excluding any end pause. */
+  readonly tailTravelMs: number;
   readonly options: Required<SequenceOptions>;
 }
 
@@ -136,6 +144,7 @@ export function sequence(items: readonly SequenceItem[], options: SequenceOption
     transitionMs: requested.transitionMs / Math.pow(speed, 0.6),
     leadInMs: requested.leadInMs / speed,
     tailMs: requested.tailMs / speed,
+    endPauseMs: requested.endPauseMs / speed,
   };
 
   // Build the items first, then lay them out: gap lengths depend on how far the
@@ -202,16 +211,17 @@ export function sequence(items: readonly SequenceItem[], options: SequenceOption
     });
   });
 
-  const tailMs = drafts.length === 0
+  const tailTravelMs = drafts.length === 0
     ? 0
     : transitionFor(edgePose(drafts[drafts.length - 1]!, 1), REST_POSTURE, opts.tailMs * speed, speed);
-  cursor += tailMs;
+  cursor += tailTravelMs + (drafts.length === 0 ? 0 : opts.endPauseMs);
 
   return {
     prepared,
     sequence: {
       segments: prepared.map((p) => p.segment),
       durationMs: items.length === 0 ? 0 : cursor,
+      tailTravelMs,
       options: opts,
     },
   };
@@ -266,9 +276,10 @@ export function samplePrepared(
     return arcBias(blendPoses(REST_POSTURE, poseWithin(first, 0, speed), t), Math.sin(t * Math.PI) * 0.6);
   }
 
-  // Lowering them after the last.
+  // Lowering them after the last. The end pause is held at rest afterwards, so
+  // it must not stretch the descent.
   if (timeMs >= last.segment.strokeEndMs) {
-    const span = Math.max(seq.durationMs - last.segment.strokeEndMs, 1);
+    const span = Math.max(seq.tailTravelMs, 1);
     const t = ease((timeMs - last.segment.strokeEndMs) / span);
     return arcBias(blendPoses(poseWithin(last, 1, speed), REST_POSTURE, t), Math.sin(t * Math.PI) * 0.5);
   }

@@ -1,0 +1,958 @@
+{
+  "skeletonVersion": "sfcs-1.0.0",
+  "warning": "PLACEHOLDER VOCABULARY. Authored from written descriptions by someone who is not a fluent signer and reviewed by no Deaf signer. Every entry is marked unvalidated. Replace before any of this is presented as ASL.",
+  "signs": {
+    "HELLO": {
+      "id": "HELLO",
+      "gloss": "HELLO",
+      "description": "Flat hand at the temple, moving out and away in a salute.",
+      "durationMs": 640,
+      "strokeStartMs": 120,
+      "strokeEndMs": 520,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT",
+          "orientation": "ANGLED_OUT"
+        },
+        {
+          "atMs": 180,
+          "location": "TEMPLE",
+          "handshape": "FLAT",
+          "orientation": "ANGLED_OUT"
+        },
+        {
+          "atMs": 300,
+          "location": "TEMPLE",
+          "handshape": "FLAT",
+          "orientation": "ANGLED_OUT"
+        },
+        {
+          "atMs": 560,
+          "location": "OUT_HIGH",
+          "handshape": "FLAT",
+          "orientation": "ANGLED_OUT"
+        },
+        {
+          "atMs": 640,
+          "location": "OUT_HIGH",
+          "handshape": "FLAT",
+          "orientation": "ANGLED_OUT"
+        }
+      ]
+    },
+    "MY": {
+      "id": "MY",
+      "gloss": "MY",
+      "description": "Flat hand laid against the chest, palm inward.",
+      "durationMs": 560,
+      "strokeStartMs": 100,
+      "strokeEndMs": 470,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 300,
+          "location": "CHEST",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 560,
+          "location": "CHEST",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        }
+      ]
+    },
+    "NAME": {
+      "id": "NAME",
+      "gloss": "NAME",
+      "description": "Two H hands; the dominant taps twice across the non-dominant.",
+      "durationMs": 720,
+      "strokeStartMs": 120,
+      "strokeEndMs": 640,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "H",
+          "orientation": "FINGERS_ACROSS_DOWN"
+        },
+        {
+          "atMs": 180,
+          "location": "CENTRE_MID",
+          "handshape": "H",
+          "orientation": "FINGERS_ACROSS_DOWN"
+        },
+        {
+          "atMs": 300,
+          "location": "CENTRE_LOW",
+          "handshape": "H",
+          "orientation": "FINGERS_ACROSS_DOWN"
+        },
+        {
+          "atMs": 420,
+          "location": "CENTRE_MID",
+          "handshape": "H",
+          "orientation": "FINGERS_ACROSS_DOWN"
+        },
+        {
+          "atMs": 540,
+          "location": "CENTRE_LOW",
+          "handshape": "H",
+          "orientation": "FINGERS_ACROSS_DOWN"
+        },
+        {
+          "atMs": 720,
+          "location": "CENTRE_LOW",
+          "handshape": "H",
+          "orientation": "FINGERS_ACROSS_DOWN"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "CENTRE_LOW",
+          "handshape": "H",
+          "orientation": "FINGERS_FORWARD"
+        },
+        {
+          "atMs": 720,
+          "location": "CENTRE_LOW",
+          "handshape": "H",
+          "orientation": "FINGERS_FORWARD"
+        }
+      ]
+    },
+    "THANK-YOU": {
+      "id": "THANK-YOU",
+      "gloss": "THANK-YOU",
+      "description": "Flat hand from the chin, moving forward and down.",
+      "durationMs": 620,
+      "strokeStartMs": 100,
+      "strokeEndMs": 540,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 200,
+          "location": "MOUTH",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 320,
+          "location": "MOUTH",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 560,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        }
+      ]
+    },
+    "YOU": {
+      "id": "YOU",
+      "gloss": "YOU",
+      "description": "Index finger pointing forward at the addressee.",
+      "durationMs": 440,
+      "strokeStartMs": 90,
+      "strokeEndMs": 380,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "POINT",
+          "orientation": "FINGERS_FORWARD"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "FINGERS_FORWARD"
+        },
+        {
+          "atMs": 440,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "FINGERS_FORWARD"
+        }
+      ]
+    },
+    "ME": {
+      "id": "ME",
+      "gloss": "ME",
+      "description": "Index finger pointing at the signer’s own chest.",
+      "durationMs": 440,
+      "strokeStartMs": 90,
+      "strokeEndMs": 380,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 240,
+          "location": "CHEST",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 440,
+          "location": "CHEST",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        }
+      ]
+    },
+    "YOUR": {
+      "id": "YOUR",
+      "gloss": "YOUR",
+      "description": "Flat hand pushed forward, palm toward the addressee.",
+      "durationMs": 460,
+      "strokeStartMs": 90,
+      "strokeEndMs": 400,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 260,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 460,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT",
+          "orientation": "PALM_OUT"
+        }
+      ]
+    },
+    "WHAT": {
+      "id": "WHAT",
+      "gloss": "WHAT",
+      "description": "Both hands open and palms up, shaken slightly.",
+      "durationMs": 640,
+      "strokeStartMs": 110,
+      "strokeEndMs": 580,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 220,
+          "location": "SIDE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 540,
+          "location": "SIDE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 640,
+          "location": "SIDE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 220,
+          "location": "SIDE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 540,
+          "location": "SIDE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 640,
+          "location": "SIDE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_UP"
+        }
+      ]
+    },
+    "YES": {
+      "id": "YES",
+      "gloss": "YES",
+      "description": "Fist nodding at the wrist.",
+      "durationMs": 520,
+      "strokeStartMs": 90,
+      "strokeEndMs": 460,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "S",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 160,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "S",
+          "orientation": "ANGLED_DOWN"
+        },
+        {
+          "atMs": 300,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "S",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 440,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "S",
+          "orientation": "ANGLED_DOWN"
+        },
+        {
+          "atMs": 520,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "S",
+          "orientation": "ANGLED_DOWN"
+        }
+      ]
+    },
+    "NO": {
+      "id": "NO",
+      "gloss": "NO",
+      "description": "Index and middle finger closing onto the thumb.",
+      "durationMs": 460,
+      "strokeStartMs": 80,
+      "strokeEndMs": 400,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "U",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 260,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT_O",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 460,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT_O",
+          "orientation": "PALM_OUT"
+        }
+      ]
+    },
+    "PLEASE": {
+      "id": "PLEASE",
+      "gloss": "PLEASE",
+      "description": "Flat hand circling on the chest.",
+      "durationMs": 700,
+      "strokeStartMs": 110,
+      "strokeEndMs": 640,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 200,
+          "location": "CHEST",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 360,
+          "location": "CENTRE_MID",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 520,
+          "location": "CHEST",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 700,
+          "location": "CHEST",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        }
+      ]
+    },
+    "SORRY": {
+      "id": "SORRY",
+      "gloss": "SORRY",
+      "description": "Fist circling on the chest.",
+      "durationMs": 700,
+      "strokeStartMs": 110,
+      "strokeEndMs": 640,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "A",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 200,
+          "location": "CHEST",
+          "handshape": "A",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 360,
+          "location": "CENTRE_MID",
+          "handshape": "A",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 520,
+          "location": "CHEST",
+          "handshape": "A",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 700,
+          "location": "CHEST",
+          "handshape": "A",
+          "orientation": "PALM_IN"
+        }
+      ]
+    },
+    "GOOD": {
+      "id": "GOOD",
+      "gloss": "GOOD",
+      "description": "Flat hand from the chin, lowered forward onto the other palm.",
+      "durationMs": 600,
+      "strokeStartMs": 100,
+      "strokeEndMs": 540,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 200,
+          "location": "MOUTH",
+          "handshape": "FLAT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 460,
+          "location": "CENTRE_MID",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 600,
+          "location": "CENTRE_MID",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "CENTRE_LOW",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 600,
+          "location": "CENTRE_LOW",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        }
+      ]
+    },
+    "LOVE": {
+      "id": "LOVE",
+      "gloss": "LOVE",
+      "description": "Both fists crossed over the chest.",
+      "durationMs": 620,
+      "strokeStartMs": 110,
+      "strokeEndMs": 560,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "S",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 300,
+          "location": "CHEST",
+          "handshape": "S",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 620,
+          "location": "CHEST",
+          "handshape": "S",
+          "orientation": "PALM_IN"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "S",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 300,
+          "location": "CENTRE_MID",
+          "handshape": "S",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 620,
+          "location": "CENTRE_MID",
+          "handshape": "S",
+          "orientation": "PALM_IN"
+        }
+      ]
+    },
+    "LEARN": {
+      "id": "LEARN",
+      "gloss": "LEARN",
+      "description": "Dominant hand lifts from the other palm to the forehead.",
+      "durationMs": 700,
+      "strokeStartMs": 110,
+      "strokeEndMs": 640,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_DOWN"
+        },
+        {
+          "atMs": 220,
+          "location": "CENTRE_MID",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_DOWN"
+        },
+        {
+          "atMs": 380,
+          "location": "CENTRE_MID",
+          "handshape": "FLAT_O",
+          "orientation": "PALM_DOWN"
+        },
+        {
+          "atMs": 620,
+          "location": "FOREHEAD",
+          "handshape": "FLAT_O",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 700,
+          "location": "FOREHEAD",
+          "handshape": "FLAT_O",
+          "orientation": "PALM_IN"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "CENTRE_LOW",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 700,
+          "location": "CENTRE_LOW",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        }
+      ]
+    },
+    "DEAF": {
+      "id": "DEAF",
+      "gloss": "DEAF",
+      "description": "Index finger touching near the ear, then near the mouth.",
+      "durationMs": 640,
+      "strokeStartMs": 110,
+      "strokeEndMs": 580,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 240,
+          "location": "EAR",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 520,
+          "location": "MOUTH",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 640,
+          "location": "MOUTH",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        }
+      ]
+    },
+    "HELP": {
+      "id": "HELP",
+      "gloss": "HELP",
+      "description": "Dominant fist resting on the open non-dominant palm, both lifting.",
+      "durationMs": 620,
+      "strokeStartMs": 110,
+      "strokeEndMs": 560,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "A",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 260,
+          "location": "CENTRE_MID",
+          "handshape": "A",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 520,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "A",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "A",
+          "orientation": "PALM_ACROSS"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "CENTRE_LOW",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 260,
+          "location": "CENTRE_LOW",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 520,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL",
+          "handshape": "FLAT",
+          "orientation": "PALM_UP"
+        }
+      ]
+    },
+    "SIGN": {
+      "id": "SIGN",
+      "gloss": "SIGN",
+      "description": "Both index fingers circling alternately in front of the body.",
+      "durationMs": 720,
+      "strokeStartMs": 120,
+      "strokeEndMs": 660,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 480,
+          "location": "NEUTRAL",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 720,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 480,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 720,
+          "location": "NEUTRAL",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        }
+      ]
+    },
+    "RIGHT_CORRECT": {
+      "id": "RIGHT_CORRECT",
+      "gloss": "RIGHT",
+      "description": "Dominant index hand brought down onto the non-dominant index hand.",
+      "durationMs": 560,
+      "strokeStartMs": 100,
+      "strokeEndMs": 500,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 300,
+          "location": "CENTRE_MID",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 560,
+          "location": "CENTRE_MID",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        }
+      ],
+      "nonDominant": [
+        {
+          "atMs": 0,
+          "location": "CENTRE_LOW",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        },
+        {
+          "atMs": 560,
+          "location": "CENTRE_LOW",
+          "handshape": "POINT",
+          "orientation": "PALM_ACROSS"
+        }
+      ]
+    },
+    "RIGHT_DIRECTION": {
+      "id": "RIGHT_DIRECTION",
+      "gloss": "RIGHT(direction)",
+      "description": "R handshape moving toward the dominant side.",
+      "durationMs": 520,
+      "strokeStartMs": 90,
+      "strokeEndMs": 470,
+      "provenance": {
+        "source": "hand-authored",
+        "validation": "unvalidated",
+        "note": "Authored from written descriptions; not reviewed by a Deaf signer."
+      },
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL",
+          "handshape": "R",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 160,
+          "location": "NEUTRAL",
+          "handshape": "R",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 440,
+          "location": "SIDE_MID",
+          "handshape": "R",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 520,
+          "location": "SIDE_MID",
+          "handshape": "R",
+          "orientation": "PALM_OUT"
+        }
+      ]
+    }
+  }
+}

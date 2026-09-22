@@ -119,3 +119,79 @@ handshape that does not read as R.
 The geometric assertions prove a handshape has the right measurements. They
 cannot prove it is legible. That gap is why Milestone 2's completion criterion
 is a human read-back, and why `tools/screenshot.mjs` exists.
+
+## Locations instead of inverse kinematics
+
+There is no IK, so "put the hand at the chin" cannot be asked for directly.
+Instead fourteen named places in signing space are solved numerically once, by
+`tools/solve-locations.ts`, and committed as generated constants. The cost
+function balances hitting the target against keeping rotations modest and the
+elbow below the wrist and outside the torso — without those last terms the
+solver returns contortions that reach the point and read as a broken arm.
+
+Each location carries a wrist correction that leaves the hand palm-out and
+fingers-up wherever the arm put it. That is what lets a sign's orientation be a
+delta which means the same thing at every location.
+
+## Signs are handshape, location, orientation over time
+
+That decomposition is not arbitrary: it is what ASL phonology describes signs
+with, which is what later lets these entries carry ASL-LEX metadata and act as
+the prior for extracted motion.
+
+Two consequences worth stating:
+
+- **A handshape contributes fingers only.** Letters G, H, P and Q carry a wrist
+  rotation as part of being that letter, which is a fingerspelling concern.
+  Borrowing H's fingers for NAME must not borrow the angle the letter H is held
+  at, so sign compilation drops the handshape's own wrist.
+- **Orientations are named by their two directions**, not by Euler angles.
+  Euler triples hide their own mistakes — an orientation called PALM_UP can
+  face the palm up and still leave the fingers pointing back at the signer, and
+  nothing in the numbers says so. Stated as "fingers here, palm there", the name
+  and the behaviour are the same thing, and a test can check them against each
+  other. That test immediately caught seven orientations that were silently
+  transposed.
+
+## Why transitions scale with distance
+
+The sequencer trims every clip to its stroke and generates the travel between
+signs itself, because concatenating whole clips plays one sign's release
+straight into the next sign's approach.
+
+A fixed transition then fails as soon as distances vary. A one-handed sign
+followed by a two-handed one has to bring the non-dominant hand roughly 40cm up
+from rest; at the same duration as a 5cm adjustment that moved the wrist 24mm
+per frame, a visible snap. Transition length is now a function of how far the
+hands actually travel, which removes the whole class.
+
+The end pause after a sentence is deliberately *not* a transition. Folding it
+into the tail made punctuation silently ineffective, because the tail is
+clamped like any other travel; the pause is now held at rest after the hands
+are down.
+
+## The plan is the contract
+
+`ASLPlan` is the one structure the interface reads. Highlighting, click-to-replay,
+the gloss line and the notices all come off it, which is why each segment carries
+character offsets back into the original sentence: after dropping words and
+moving the question word to the end, sign order no longer matches English order,
+and only the spans still tie the two together.
+
+Non-manual markers live beside the segments rather than on them, because they
+are suprasegmental — a question's brow raise covers the whole clause, not one
+sign. Today only head movement is rendered; brow raise and furrow are carried in
+the data and stood in for by head tilt, because the placeholder mannequin has no
+face. That is a rendering gap, not a data gap, and it is the right way round: a
+face track cannot be retrofitted onto a format that assumed hands only.
+
+## Translation is rules, on purpose
+
+English-to-ASL machine translation is not solved. A system that quietly produces
+confident nonsense is worse than one whose limits are legible, so every step
+here is a stated rule that can be pointed at and argued with, and every departure
+from the input comes back as a notice the interface shows.
+
+The resolver never guesses across a meaning boundary. A lemma with more than one
+sense stops and asks; the sentence still plays so it is not a dead end, but the
+choice is visibly not ours to have made.

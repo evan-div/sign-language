@@ -65,6 +65,36 @@ describe('orientations', () => {
     };
   };
 
+  it('points the hand where each orientation says it does', () => {
+    // The point of naming orientations by their two directions is that the name
+    // and the behaviour can be checked against each other. Stated as Euler
+    // angles they could not be: an orientation called PALM_UP can face the palm
+    // up and still leave the fingers pointing back at the signer.
+    const mismatched: string[] = [];
+    for (const [name, spec] of Object.entries(ORIENTATIONS)) {
+      const solved = solveFK(probe('NEUTRAL', name as never));
+      const fingersOff = angleBetween(fingerDirection(solved, 'right'), spec.fingers as Vec3);
+      const palmOff = angleBetween(palmNormal(solved, 'right'), spec.palm as Vec3);
+      if (fingersOff > 5 || palmOff > 10) {
+        mismatched.push(`${name} (fingers ${fingersOff.toFixed(0)}deg, palm ${palmOff.toFixed(0)}deg off)`);
+      }
+    }
+    expect(mismatched).toEqual([]);
+  });
+
+  it('mirrors "across the body" to mean the midline on either hand', () => {
+    const across = compileSign({
+      id: 'm', gloss: 'm', description: 'm', durationMs: 1, strokeStartMs: 0, strokeEndMs: 1,
+      dominant: [{ atMs: 0, location: 'NEUTRAL', handshape: 'FLAT', orientation: 'FINGERS_ACROSS' }],
+      nonDominant: [{ atMs: 0, location: 'NEUTRAL', handshape: 'FLAT', orientation: 'FINGERS_ACROSS' }],
+      provenance: { source: 'hand-authored', validation: 'unvalidated' },
+    }).keyframes[0]!.pose;
+    const solved = solveFK(across);
+    // The right hand points toward +X and the left toward -X: both inward.
+    expect(fingerDirection(solved, 'right')[0]).toBeGreaterThan(0.9);
+    expect(fingerDirection(solved, 'left')[0]).toBeLessThan(-0.9);
+  });
+
   it('turns the hand somewhere different for each named orientation', () => {
     // Compared as directions, not tip positions: ANGLED_OUT is deliberately a
     // near neighbour of PALM_OUT, and a few centimetres of tip travel says
@@ -88,6 +118,25 @@ describe('orientations', () => {
     for (const o of Object.keys(ORIENTATIONS)) {
       expect(vec3Distance(oriented(o as never).wrist, reference), o).toBeLessThan(1e-9);
     }
+  });
+});
+
+describe('handshape and orientation are separate concerns', () => {
+  it('does not let a letter\u2019s own wrist angle leak into a sign', () => {
+    // H, G, P and Q carry a wrist rotation as part of being that letter, which
+    // is a fingerspelling concern. Borrowing H's fingers for NAME must not also
+    // borrow the angle the letter H is held at.
+    const withH = solveFK(probe('NEUTRAL', 'PALM_OUT'));
+    const hSign = compileSign({
+      id: 'h', gloss: 'h', description: 'h', durationMs: 1, strokeStartMs: 0, strokeEndMs: 1,
+      dominant: [{ atMs: 0, location: 'NEUTRAL', handshape: 'H', orientation: 'PALM_OUT' }],
+      provenance: { source: 'hand-authored', validation: 'unvalidated' },
+    }).keyframes[0]!.pose;
+    const hSolved = solveFK(hSign);
+    // Same orientation asked for, so the same orientation achieved, whichever
+    // handshape supplied the fingers.
+    expect(angleBetween(fingerDirection(hSolved, 'right'), fingerDirection(withH, 'right'))).toBeLessThan(1);
+    expect(angleBetween(palmNormal(hSolved, 'right'), palmNormal(withH, 'right'))).toBeLessThan(1);
   });
 });
 
@@ -137,6 +186,20 @@ describe('the sign library', () => {
       const leftY = jointPosition(solveFK(middle.pose), 'left_wrist')[1];
       if (isTwoHanded(SIGNS[id]!)) expect(leftY, `${id} (two-handed)`).toBeGreaterThan(REST_LEFT_Y + 0.05);
       else expect(leftY, `${id} (one-handed)`).toBeCloseTo(REST_LEFT_Y, 6);
+    }
+  });
+
+  it('keeps the two hands from occupying the same space', () => {
+    for (const id of SIGN_IDS) {
+      const sign = SIGNS[id]!;
+      if (!isTwoHanded(sign)) continue;
+      const clip = compileSign(sign);
+      for (const frame of clip.keyframes) {
+        const solved = solveFK(frame.pose);
+        const apart = vec3Distance(
+          jointPosition(solved, 'right_wrist'), jointPosition(solved, 'left_wrist'));
+        expect(apart, `${id} @${frame.timeMs}ms`).toBeGreaterThan(0.07);
+      }
     }
   });
 

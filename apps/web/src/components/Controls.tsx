@@ -7,13 +7,15 @@ interface ControlsProps {
   onSeek: (normalized: number) => void;
   onSpeed: (speed: number) => void;
   onResetCamera: () => void;
+  showGloss: boolean;
+  onToggleGloss: () => void;
 }
 
 const SPEEDS = [0.5, 0.75, 1, 1.5, 2];
 
 export function Controls({
-  playing, timeMs, durationMs, speed,
-  onTogglePlay, onSeek, onSpeed, onResetCamera,
+  playing, timeMs, durationMs, speed, showGloss,
+  onTogglePlay, onSeek, onSpeed, onToggleGloss, onResetCamera,
 }: ControlsProps) {
   const progress = durationMs > 0 ? timeMs / durationMs : 0;
   const disabled = durationMs === 0;
@@ -65,6 +67,15 @@ export function Controls({
           </button>
         ))}
       </div>
+
+      <button
+        type="button"
+        className={`ghost${showGloss ? ' ghost--active' : ''}`}
+        onClick={onToggleGloss}
+        aria-pressed={showGloss}
+      >
+        Gloss
+      </button>
 
       <button type="button" className="ghost" onClick={onResetCamera}>
         Reset view

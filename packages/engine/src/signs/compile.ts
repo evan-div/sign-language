@@ -9,7 +9,7 @@
  */
 
 import {
-  blendPoses, composePoses, quatFromEulerDeg, quatMultiply, IDENTITY,
+  blendPoses, composePoses, quatFromEulerDeg, quatMultiply,
   type MotionClip, type Keyframe, type Pose, type Quat,
 } from '@signflow/motion-format';
 import { compileHandshape } from '../handshapes/compile.js';
@@ -18,7 +18,7 @@ import { signHandshape } from '../handshapes/sign-shapes.js';
 import { REST_POSTURE } from '../postures.js';
 import type { Hand } from '../handshapes/spec.js';
 import { SOLVED_LOCATIONS } from './locations.generated.js';
-import { ORIENTATIONS } from './orientation.js';
+import { orientationQuat } from './orientation.js';
 import { isTwoHanded, type SignDefinition, type SignKeyframe } from './definition.js';
 
 /** Mirror a rotation across the body's sagittal plane. */
@@ -41,20 +41,27 @@ function resolveHandshape(id: string) {
  */
 export function keyframePose(keyframe: SignKeyframe, hand: Hand): Pose {
   const location = SOLVED_LOCATIONS[keyframe.location];
-  const orientation = ORIENTATIONS[keyframe.orientation ?? 'PALM_OUT'];
 
   const euler = (v: readonly [number, number, number]) => quatFromEulerDeg(v[0], v[1], v[2]);
   const shoulder = euler(location.shoulder);
   const elbow = euler(location.elbow);
-  const wrist = quatMultiply(location.wristCorrection as Quat, euler(orientation));
+  const wrist = quatMultiply(
+    location.wristCorrection as Quat,
+    orientationQuat(keyframe.orientation ?? 'PALM_OUT'),
+  );
 
-  const handshape = compileHandshape(resolveHandshape(keyframe.handshape), hand);
-  const handshapeWrist = handshape[`${hand}_wrist`] ?? IDENTITY;
-  const composedWrist = quatMultiply(wrist, handshapeWrist);
+  // A handshape contributes fingers only. Letters G, H, P and Q carry a wrist
+  // rotation as part of being that letter, which is a fingerspelling concern:
+  // borrowing H's finger configuration for NAME must not also borrow the angle
+  // the letter H is held at. Orientation is the sign's to state.
+  const { [`${hand}_wrist`]: _letterWrist, ...fingers } = compileHandshape(
+    resolveHandshape(keyframe.handshape), hand,
+  );
+  const composedWrist = wrist;
 
   const mirror = hand === 'left';
   return {
-    ...handshape,
+    ...fingers,
     [`${hand}_shoulder`]: mirror ? mirrorQuat(shoulder) : shoulder,
     [`${hand}_elbow`]: mirror ? mirrorQuat(elbow) : elbow,
     [`${hand}_wrist`]: mirror ? mirrorQuat(composedWrist) : composedWrist,

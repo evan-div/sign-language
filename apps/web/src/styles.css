@@ -88,7 +88,7 @@ body {
 .viewport__caption {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  padding: 14px 16px 16px;
+  padding: 16px 18px 18px;
   background: linear-gradient(to top, rgba(8, 10, 14, 0.94), rgba(8, 10, 14, 0));
 }
 
@@ -174,48 +174,143 @@ button { font: inherit; cursor: pointer; }
   border-radius: var(--radius-sm);
 }
 
-/* --- spelled letters --------------------------------------------------- */
+/* --- sentence, gloss and notices --------------------------------------- */
 
-.strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.sentence {
   margin: 0;
+  font-size: 19px;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
 }
 
-.strip--empty { color: var(--text-dim); font-size: 13px; }
+.sentence--empty { color: var(--text-dim); font-size: 14px; }
 
-.letter {
-  min-width: 34px;
-  padding: 7px 4px;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  transition: color 0.12s, background 0.12s, transform 0.12s, border-color 0.12s;
+.word {
+  padding: 2px 3px;
+  font: inherit;
+  color: var(--text);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 4px;
+  transition: color 0.12s, background 0.12s, border-color 0.12s;
 }
 
-.letter:hover { color: var(--text); }
+.word:hover { background: rgba(255, 255, 255, 0.07); }
 
-.letter--active {
+.word--active {
   color: #08121f;
   background: var(--accent);
   border-color: var(--accent);
-  transform: translateY(-2px);
 }
 
-/* A repeated letter is marked, because the bounce that separates it is subtle. */
-.letter--doubled::after {
-  content: '';
-  display: block;
-  width: 4px; height: 4px;
-  margin: 3px auto -3px;
-  border-radius: 50%;
-  background: currentColor;
-  opacity: 0.55;
+/* Words the translation did something to are marked, so the sentence itself
+   shows where meaning was changed rather than hiding it in a footnote. */
+.word--fingerspelled { border-bottom-color: #6ee7b7; }
+.word--synonym { border-bottom-color: #fbbf24; }
+.word--ambiguous { border-bottom-color: #f87171; }
+
+.word--dropped {
+  color: #4d5665;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  cursor: default;
+}
+
+/* Spacing and punctuation between signed spans: inert, but not an omission. */
+.word--gap {
+  padding: 0;
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.word--gap:hover { background: none; }
+
+.gloss {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gloss__item {
+  padding: 3px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  transition: color 0.12s, background 0.12s;
+}
+
+.gloss__item:hover { color: var(--text); }
+
+.gloss__item--active {
+  color: #08121f;
+  background: var(--accent);
+}
+
+.notices { display: flex; flex-direction: column; gap: 7px; }
+
+.notice {
+  display: flex;
+  gap: 9px;
+  padding: 9px 11px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.notice__icon {
+  flex: none;
+  width: 17px; height: 17px;
+  display: grid; place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+}
+
+.notice__body { flex: 1; min-width: 0; }
+.notice__text { margin: 0; color: var(--text-dim); }
+.notice__text strong { color: var(--text); font-weight: 600; }
+
+.notice--ask {
+  background: rgba(248, 113, 113, 0.08);
+  border-color: rgba(248, 113, 113, 0.28);
+}
+.notice--ask .notice__icon { color: #f87171; background: rgba(248, 113, 113, 0.18); }
+
+.notice--substitution { background: rgba(251, 191, 36, 0.07); border-color: rgba(251, 191, 36, 0.24); }
+.notice--substitution .notice__icon { color: #fbbf24; background: rgba(251, 191, 36, 0.16); }
+
+.notice--fingerspelled .notice__icon { color: #6ee7b7; background: rgba(110, 231, 183, 0.15); }
+
+.notice__choices { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+.choice {
+  padding: 5px 11px;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.choice:hover { border-color: var(--accent); }
+
+.choice--active {
+  color: #08121f;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
 /* --- transport --------------------------------------------------------- */
@@ -308,6 +403,10 @@ button { font: inherit; cursor: pointer; }
 }
 
 .ghost:hover { color: var(--text); border-color: #3a4454; }
+
+.ghost--active { color: var(--accent); border-color: rgba(110, 168, 254, 0.5); background: var(--accent-soft); }
+
+.footnote strong { color: #e8c37a; font-weight: 600; }
 
 .footnote {
   margin: auto 0 0;

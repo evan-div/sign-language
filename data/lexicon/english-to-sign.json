@@ -1,0 +1,137 @@
+{
+  "note": "English maps to signs many-to-many through a sense; a lemma with more than one entry is ambiguous and the resolver refuses to choose for the user.",
+  "entries": [
+    {
+      "lemma": "hello",
+      "signId": "HELLO"
+    },
+    {
+      "lemma": "hi",
+      "signId": "HELLO"
+    },
+    {
+      "lemma": "hey",
+      "signId": "HELLO"
+    },
+    {
+      "lemma": "my",
+      "signId": "MY"
+    },
+    {
+      "lemma": "mine",
+      "signId": "MY"
+    },
+    {
+      "lemma": "name",
+      "signId": "NAME"
+    },
+    {
+      "lemma": "thank you",
+      "signId": "THANK-YOU"
+    },
+    {
+      "lemma": "thanks",
+      "signId": "THANK-YOU"
+    },
+    {
+      "lemma": "thank",
+      "signId": "THANK-YOU"
+    },
+    {
+      "lemma": "you",
+      "signId": "YOU"
+    },
+    {
+      "lemma": "your",
+      "signId": "YOUR"
+    },
+    {
+      "lemma": "yours",
+      "signId": "YOUR"
+    },
+    {
+      "lemma": "i",
+      "signId": "ME"
+    },
+    {
+      "lemma": "me",
+      "signId": "ME"
+    },
+    {
+      "lemma": "what",
+      "signId": "WHAT"
+    },
+    {
+      "lemma": "yes",
+      "signId": "YES"
+    },
+    {
+      "lemma": "no",
+      "signId": "NO"
+    },
+    {
+      "lemma": "not",
+      "signId": "NO"
+    },
+    {
+      "lemma": "please",
+      "signId": "PLEASE"
+    },
+    {
+      "lemma": "sorry",
+      "signId": "SORRY"
+    },
+    {
+      "lemma": "good",
+      "signId": "GOOD"
+    },
+    {
+      "lemma": "love",
+      "signId": "LOVE"
+    },
+    {
+      "lemma": "learn",
+      "signId": "LEARN"
+    },
+    {
+      "lemma": "deaf",
+      "signId": "DEAF"
+    },
+    {
+      "lemma": "help",
+      "signId": "HELP"
+    },
+    {
+      "lemma": "sign",
+      "signId": "SIGN"
+    },
+    {
+      "lemma": "right",
+      "signId": "RIGHT_CORRECT",
+      "sense": "correct"
+    },
+    {
+      "lemma": "right",
+      "signId": "RIGHT_DIRECTION",
+      "sense": "the direction"
+    },
+    {
+      "lemma": "correct",
+      "signId": "RIGHT_CORRECT"
+    }
+  ],
+  "synonyms": {
+    "greetings": "hello",
+    "howdy": "hello",
+    "assist": "help",
+    "aid": "help",
+    "excellent": "good",
+    "great": "good",
+    "nice": "good",
+    "adore": "love",
+    "apologise": "sorry",
+    "apologize": "sorry",
+    "apologies": "sorry",
+    "study": "learn"
+  }
+}

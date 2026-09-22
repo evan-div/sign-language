@@ -1,36 +1,46 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  planFingerspell, activeSegment, PlaybackClock,
-  type FingerspellPlan, type LetterSegment,
+  translate, activePlanSegment, PlaybackClock,
+  type ASLPlan, type PlanSegment,
 } from '@signflow/engine';
 import { AvatarStage } from './components/AvatarStage.js';
 import { Controls } from './components/Controls.js';
-import { SpellingStrip } from './components/SpellingStrip.js';
+import { SentenceView } from './components/SentenceView.js';
+import { GlossView } from './components/GlossView.js';
+import { Notices } from './components/Notices.js';
 
-const SUGGESTIONS = ['EVAN', 'HELLO', 'MISSISSIPPI', 'ZEBRA'];
+const EXAMPLES = [
+  'hello my name is Evan',
+  'what is your name?',
+  'thank you',
+  'I love you',
+  'you are right',
+];
 
 export function App() {
-  const [input, setInput] = useState('Evan');
-  const [word, setWord] = useState('Evan');
+  const [input, setInput] = useState('hello my name is Evan');
+  const [sentence, setSentence] = useState('hello my name is Evan');
   const [speed, setSpeed] = useState(1);
   const [timeMs, setTimeMs] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
+  const [showGloss, setShowGloss] = useState(true);
+  const [senseChoices, setSenseChoices] = useState<Record<string, string>>({});
 
-  const plan: FingerspellPlan = useMemo(
-    () => planFingerspell(word, { speed }),
-    [word, speed],
+  const { plan, prepared, sequence } = useMemo(
+    () => translate(sentence, { speed, senseChoices }),
+    [sentence, speed, senseChoices],
   );
 
   const clockRef = useRef<PlaybackClock>(null);
   if (clockRef.current === null) clockRef.current = new PlaybackClock(plan.durationMs);
   const clock = clockRef.current;
 
-  // Changing the word restarts; changing speed re-plans but keeps position.
-  const previousWord = useRef(word);
+  // A new sentence restarts; changing speed or a sense re-plans in place.
+  const previousSentence = useRef(sentence);
   useEffect(() => {
-    if (previousWord.current !== word) {
-      previousWord.current = word;
+    if (previousSentence.current !== sentence) {
+      previousSentence.current = sentence;
       clock.reset();
       clock.retime(plan.durationMs);
       clock.play();
@@ -40,7 +50,7 @@ export function App() {
     clock.setSpeed(speed);
     setTimeMs(clock.state.timeMs);
     setPlaying(clock.state.playing);
-  }, [plan, word, speed, clock]);
+  }, [plan, sentence, speed, clock]);
 
   const handleTime = useCallback((ms: number) => {
     setTimeMs(ms);
@@ -49,18 +59,29 @@ export function App() {
 
   const submit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
-    setWord(input.trim());
+    const next = input.trim();
+    if (next) setSentence(next);
   }, [input]);
 
-  const active: LetterSegment | undefined = activeSegment(plan, timeMs);
+  const active: PlanSegment | undefined = activePlanSegment(plan, timeMs);
 
-  const seekToLetter = useCallback((segment: LetterSegment) => {
-    // Land just before the hold so the letter is seen forming, not already formed.
-    clock.seek(Math.max(0, segment.holdStartMs - plan.options.transitionMs * 0.5));
+  const replaySegment = useCallback((segment: PlanSegment) => {
+    // Land just before the stroke, so the sign is seen forming.
+    clock.seek(Math.max(0, segment.strokeStartMs - segment.transitionInMs * 0.6));
     clock.play();
     setTimeMs(clock.state.timeMs);
     setPlaying(true);
-  }, [clock, plan]);
+  }, [clock]);
+
+  const chooseSense = useCallback((word: string, signId: string) => {
+    setSenseChoices((previous) => ({ ...previous, [word]: signId }));
+  }, []);
+
+  const useExample = useCallback((example: string) => {
+    setInput(example);
+    setSentence(example);
+    setSenseChoices({});
+  }, []);
 
   return (
     <div className="app">
@@ -69,70 +90,71 @@ export function App() {
           <span className="mark" aria-hidden="true" />
           <h1>SignFlow</h1>
         </div>
-        <p className="tagline">Fingerspelling prototype &middot; Milestones 1&ndash;2</p>
+        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;4</p>
       </header>
 
       <main className="main">
         <section className="viewport">
-          <AvatarStage plan={plan} clock={clock} onTime={handleTime} resetSignal={resetSignal} />
+          <AvatarStage
+            plan={plan}
+            prepared={prepared}
+            sequence={sequence}
+            clock={clock}
+            onTime={handleTime}
+            resetSignal={resetSignal}
+          />
           <div className="viewport__caption">
-            <SpellingStrip plan={plan} active={active} onSelectLetter={seekToLetter} />
+            <SentenceView plan={plan} active={active} onSelect={replaySegment} />
+            {showGloss && <GlossView plan={plan} active={active} onSelect={replaySegment} />}
           </div>
         </section>
 
         <section className="panel">
           <form className="composer" onSubmit={submit}>
-            <label className="composer__label" htmlFor="word">Word to fingerspell</label>
+            <label className="composer__label" htmlFor="sentence">Sentence to sign</label>
             <div className="composer__row">
               <input
-                id="word"
+                id="sentence"
                 className="composer__input"
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Type a word and press Enter"
+                placeholder="Type a sentence and press Enter"
                 autoComplete="off"
                 spellCheck={false}
               />
-              <button type="submit" className="primary">Spell it</button>
+              <button type="submit" className="primary">Sign it</button>
             </div>
           </form>
 
           <div className="suggestions">
-            {SUGGESTIONS.map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                className="chip"
-                onClick={() => { setInput(suggestion); setWord(suggestion); }}
-              >
-                {suggestion}
+            {EXAMPLES.map((example) => (
+              <button key={example} type="button" className="chip" onClick={() => useExample(example)}>
+                {example}
               </button>
             ))}
           </div>
 
-          {plan.skipped.length > 0 && (
-            <p className="notice" role="status">
-              Skipped {plan.skipped.map((c) => `"${c}"`).join(', ')} &mdash; no handshape yet.
-              Numbers and punctuation come later.
-            </p>
-          )}
+          <Notices plan={plan} senseChoices={senseChoices} onChooseSense={chooseSense} />
 
           <Controls
             playing={playing}
             timeMs={timeMs}
             durationMs={plan.durationMs}
             speed={speed}
+            showGloss={showGloss}
             onTogglePlay={() => { clock.toggle(); setPlaying(clock.state.playing); }}
             onSeek={(t) => { clock.seekNormalized(t); setTimeMs(clock.state.timeMs); }}
             onSpeed={setSpeed}
+            onToggleGloss={() => setShowGloss((v) => !v)}
             onResetCamera={() => setResetSignal((n) => n + 1)}
           />
 
           <p className="footnote">
-            Placeholder mannequin, procedurally rigged to the VRM&nbsp;1.0 humanoid bone
-            standard. Handshapes are hand-authored and verified geometrically, not
-            extracted from video. M, N and T differ only in where the thumb shows
-            through; they are the subtlest letters here.
+            <strong>These signs are placeholders.</strong> They were authored from written
+            descriptions by someone who is not a fluent signer and reviewed by no Deaf
+            signer, so treat the vocabulary as a demonstration of the pipeline rather than
+            as ASL. Facial grammar is carried in the data but only rendered as head
+            movement &mdash; the placeholder mannequin has no face.
           </p>
         </section>
       </main>

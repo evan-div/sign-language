@@ -2,20 +2,25 @@ import { useEffect, useMemo, useRef, type ComponentRef } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { createAvatarPlayer, type AvatarPlayer } from '@signflow/renderer-three';
-import { sampleFingerspell, type FingerspellPlan, type PlaybackClock } from '@signflow/engine';
+import {
+  samplePlan, type ASLPlan, type PlaybackClock, type Prepared, type Sequence,
+} from '@signflow/engine';
 
 /** Chest-up and front-on. The primary reading view; orbit is a departure from it. */
 export const DEFAULT_CAMERA = {
-  position: [-0.05, 1.36, 1.30] as const,
-  // Framed on the signing space rather than the middle of the torso: the
-  // dominant hand works beside the shoulder around x=-0.20, y=1.34, so the
-  // target sits slightly off-midline toward it.
-  target: [-0.07, 1.30, 0.06] as const,
+  position: [0, 1.38, 1.74] as const,
+  // Framed on the signing space rather than the middle of the torso. Signing
+  // space runs roughly 0.9m wide once both hands and a raised salute are in it,
+  // so the default has to be wide enough to hold a hand at full reach; orbit
+  // and zoom are for looking closer, not for seeing the sign at all.
+  target: [-0.02, 1.32, 0.05] as const,
   fov: 34,
 };
 
 interface RigProps {
-  plan: FingerspellPlan;
+  plan: ASLPlan;
+  prepared: readonly Prepared[];
+  sequence: Sequence;
   clock: PlaybackClock;
   onTime: (timeMs: number) => void;
 }
@@ -27,7 +32,7 @@ interface RigProps {
  * 60Hz would dominate the frame budget. React hears about time only at UI rate,
  * through `onTime`, and only to move the scrub handle and highlight a letter.
  */
-function Rig({ plan, clock, onTime }: RigProps) {
+function Rig({ plan, prepared, sequence, clock, onTime }: RigProps) {
   const player = useMemo<AvatarPlayer>(() => createAvatarPlayer(), []);
   const lastReport = useRef(0);
 
@@ -35,7 +40,7 @@ function Rig({ plan, clock, onTime }: RigProps) {
 
   useFrame((_, delta) => {
     const timeMs = clock.tick(delta * 1000);
-    player.applyPose(sampleFingerspell(plan, timeMs));
+    player.applyPose(samplePlan(plan, prepared, sequence, timeMs));
 
     // Throttle the React-facing update to roughly 20Hz.
     const now = performance.now();
@@ -77,13 +82,15 @@ function CameraRig({ resetSignal }: { resetSignal: number }) {
 }
 
 interface AvatarStageProps {
-  plan: FingerspellPlan;
+  plan: ASLPlan;
+  prepared: readonly Prepared[];
+  sequence: Sequence;
   clock: PlaybackClock;
   onTime: (timeMs: number) => void;
   resetSignal: number;
 }
 
-export function AvatarStage({ plan, clock, onTime, resetSignal }: AvatarStageProps) {
+export function AvatarStage({ plan, prepared, sequence, clock, onTime, resetSignal }: AvatarStageProps) {
   return (
     <Canvas
       className="stage"
@@ -98,7 +105,7 @@ export function AvatarStage({ plan, clock, onTime, resetSignal }: AvatarStagePro
       <directionalLight position={[1.4, 2.2, 2.0]} intensity={1.5} castShadow />
       {/* Rim light: separates fingers from the palm and from the torso behind. */}
       <directionalLight position={[-1.8, 1.4, -1.6]} intensity={0.85} color="#8ab4ff" />
-      <Rig plan={plan} clock={clock} onTime={onTime} />
+      <Rig plan={plan} prepared={prepared} sequence={sequence} clock={clock} onTime={onTime} />
       <CameraRig resetSignal={resetSignal} />
     </Canvas>
   );

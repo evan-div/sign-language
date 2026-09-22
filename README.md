@@ -2,10 +2,11 @@
 
 Text-to-ASL. A user types English; a 3D avatar signs it.
 
-This repository currently contains **Milestones 1 and 2 only**: a rigged
-placeholder avatar and a complete, animated ASL manual alphabet. There is no
-translation layer, no sign lexicon, and no backend yet — by design. See
-`docs/architecture.md` for why the build order starts here.
+This repository contains **Milestones 1 to 4**: a rigged placeholder avatar, the
+animated manual alphabet, a small library of lexical signs, and an
+English-to-ASL sentence pipeline. There is no backend, no accounts, and no
+motion-extraction pipeline yet — by design. See `docs/architecture.md` for why
+the build order runs this way.
 
 ## Quick start
 
@@ -22,10 +23,26 @@ pnpm build
 
 ## What works today
 
-- Type any word; the avatar fingerspells it with eased, continuous transitions.
-- All 26 letters, including J and Z path movement and double-letter bounces.
-- Play, pause, scrub, five playback speeds, click a letter to replay it.
-- Orbit and zoom, clamped so the hands stay readable; reset to the front view.
+Type a sentence; the avatar signs it.
+
+- **Translation**: phrase matching ("thank you" is one sign), function-word
+  dropping, WH-movement, synonym substitution, and fingerspelling for anything
+  it does not know.
+- **Ambiguity**: a word with more than one meaning is never guessed at. "right"
+  stops and asks which sense you meant.
+- **Honesty**: every departure from what you typed — a dropped word, a
+  substituted sign, a word it had to spell — is reported, and marked in the
+  sentence itself.
+- **Twenty lexical signs**, one- and two-handed, plus all 26 letters with J/Z
+  movement and double-letter bounces.
+- **Non-manual markers** as a parallel track: yes/no and WH questions and
+  negation, rendered as head movement.
+- Play, pause, scrub, five speeds, a gloss toggle, and click any word or gloss
+  to replay that sign. Orbit and zoom, clamped so the hands stay readable.
+
+**The sign vocabulary is placeholder.** It was authored from written
+descriptions by someone who is not a fluent signer and reviewed by no Deaf
+signer. It exists to exercise the pipeline, not to teach ASL.
 
 ## How handshapes are verified
 
@@ -37,6 +54,8 @@ more than twice `U` does, `G` and `H` must point the fingers across the body.
 
 ```bash
 pnpm handshapes:report   # measured geometry for all 26 letters
+pnpm solve:locations     # re-solve signing-space locations
+pnpm export:data         # skeleton, handshapes, signs and lexicon as JSON
 pnpm screenshot          # visual QC via headless Chromium (dev server must be running)
 ```
 
@@ -54,7 +73,7 @@ subtlest letters in the set and are worth a reviewer's attention first.
 | --- | --- |
 | `apps/web` | React + Vite app |
 | `packages/motion-format` | Canonical skeleton, quaternion maths, forward kinematics, VRM retarget map |
-| `packages/engine` | Handshapes, postures, fingerspelling synthesis, playback clock |
+| `packages/engine` | Handshapes, postures, signs, sequencer, lexicon, translation, playback clock |
 | `packages/renderer-three` | Three.js adapter and the procedural mannequin |
 | `data/` | Exported skeleton and handshape JSON, for the future motion pipeline |
 | `tools/` | QC report, data export, screenshot harness |
@@ -64,7 +83,7 @@ That one rule is what keeps the desktop and mobile paths open.
 
 ## Not built yet, deliberately
 
-Accounts, a sign lexicon, English→ASL translation, the video extraction
-pipeline, facial animation, numbers, and a real avatar. Each is scheduled in
-the architecture report, and none of them is needed to prove that the runtime
-produces legible signing.
+Accounts, a backend, the video-extraction pipeline, a face rig, numbers,
+classifiers, spatial referencing, and a real avatar. Each is scheduled in the
+architecture report, and none is needed to prove that the runtime produces
+legible signing.
