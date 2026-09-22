@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  translate, activePlanSegment, PlaybackClock,
-  type ASLPlan, type PlanSegment,
+  translate, planSign, activePlanSegment, PlaybackClock,
+  type PlanSegment,
 } from '@signflow/engine';
 import { AvatarStage } from './components/AvatarStage.js';
 import { Controls } from './components/Controls.js';
 import { SentenceView } from './components/SentenceView.js';
 import { GlossView } from './components/GlossView.js';
 import { Notices } from './components/Notices.js';
+import { Vocabulary } from './components/Vocabulary.js';
 
 const EXAMPLES = [
   'hello my name is Evan',
@@ -26,21 +27,32 @@ export function App() {
   const [resetSignal, setResetSignal] = useState(0);
   const [showGloss, setShowGloss] = useState(true);
   const [senseChoices, setSenseChoices] = useState<Record<string, string>>({});
+  const [tab, setTab] = useState<'sentence' | 'vocabulary'>('sentence');
+  /**
+   * When set, the stage is previewing one sign from the library instead.
+   * The counter is what makes picking the same sign twice replay it: the id
+   * alone would not change, so nothing downstream would notice.
+   */
+  const [preview, setPreview] = useState<{ signId: string; nonce: number } | null>(null);
 
   const { plan, prepared, sequence } = useMemo(
-    () => translate(sentence, { speed, senseChoices }),
-    [sentence, speed, senseChoices],
+    () => (preview
+      ? planSign(preview.signId, { speed })
+      : translate(sentence, { speed, senseChoices })),
+    [preview, sentence, speed, senseChoices],
   );
 
   const clockRef = useRef<PlaybackClock>(null);
   if (clockRef.current === null) clockRef.current = new PlaybackClock(plan.durationMs);
   const clock = clockRef.current;
 
-  // A new sentence restarts; changing speed or a sense re-plans in place.
-  const previousSentence = useRef(sentence);
+  // A new sentence, or a newly picked sign, restarts; changing speed or a sense
+  // re-plans in place.
+  const previousSubject = useRef<string>(sentence);
   useEffect(() => {
-    if (previousSentence.current !== sentence) {
-      previousSentence.current = sentence;
+    const subject = preview ? `${preview.signId}#${preview.nonce}` : sentence;
+    if (previousSubject.current !== subject) {
+      previousSubject.current = subject;
       clock.reset();
       clock.retime(plan.durationMs);
       clock.play();
@@ -50,7 +62,7 @@ export function App() {
     clock.setSpeed(speed);
     setTimeMs(clock.state.timeMs);
     setPlaying(clock.state.playing);
-  }, [plan, sentence, speed, clock]);
+  }, [plan, preview, sentence, speed, clock]);
 
   const handleTime = useCallback((ms: number) => {
     setTimeMs(ms);
@@ -60,7 +72,9 @@ export function App() {
   const submit = useCallback((event: React.FormEvent) => {
     event.preventDefault();
     const next = input.trim();
-    if (next) setSentence(next);
+    if (!next) return;
+    setPreview(null);
+    setSentence(next);
   }, [input]);
 
   const active: PlanSegment | undefined = activePlanSegment(plan, timeMs);
@@ -78,9 +92,14 @@ export function App() {
   }, []);
 
   const useExample = useCallback((example: string) => {
+    setPreview(null);
     setInput(example);
     setSentence(example);
     setSenseChoices({});
+  }, []);
+
+  const previewSign = useCallback((signId: string) => {
+    setPreview((previous) => ({ signId, nonce: (previous?.nonce ?? 0) + 1 }));
   }, []);
 
   return (
@@ -90,7 +109,7 @@ export function App() {
           <span className="mark" aria-hidden="true" />
           <h1>SignFlow</h1>
         </div>
-        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;4</p>
+        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;6</p>
       </header>
 
       <main className="main">
@@ -110,6 +129,27 @@ export function App() {
         </section>
 
         <section className="panel">
+          <div className="tabs" role="tablist">
+            <button
+              type="button" role="tab" aria-selected={tab === 'sentence'}
+              className={`tab${tab === 'sentence' ? ' tab--active' : ''}`}
+              onClick={() => setTab('sentence')}
+            >
+              Sentence
+            </button>
+            <button
+              type="button" role="tab" aria-selected={tab === 'vocabulary'}
+              className={`tab${tab === 'vocabulary' ? ' tab--active' : ''}`}
+              onClick={() => setTab('vocabulary')}
+            >
+              Vocabulary
+            </button>
+          </div>
+
+          {tab === 'vocabulary' ? (
+            <Vocabulary onPlay={previewSign} />
+          ) : (
+          <>
           <form className="composer" onSubmit={submit}>
             <label className="composer__label" htmlFor="sentence">Sentence to sign</label>
             <div className="composer__row">
@@ -135,6 +175,8 @@ export function App() {
           </div>
 
           <Notices plan={plan} senseChoices={senseChoices} onChooseSense={chooseSense} />
+          </>
+          )}
 
           <Controls
             playing={playing}

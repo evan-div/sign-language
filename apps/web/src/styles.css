@@ -430,3 +430,135 @@ button { font: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* --- tabs and the vocabulary browser ---------------------------------- */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--surface-sunken, rgba(0, 0, 0, 0.05));
+}
+
+.tab {
+  flex: 1;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted, #6b7280);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.tab:hover { color: var(--text, #111827); }
+
+.tab--active {
+  background: var(--surface, #fff);
+  color: var(--text, #111827);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.vocabulary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.vocabulary__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vocabulary__search {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.12));
+  border-radius: 9px;
+  background: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+}
+
+.vocabulary__search:focus {
+  outline: none;
+  border-color: var(--accent, #2563eb);
+}
+
+.vocabulary__empty {
+  margin: 0;
+  color: var(--text-muted, #6b7280);
+  font-size: 13px;
+}
+
+.vocabulary__list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 46vh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.vocab {
+  display: grid;
+  width: 100%;
+  gap: 2px;
+  padding: 9px 11px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.vocab:hover {
+  border-color: var(--border, rgba(0, 0, 0, 0.12));
+  background: var(--surface-sunken, rgba(0, 0, 0, 0.03));
+}
+
+.vocab__gloss {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.vocab__description {
+  color: var(--text-muted, #6b7280);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.vocab__words {
+  color: var(--text-muted, #6b7280);
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+/* Provenance is shown on every card on purpose: a hundred signs that all look
+   equally authoritative would be the misleading thing. */
+.vocab__provenance {
+  justify-self: start;
+  margin-top: 3px;
+  padding: 1px 6px;
+  border-radius: 5px;
+  background: rgba(180, 83, 9, 0.12);
+  color: #b45309;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.vocab__provenance--reviewed { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
+.vocab__provenance--expert-validated { background: rgba(5, 150, 105, 0.12); color: #059669; }

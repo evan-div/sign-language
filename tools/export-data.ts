@@ -21,6 +21,7 @@ import { ASL_LETTERS, MOVING_LETTERS } from '../packages/engine/src/handshapes/l
 import { compileHandshape } from '../packages/engine/src/handshapes/compile.js';
 import { SIGNS } from '../packages/engine/src/signs/library.js';
 import { compileSign } from '../packages/engine/src/signs/compile.js';
+import { expandSign } from '../packages/engine/src/signs/expand.js';
 import { sampleClip } from '../packages/motion-format/src/index.js';
 import { SIGN_HANDSHAPES } from '../packages/engine/src/handshapes/sign-shapes.js';
 import { SOLVED_LOCATIONS } from '../packages/engine/src/signs/locations.generated.js';
@@ -105,7 +106,11 @@ write('data/signs/library.json', {
   warning: 'PLACEHOLDER VOCABULARY. Authored from written descriptions by someone who is '
     + 'not a fluent signer and reviewed by no Deaf signer. Every entry is marked '
     + 'unvalidated. Replace before any of this is presented as ASL.',
-  signs: SIGNS,
+  note: 'Signs are exported EXPANDED: symmetry, base hands and repetition are already '
+    + 'resolved into an explicit non-dominant track and explicit keyframes. The '
+    + 'shorthands are an authoring convenience, and a second implementation of them in '
+    + 'Python would be a second chance to disagree with the first.',
+  signs: Object.fromEntries(Object.entries(SIGNS).map(([id, sign]) => [id, expandSign(sign)])),
 });
 
 write('data/lexicon/english-to-sign.json', {

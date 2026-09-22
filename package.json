@@ -11,7 +11,9 @@
     "handshapes:report": "tsx tools/handshape-report.ts",
     "export:data": "tsx tools/export-data.ts",
     "screenshot": "node tools/screenshot.mjs",
-    "solve:locations": "tsx tools/solve-locations.ts"
+    "solve:locations": "tsx tools/solve-locations.ts",
+    "lint:signs": "tsx tools/lint-signs.ts",
+    "coverage": "tsx tools/coverage.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

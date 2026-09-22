@@ -1,18 +1,22 @@
 /**
  * Visual QC: load the running app and capture screenshots.
  *
- * The geometric assertions in the test suite prove a handshape has the right
- * measurements; they cannot prove it reads correctly on screen. This closes
- * that loop cheaply. Run the dev server first.
+ * The geometric assertions in the test suite prove a sign has the right
+ * measurements; they cannot prove it reads correctly on screen. Everything the
+ * tests missed in earlier milestones -- a clipped salute, a camera framing the
+ * wrong part of the body, a hand that measures fine and looks like a slab --
+ * was found here.
+ *
+ * Run the dev server first.
  *
  *   pnpm dev
- *   node tools/screenshot.mjs [outDir] [word]
+ *   node tools/screenshot.mjs [outDir] [sentence]
  */
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
 const outDir = process.argv[2] ?? '.screenshots';
-const word = process.argv[3] ?? 'EVAN';
+const sentence = process.argv[3] ?? 'hello my name is Evan';
 mkdirSync(outDir, { recursive: true });
 
 // SwiftShader: these containers have no GPU, so WebGL needs a software backend.
@@ -31,7 +35,7 @@ const browser = await chromium.launch({
  * clock, so play/pause stops responding.
  */
 const page = await browser.newPage({
-  viewport: { width: 1280, height: 820 },
+  viewport: { width: 1280, height: 860 },
   deviceScaleFactor: Number(process.env.SHOT_DPR ?? 1),
 });
 
@@ -40,16 +44,12 @@ page.on('console', (m) => { if (m.type() === 'error') problems.push(m.text()); }
 page.on('pageerror', (e) => problems.push(`PAGEERROR: ${e.message}`));
 
 await page.goto('http://localhost:5173', { waitUntil: 'networkidle' });
-await page.fill('#word', word);
-await page.click('.primary');
-await page.waitForTimeout(400);
 
 /**
  * Seek to an exact time while paused.
  *
- * Clicking a letter starts playback, which makes any screenshot a race against
- * the clock. Driving the scrub input directly is deterministic: each letter
- * button carries its hold window, so we can land in the middle of it.
+ * Clicking a word starts playback, which makes any screenshot a race against
+ * the clock. Driving the scrub input directly is deterministic.
  */
 const seekTo = async (ms) => {
   await page.evaluate((target) => {
@@ -69,51 +69,67 @@ const seekTo = async (ms) => {
  *
  * A single conditional click is not enough: the button's label comes from React
  * state that only updates on a rendered frame, and under software WebGL frames
- * are scarce. If playback is still running, the seek below drifts and the
- * capture shows the wrong letter.
+ * are scarce. If playback is still running, the seek below drifts.
  */
 const ensurePaused = async () => {
-  for (let attempt = 0; attempt < 6; attempt++) {
-    const label = await page.getAttribute('.play', 'aria-label');
-    if (process.env.DEBUG_SHOT) {
-      const t = (await page.textContent('.time'))?.trim();
-      console.log(`  ensurePaused attempt ${attempt}: aria=${label} time=${t}`);
-    }
-    if (label === 'Play') return;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    if ((await page.getAttribute('.play', 'aria-label')) === 'Play') return;
     await page.click('.play');
     await page.waitForTimeout(220);
   }
   throw new Error('could not pause playback');
 };
 
+const shoot = async (name) => {
+  const box = await page.locator('.viewport').boundingBox();
+  await page.screenshot({ path: `${outDir}/${name}.png`, clip: box });
+};
+
+// --- the sentence pipeline ---------------------------------------------
+await page.fill('#sentence', sentence);
+await page.click('.primary');
+await page.waitForTimeout(500);
 await ensurePaused();
 
-const segments = await page.$$eval('.letter', (nodes) =>
-  nodes.map((n) => ({
-    letter: n.textContent,
-    start: Number(n.dataset.holdStart),
-    end: Number(n.dataset.holdEnd),
-  })));
-
+const glosses = await page.locator('.gloss__item').allTextContents();
 const total = Number(await page.getAttribute('.scrub', 'data-duration-ms'));
 if (!Number.isFinite(total) || total <= 0) throw new Error('scrub control is missing its duration');
 
-for (const [i, seg] of segments.entries()) {
+for (const [i, gloss] of glosses.entries()) {
   await ensurePaused();
-  await seekTo((seg.start + seg.end) / 2);
-  // Confirm we actually landed on this letter before trusting the capture.
-  const highlighted = await page.locator('.letter--active').textContent().catch(() => null);
-  if (highlighted !== seg.letter) {
-    problems.push(`seek landed on "${highlighted}" while capturing "${seg.letter}"`);
-  }
-  const box = await page.locator('.viewport').boundingBox();
-  await page.screenshot({ path: `${outDir}/letter-${i}-${seg.letter}.png`, clip: box });
+  // Sample each sign at the middle of its share of the timeline.
+  await seekTo((total * (i + 0.5)) / glosses.length);
+  await shoot(`sentence-${i}-${gloss.replace(/[^\w-]/g, '')}`);
 }
 
-// Overview frame, parked on the first letter rather than at the end of playback.
-await seekTo((segments[0].start + segments[0].end) / 2);
+// Overview frame, parked on the first sign rather than at the end of playback,
+// where the hands are already back at rest and the shot says nothing.
+await ensurePaused();
+await seekTo(total * (0.5 / glosses.length));
 await page.screenshot({ path: `${outDir}/app.png` });
 
-console.log(`letters: ${(await page.locator('.letter').allTextContents()).join('')}`);
+// --- the vocabulary browser --------------------------------------------
+const signs = (process.env.SHOT_SIGNS ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+if (signs.length > 0) {
+  await page.click('.tab:has-text("Vocabulary")');
+  await page.waitForTimeout(200);
+  for (const gloss of signs) {
+    await page.fill('#vocab-search', gloss);
+    await page.waitForTimeout(150);
+    // Prefer an exact gloss match: searching "DAY" also matches TODAY.
+    const exact = page.locator('.vocab', { has: page.locator(`.vocab__gloss:text-is("${gloss}")`) });
+    const target = (await exact.count()) > 0 ? exact.first() : page.locator('.vocab').first();
+    if ((await target.count()) === 0) { problems.push(`no vocabulary entry for "${gloss}"`); continue; }
+    await target.click();
+    await page.waitForTimeout(400);
+    await ensurePaused();
+    const duration = Number(await page.getAttribute('.scrub', 'data-duration-ms'));
+    await seekTo(duration * 0.5);
+    await shoot(`sign-${gloss.replace(/[^\w-]/g, '')}`);
+  }
+  await page.screenshot({ path: `${outDir}/vocabulary.png` });
+}
+
+console.log(`gloss: ${glosses.join(' ')}`);
 console.log(problems.length ? `console errors:\n  ${problems.slice(0, 8).join('\n  ')}` : 'console errors: none');
 await browser.close();

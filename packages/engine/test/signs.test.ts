@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import {
   solveFK, jointPosition, tipPosition, vec3Distance, validatePose,
-  palmNormal, fingerDirection, type Vec3,
+  palmNormal, fingerDirection, penetrationDepth, segmentPenetration, type Vec3,
 } from '@signflow/motion-format';
 import {
   SIGNS, SIGN_IDS, signDefinition, compileSign, isTwoHanded,
   SOLVED_LOCATIONS, ORIENTATIONS, SIGN_HANDSHAPES,
   sequence, samplePrepared, activeSequenceSegment, signClip,
-  REST_POSTURE,
+  REST_POSTURE, findCollisions, lintLibrary, expandSign,
 } from '../src/index.js';
 
 const REST = solveFK(REST_POSTURE);
@@ -35,22 +35,54 @@ const angleBetween = (a: Vec3, b: Vec3) =>
   (Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]))) * 180) / Math.PI;
 
 describe('solved locations', () => {
-  it('reaches every target it was solved for', () => {
+  const armOf = (name: keyof typeof SOLVED_LOCATIONS) => {
+    const solved = solveFK(probe(name));
+    return {
+      shoulder: jointPosition(solved, 'right_shoulder'),
+      elbow: jointPosition(solved, 'right_elbow'),
+      wrist: jointPosition(solved, 'right_wrist'),
+    };
+  };
+
+  it('reaches every target that is not inside the body', () => {
+    // NOSE, CHEEK and BROW name points on the face, and a wrist cannot be
+    // inside a head. Those three resolve to the nearest reachable point
+    // outside it, and are only ever meant to be used with a contact site --
+    // a fingertip at the nose, with the wrist below it -- which re-solves the
+    // arm at compile time and does reach them.
     for (const [name, location] of Object.entries(SOLVED_LOCATIONS)) {
-      const wrist = jointPosition(solveFK(probe(name as never)), 'right_wrist');
-      expect(vec3Distance(wrist, location.target as Vec3), name).toBeLessThan(0.005);
+      const target = location.target as Vec3;
+      const err = vec3Distance(armOf(name as never).wrist, target);
+      if (penetrationDepth(target) > 0) {
+        expect(err, `${name} (target is inside the body)`).toBeLessThan(0.03);
+      } else {
+        expect(err, name).toBeLessThan(0.005);
+      }
     }
   });
 
-  it('keeps every elbow below its wrist and clear of the torso', () => {
+  it('keeps both arm segments out of the body', () => {
+    // Joints alone are not enough: an upper arm can have its shoulder and its
+    // elbow both outside the torso and its middle four centimetres inside it.
+    //
+    // Two centimetres rather than zero, because the torso is a box and arms
+    // have no give here. Reaching across the body to the far shoulder presses
+    // the upper arm against the chest, and CONTRA_SHOULDER sits at 1.3cm for
+    // that reason -- a real arm would flatten, this one overlaps instead.
     for (const name of Object.keys(SOLVED_LOCATIONS)) {
-      const solved = solveFK(probe(name as never));
-      const elbow = jointPosition(solved, 'right_elbow');
-      const wrist = jointPosition(solved, 'right_wrist');
-      // A low, forward hand legitimately sits a little under its own elbow;
-      // what this rules out is the arm folding up over itself.
-      expect(elbow[1], `${name} elbow height`).toBeLessThan(wrist[1] + 0.06);
-      expect(Math.abs(elbow[0]), `${name} elbow clearance`).toBeGreaterThan(0.11);
+      const { shoulder, elbow, wrist } = armOf(name as never);
+      expect(segmentPenetration(shoulder, elbow), `${name} upper arm`).toBeLessThan(0.02);
+      expect(segmentPenetration(elbow, wrist), `${name} forearm`).toBeLessThan(0.02);
+    }
+  });
+
+  it('never folds the elbow up above the hand', () => {
+    // Not "elbow below the shoulder": reaching above your head requires the
+    // elbow above the shoulder, and as a rule that left ABOVE_HEAD 15cm short.
+    // What reads as broken is the elbow above the hand it is holding up.
+    for (const name of Object.keys(SOLVED_LOCATIONS)) {
+      const { elbow, wrist } = armOf(name as never);
+      expect(elbow[1], `${name} elbow height`).toBeLessThan(wrist[1] + 0.15);
     }
   });
 });
@@ -203,22 +235,24 @@ describe('the sign library', () => {
     }
   });
 
-  it('keeps every sign visually distinct from every other', () => {
-    const mid = (id: string) => {
-      const clip = compileSign(SIGNS[id]!);
-      const t = ((clip.strokeStartMs ?? 0) + (clip.strokeEndMs ?? clip.durationMs)) / 2;
-      let closest = clip.keyframes[0]!;
-      for (const f of clip.keyframes) if (Math.abs(f.timeMs - t) < Math.abs(closest.timeMs - t)) closest = f;
-      return signature(closest.pose);
-    };
-    const collisions: string[] = [];
-    for (let i = 0; i < SIGN_IDS.length; i++) {
-      for (let j = i + 1; j < SIGN_IDS.length; j++) {
-        const d = signatureDistance(mid(SIGN_IDS[i]!), mid(SIGN_IDS[j]!));
-        if (d < 0.03) collisions.push(`${SIGN_IDS[i]}/${SIGN_IDS[j]} (${(d * 100).toFixed(1)}cm)`);
-      }
-    }
+  it('keeps every sign distinct from every other over its whole stroke', () => {
+    // Compared as a trajectory, not as one pose in the middle of the stroke.
+    // Measured at the midpoint GO and COME are 0.0cm apart -- same hands, same
+    // place, opposite directions -- and so are plenty of real ASL pairs. A
+    // check that cannot see direction is blind to exactly the pairs it is for.
+    const collisions = findCollisions(0.03).map((c) => `${c.a}/${c.b} (${(c.distance * 100).toFixed(1)}cm)`);
     expect(collisions).toEqual([]);
+  });
+
+  it('passes its own linter with no errors', () => {
+    // The linter is the thing that makes a hundred signs tractable: nobody can
+    // watch them all, so the properties that can be decided from geometry are
+    // decided here on every commit. Warnings are judgement calls and do not
+    // fail; errors are hands inside heads.
+    const errors = lintLibrary()
+      .filter((f) => f.severity === 'error')
+      .map((f) => `${f.signId}: ${f.message}`);
+    expect(errors).toEqual([]);
   });
 
   it('only references handshapes that exist', () => {

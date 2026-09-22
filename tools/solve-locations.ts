@@ -15,7 +15,7 @@
 import { writeFileSync } from 'node:fs';
 import {
   solveFK, jointPosition, jointRotation, quatFromEulerDeg,
-  vec3Distance, type Pose, type Quat, type Vec3,
+  vec3Distance, segmentPenetration, type Pose, type Quat, type Vec3,
 } from '../packages/motion-format/src/index.js';
 
 type Arm = [number, number, number, number, number, number];
@@ -28,20 +28,37 @@ const armPose = (p: Arm): Pose => ({
 const wristAt = (p: Arm): Vec3 => jointPosition(solveFK(armPose(p)), 'right_wrist');
 
 /**
- * Cost balances three things: hitting the target, keeping rotations modest, and
- * keeping the elbow below the wrist. Without the last term the solver happily
- * returns shoulder-above-elbow contortions that reach the point but read as a
- * broken arm.
+ * Cost of an arm pose against a wrist target.
+ *
+ * Reaching the point comes first; the rest only chooses between poses that
+ * reach it. Keep the rotations modest, keep the elbow from riding above the
+ * wrist, keep the elbow and wrist out of the body, and among everything that
+ * reaches, prefer the elbow low.
+ *
+ * The elbow terms are the ones with history. "At least 13cm off the midline"
+ * was a stand-in for "not inside the chest" that only looked sideways, so for
+ * targets at the face -- where the elbow naturally comes forward and in -- the
+ * only way to satisfy it was to raise the elbow, and every face location solved
+ * with the elbow flared to shoulder height. Measuring penetration in all three
+ * axes lets the elbow come in front of the ribs where it belongs. Making
+ * "elbow low" a hard ceiling instead fails the other way: a hand above the head
+ * REQUIRES the elbow above the shoulder, and as a constraint it left ABOVE_HEAD
+ * 15cm short. It is a preference, so it settles ties and yields to reach.
  */
 function cost(p: Arm, target: Vec3): number {
   const solved = solveFK(armPose(p));
   const wrist = jointPosition(solved, 'right_wrist');
   const elbow = jointPosition(solved, 'right_elbow');
+  const shoulder = jointPosition(solved, 'right_shoulder');
   const reg = 2.2e-7 * p.reduce((a, v) => a + v * v, 0);
   const elbowAboveWrist = Math.max(0, elbow[1] - wrist[1] + 0.02);
-  // Elbows also should not pass through the torso.
-  const elbowInside = Math.max(0, 0.13 - Math.abs(elbow[0]));
-  return vec3Distance(wrist, target) + reg + elbowAboveWrist * 0.6 + elbowInside * 0.8;
+  // Whole limbs, not just their ends: an upper arm can have both joints clear
+  // of the torso and its middle inside it.
+  const upperArm = Math.max(0, segmentPenetration(shoulder, elbow) + 0.01);
+  const forearm = Math.max(0, segmentPenetration(elbow, wrist) + 0.01);
+  const elbowHeld = Math.max(0, elbow[1] - 1.20);
+  return vec3Distance(wrist, target) + reg + elbowAboveWrist * 0.6
+    + upperArm * 2.0 + forearm * 2.0 + elbowHeld * 0.02;
 }
 
 function solve(target: Vec3): Arm {
@@ -80,9 +97,17 @@ function wristCorrection(p: Arm): Quat {
 }
 
 /**
- * Named places in signing space, as right-hand wrist positions in metres.
- * Body landmarks for reference: shoulder y=1.42, chin y~1.50, forehead y~1.62,
- * chest y~1.27.
+ * Named places in signing space, in metres, for the right hand.
+ *
+ * A target is a POINT IN SPACE, not a wrist position. The arm solved here puts
+ * the wrist there, which is what a keyframe gets by default; a keyframe that
+ * names a contact site instead re-solves the arm at compile time so that the
+ * site -- a fingertip, the palm -- lands on the point. Reading these as wrist
+ * positions is what left fingertips a hand's length above the landmark they
+ * were named for.
+ *
+ * Body landmarks for reference: pelvis y=0.95, chest y~1.27, shoulder y=1.42,
+ * chin y~1.50, nose y~1.57, eyes y=1.615, crown y~1.68.
  */
 const LOCATIONS: Array<[string, Vec3, string]> = [
   ['NEUTRAL',      [-0.17, 1.24, 0.26], 'Default signing space, chest height and well forward'],
@@ -99,6 +124,21 @@ const LOCATIONS: Array<[string, Vec3, string]> = [
   ['CENTRE_LOW',   [-0.05, 1.16, 0.24], 'Centred and low, where a base hand sits'],
   ['CENTRE_MID',   [-0.04, 1.29, 0.25], 'Centred, just above the base hand, where a dominant hand taps down'],
   ['EAR',          [-0.19, 1.57, 0.02], 'Beside the ear'],
+  ['NOSE',         [-0.02, 1.565, 0.115], 'At the nose'],
+  ['CHEEK',        [-0.065, 1.545, 0.085], 'On the dominant cheek'],
+  ['BROW',         [-0.045, 1.625, 0.095], 'At the brow, above the eye'],
+  ['NECK',         [-0.045, 1.465, 0.085], 'At the throat'],
+  ['CHEST_OUT',    [-0.07, 1.31, 0.20], 'A hand\'s depth in front of the upper chest'],
+  ['WAIST',        [-0.13, 1.03, 0.16], 'At the waist'],
+  ['CONTRA_CHEST', [0.07, 1.30, 0.17], 'Across the midline, on the non-dominant side of the chest'],
+  ['CONTRA_SHOULDER', [0.09, 1.38, 0.13], 'Across the body at the non-dominant shoulder'],
+  ['ABOVE_HEAD',   [-0.16, 1.76, 0.12], 'Above the head'],
+  ['SIDE_HIGH',    [-0.33, 1.45, 0.16], 'Out to the dominant side at head height'],
+  ['SIDE_LOW',     [-0.27, 1.10, 0.20], 'Out to the dominant side and low'],
+  ['CENTRE_HIGH',  [-0.03, 1.42, 0.26], 'Centred and high, in front of the chin'],
+  ['OUT_FAR',      [-0.20, 1.28, 0.40], 'Well forward, where a sign pushes away to'],
+  ['FACE_HIGH',    [-0.10, 1.60, 0.20], 'In front of the face, off the midline so two hands clear each other'],
+  ['FACE_LOW',     [-0.10, 1.44, 0.20], 'In front of the jaw, off the midline so two hands clear each other'],
 ];
 
 const rows = LOCATIONS.map(([name, target, description]) => {
@@ -137,7 +177,7 @@ writeFileSync('packages/engine/src/signs/locations.generated.ts', `/**
 
 export interface SolvedLocation {
   readonly description: string;
-  /** The wrist position this was solved for, in metres. */
+  /** The point in signing space this names, in metres. */
   readonly target: readonly [number, number, number];
   readonly shoulder: readonly [number, number, number];
   readonly elbow: readonly [number, number, number];

@@ -11,6 +11,7 @@ const ICON: Record<string, string> = {
   fingerspelled: 'A',
   ambiguous: '?',
   dropped: '−',
+  spatial: '⌖',
   reordered: '↦',
 };
 

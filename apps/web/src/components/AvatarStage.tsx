@@ -8,13 +8,19 @@ import {
 
 /** Chest-up and front-on. The primary reading view; orbit is a departure from it. */
 export const DEFAULT_CAMERA = {
-  position: [0, 1.38, 1.74] as const,
-  // Framed on the signing space rather than the middle of the torso. Signing
-  // space runs roughly 0.9m wide once both hands and a raised salute are in it,
-  // so the default has to be wide enough to hold a hand at full reach; orbit
-  // and zoom are for looking closer, not for seeing the sign at all.
-  target: [-0.02, 1.32, 0.05] as const,
-  fov: 34,
+  position: [0, 1.40, 1.74] as const,
+  /**
+   * Framed on the signing space, not on the middle of the torso.
+   *
+   * The extremes are what set this, and they moved when the vocabulary did.
+   * A five-hand with its thumb at the forehead puts its fingertips at y=1.76,
+   * and ABOVE_HEAD reaches 1.94; a flat hand at the waist drops to about 0.85.
+   * At the earlier framing (target 1.32, 34 degrees) the top of that range was
+   * cut off -- FATHER lost its fingers off the top of the frame. This holds
+   * roughly 0.84 to 1.97, which covers both ends with a little room.
+   */
+  target: [-0.02, 1.40, 0.05] as const,
+  fov: 36,
 };
 
 interface RigProps {

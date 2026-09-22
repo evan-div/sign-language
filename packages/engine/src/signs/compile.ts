@@ -10,7 +10,7 @@
 
 import {
   blendPoses, composePoses, quatFromEulerDeg, quatMultiply,
-  type MotionClip, type Keyframe, type Pose, type Quat,
+  type MotionClip, type Keyframe, type Pose, type Quat, type Vec3,
 } from '@signflow/motion-format';
 import { compileHandshape } from '../handshapes/compile.js';
 import { letterSpec } from '../handshapes/letters.js';
@@ -20,6 +20,8 @@ import type { Hand } from '../handshapes/spec.js';
 import { SOLVED_LOCATIONS } from './locations.generated.js';
 import { orientationQuat } from './orientation.js';
 import { isTwoHanded, type SignDefinition, type SignKeyframe } from './definition.js';
+import { expandSign } from './expand.js';
+import { contactOffset, reach, type Arm } from './reach.js';
 
 /** Mirror a rotation across the body's sagittal plane. */
 function mirrorQuat(q: Quat): Quat {
@@ -39,14 +41,51 @@ function resolveHandshape(id: string) {
  * them. Mirroring the composed quaternions rather than re-solving keeps the two
  * hands exactly symmetric, which matters for two-handed signs.
  */
-export function keyframePose(keyframe: SignKeyframe, hand: Hand): Pose {
+interface ArmPlacement {
+  readonly shoulder: readonly [number, number, number];
+  readonly elbow: readonly [number, number, number];
+  readonly wristCorrection: Quat;
+}
+
+/**
+ * Solving the arm is the expensive part of compiling a sign, and the same few
+ * combinations recur across the library, so they are remembered. The key is
+ * everything the solve depends on and nothing else.
+ */
+const placements = new Map<string, ArmPlacement>();
+
+function armPlacement(keyframe: SignKeyframe): ArmPlacement {
   const location = SOLVED_LOCATIONS[keyframe.location];
+  const site = keyframe.contact ?? 'wrist';
+  // The table already answers the wrist case exactly. Re-solving it would only
+  // add numerical noise to signs that were right.
+  if (site === 'wrist') return location;
+
+  const key = `${keyframe.location}|${keyframe.handshape}|${keyframe.orientation ?? 'PALM_OUT'}|${site}`;
+  const cached = placements.get(key);
+  if (cached) return cached;
+
+  const orientation = orientationQuat(keyframe.orientation ?? 'PALM_OUT');
+  const offset = contactOffset(resolveHandshape(keyframe.handshape), site);
+  const seed = [...location.shoulder, ...location.elbow] as unknown as Arm;
+  const solved = reach(location.target as Vec3, offset, orientation, seed);
+  const placement: ArmPlacement = {
+    shoulder: solved.shoulder as readonly [number, number, number],
+    elbow: solved.elbow as readonly [number, number, number],
+    wristCorrection: solved.wristCorrection,
+  };
+  placements.set(key, placement);
+  return placement;
+}
+
+export function keyframePose(keyframe: SignKeyframe, hand: Hand): Pose {
+  const placement = armPlacement(keyframe);
 
   const euler = (v: readonly [number, number, number]) => quatFromEulerDeg(v[0], v[1], v[2]);
-  const shoulder = euler(location.shoulder);
-  const elbow = euler(location.elbow);
+  const shoulder = euler(placement.shoulder);
+  const elbow = euler(placement.elbow);
   const wrist = quatMultiply(
-    location.wristCorrection as Quat,
+    placement.wristCorrection as Quat,
     orientationQuat(keyframe.orientation ?? 'PALM_OUT'),
   );
 
@@ -94,7 +133,10 @@ function ease(t: number): number {
   return c * c * (3 - 2 * c);
 }
 
-export function compileSign(sign: SignDefinition, dominantHand: Hand = 'right'): MotionClip {
+export function compileSign(definition: SignDefinition, dominantHand: Hand = 'right'): MotionClip {
+  // Symmetry, base hands and repetition are resolved once, here, so that
+  // everything below sees one shape of sign.
+  const sign = expandSign(definition);
   const nonDominantHand: Hand = dominantHand === 'right' ? 'left' : 'right';
 
   // Both hands' keyframes land on one shared timeline, so a clip is a single

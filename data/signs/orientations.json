@@ -132,9 +132,22 @@
       ]
     },
     "ANGLED_OUT": {
-      "description": "Fingers up and outward, palm forward, as a salute sits",
+      "description": "Fingers up and away from the midline, palm forward",
       "fingers": [
         -0.45,
+        0.89,
+        0
+      ],
+      "palm": [
+        0,
+        0,
+        1
+      ]
+    },
+    "ANGLED_IN": {
+      "description": "Fingers up and toward the midline, palm forward, as a salute sits",
+      "fingers": [
+        0.45,
         0.89,
         0
       ],

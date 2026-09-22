@@ -241,3 +241,46 @@ describe('plan playback', () => {
     expect(planOf('hello.').durationMs).toBeGreaterThan(planOf('hello').durationMs);
   });
 });
+
+describe('words ASL carries in space', () => {
+  it('drops a preposition with its own notice rather than spelling it', () => {
+    // Spelling "w-i-t-h" is not what a signer does; it is what a system does
+    // when it has run out of ideas. The notice says which kind of omission it
+    // was, because "ASL does not sign this" and "ASL signs this with space we
+    // have not built" are different admissions.
+    const { plan } = translate('I go with you');
+    expect(plan.glossLine).toBe('ME GO YOU');
+    const spatial = plan.notices.find((n) => n.kind === 'spatial');
+    expect(spatial?.message).toContain('with');
+    expect(plan.notices.some((n) => n.kind === 'fingerspelled')).toBe(false);
+  });
+
+  it('keeps a word that has a sign, even if the stop list also lists it', () => {
+    // SAME is both a sign and a word that often rides on space. Having a sign
+    // wins, or the lexicon would be shadowed by the stop list.
+    const { plan } = translate('same');
+    expect(plan.glossLine).toBe('SAME');
+  });
+
+  it('still fingerspells a content word it has no sign for', () => {
+    const { plan } = translate('my dog');
+    expect(plan.glossLine).toBe('MY D-O-G');
+    expect(plan.notices.some((n) => n.kind === 'fingerspelled')).toBe(true);
+  });
+});
+
+describe('English coverage', () => {
+  it('answers the great majority of the commonest English words', () => {
+    // A floor, not a target. Measured properly by `pnpm coverage` against a
+    // frequency list this project did not choose; this guards the number
+    // against quiet regression when the lexicon or the stop lists change.
+    const common = ['the', 'you', 'we', 'they', 'and', 'with', 'go', 'know',
+      'time', 'day', 'work', 'good', 'new', 'more', 'can', 'want', 'see',
+      'think', 'make', 'people', 'home', 'water', 'because', 'if', 'would'];
+    const spelled = common.filter((word) => {
+      const { plan } = translate(word);
+      return plan.notices.some((n) => n.kind === 'fingerspelled');
+    });
+    expect(spelled).toEqual([]);
+  });
+});

@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { solveFK, tipPosition, jointPosition, vec3Distance, validatePose,
   fingerDirection, palmNormal, type Vec3 } from '@signflow/motion-format';
-import { ASL_LETTERS, compileHandshape, letterSpec, hasLetter, MOVING_LETTERS } from '../src/index.js';
+import { ASL_LETTERS, compileHandshape, letterSpec, hasLetter, MOVING_LETTERS,
+  SIGN_HANDSHAPES, HANDSHAPE_ALIASES } from '../src/index.js';
 
 /**
  * Handshapes are authored as joint rotations, so the only honest way to check
@@ -367,5 +368,102 @@ describe('every letter is visually distinct', () => {
       }
     }
     expect(collisions).toEqual([]);
+  });
+});
+
+describe('the handshapes that have no letter', () => {
+  const solveShape = (id: string) => solveFK(compileHandshape(SIGN_HANDSHAPES[id]!, 'right'));
+  const pinch = (s: ReturnType<typeof solveFK>, a: string, b: string) => vec3Distance(tip(s, a), tip(s, b));
+  const thumbDirection = (s: ReturnType<typeof solveFK>) => {
+    const w = jointPosition(s, 'right_wrist');
+    const t = tip(s, 'thumb');
+    const v: Vec3 = [t[0] - w[0], t[1] - w[1], t[2] - w[2]];
+    const n = Math.hypot(...v);
+    return [v[0] / n, v[1] / n, v[2] / n] as Vec3;
+  };
+
+  it('compiles every one to a valid pose', () => {
+    for (const id of Object.keys(SIGN_HANDSHAPES)) {
+      expect(validatePose(compileHandshape(SIGN_HANDSHAPES[id]!, 'right')), id).toEqual([]);
+    }
+  });
+
+  it('bends the two fingers of BENT_V without closing them', () => {
+    // The whole point of a bent V is that it is not a V and not a closed fist:
+    // the fingers are presented, and hooked.
+    const s = solveShape('BENT_V');
+    for (const f of ['index', 'middle'] as const) {
+      expect(reach(s, f), `${f} reach`).toBeGreaterThan(CLOSED);
+      expect(reach(s, f), `${f} reach`).toBeLessThan(NOT_EXTENDED + 0.05);
+    }
+    expect(reach(s, 'ring')).toBeLessThan(CLOSED);
+    expect(vec3Distance(tip(s, 'index'), tip(s, 'middle'))).toBeGreaterThan(0.015);
+  });
+
+  it('touches the middle finger to the thumb in OPEN_8 and leaves the rest out', () => {
+    const s = solveShape('OPEN_8');
+    expect(pinch(s, 'middle', 'thumb')).toBeLessThan(0.03);
+    expect(reach(s, 'index')).toBeGreaterThan(EXTENDED);
+    expect(reach(s, 'ring')).toBeGreaterThan(EXTENDED);
+    expect(reach(s, 'pinky')).toBeGreaterThan(EXTENDED);
+  });
+
+  it('touches the index to the thumb in BABY_O and closes the rest', () => {
+    const s = solveShape('BABY_O');
+    expect(pinch(s, 'index', 'thumb')).toBeLessThan(0.03);
+    for (const f of ['middle', 'ring', 'pinky'] as const) {
+      expect(reach(s, f), f).toBeLessThan(CLOSED);
+    }
+  });
+
+  it('bends only the index in BENT_L, with the thumb out to the side', () => {
+    const s = solveShape('BENT_L');
+    expect(reach(s, 'index')).toBeGreaterThan(CLOSED);
+    expect(reach(s, 'index')).toBeLessThan(NOT_EXTENDED + 0.05);
+    expect(reach(s, 'middle')).toBeLessThan(CLOSED);
+    // Out to the side, not up: that is what separates it from a thumbs-up.
+    expect(thumbDirection(s)[0]).toBeGreaterThan(0.6);
+  });
+
+  it('extends and spreads all four fingers in FOUR', () => {
+    const s = solveShape('FOUR');
+    for (const f of FINGERS) expect(reach(s, f), f).toBeGreaterThan(EXTENDED);
+    expect(vec3Distance(tip(s, 'index'), tip(s, 'pinky')))
+      .toBeGreaterThan(vec3Distance(tip(solveShape('FLAT'), 'index'), tip(solveShape('FLAT'), 'pinky')));
+  });
+
+  it('points the thumb up in THUMB_OUT and closes everything else', () => {
+    const s = solveShape('THUMB_OUT');
+    for (const f of FINGERS) expect(reach(s, f), f).toBeLessThan(CLOSED);
+    // Up, and not merely out sideways.
+    const d = thumbDirection(s);
+    expect(d[1]).toBeGreaterThan(0.9);
+    expect(Math.abs(d[0])).toBeLessThan(0.35);
+  });
+
+  it('declares an alias where a sign handshape is a letter, and matches it exactly', () => {
+    for (const [id, letter] of Object.entries(HANDSHAPE_ALIASES)) {
+      const a = compileHandshape(SIGN_HANDSHAPES[id]!, 'right');
+      const b = compileHandshape(ASL_LETTERS[letter]!, 'right');
+      expect(Object.keys(a).sort(), id).toEqual(Object.keys(b).sort());
+      for (const joint of Object.keys(a)) expect(a[joint], `${id}.${joint}`).toEqual(b[joint]);
+    }
+  });
+
+  it('keeps every sign handshape distinct from every letter', () => {
+    // A handshape that is already a letter should be spelled with the letter,
+    // not duplicated here, or the two drift apart under editing.
+    const signature = (s: ReturnType<typeof solveFK>) =>
+      ['thumb', ...FINGERS].flatMap((f) => [...tip(s, f)]);
+    const distance = (a: number[], b: number[]) => Math.hypot(...a.map((v, i) => v - b[i]!));
+    const tooClose: string[] = [];
+    for (const id of Object.keys(SIGN_HANDSHAPES)) {
+      for (const letter of Object.keys(ASL_LETTERS)) {
+        if (HANDSHAPE_ALIASES[id] === letter) continue;
+        const d = distance(signature(solveShape(id)), signature(solveLetter(letter)));
+        if (d < 0.02) tooClose.push(`${id}/${letter} (${(d * 100).toFixed(1)}cm)`);
+      }
+    }
+    expect(tooClose).toEqual([]);
   });
 });

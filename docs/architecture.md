@@ -195,3 +195,155 @@ from the input comes back as a notice the interface shows.
 The resolver never guesses across a meaning boundary. A lemma with more than one
 sense stops and asks; the sentence still plays so it is not a dead end, but the
 choice is visibly not ours to have made.
+
+## A location is a place, not a wrist
+
+The solved location table gives arm rotations that put a joint at a point, and
+until the vocabulary grew past twenty signs that joint was always the wrist.
+This is wrong for most signs made at the face. A sign "at the chin" touches the
+chin with the fingertips; the wrist sits a hand's length below. Putting the
+wrist at the chin instead leaves the fingertips somewhere else entirely.
+
+Measured, with the fingers pointing up: 18.4cm between wrist and middle
+fingertip, which put the fingertips 12.4cm above the crown of the head at
+FOREHEAD, 10.4cm above it at TEMPLE, 7.4cm at EAR. Five of the first twenty
+signs were affected. Nothing in the test suite noticed, because every assertion
+was about the wrist, which was exactly where it had been asked to go.
+
+So a keyframe may name a **contact site** -- a fingertip, the thumb, the palm,
+the knuckles -- and the arm is re-solved at compile time to put that part of the
+hand on the point. This does not need general inverse kinematics. An orientation
+is stated in world directions and so does not depend on how the arm got there:
+if the hand's world rotation is O, the offset from the wrist to any point in the
+hand is a known constant rotated by O. "Fingertip at T" is therefore "wrist at
+T minus that offset", and what remains is the same three-degree-of-freedom
+position solve the offline table already does, seeded from its answer.
+
+The default stays `wrist`, so nothing that was right became wrong: the six signs
+that were refactored onto the new notation compile bit-for-bit identically.
+
+## What the arm cost function learned
+
+Solved arms are scored by reach first and shaped by the other terms, and two of
+those terms were wrong in opposite directions.
+
+"Elbow at least 13cm off the midline" was a stand-in for "elbow not inside the
+chest" that only looks sideways. For any target at the face -- where the elbow
+naturally comes forward and in -- the only way to satisfy it was to raise the
+elbow, and every face location solved with the elbow flared to shoulder height.
+Measuring penetration properly, in all three axes, lets the elbow come in front
+of the ribs where it belongs.
+
+Replacing it with a ceiling on elbow height failed the other way: reaching above
+your head *requires* the elbow above the shoulder, and as a hard rule it left
+ABOVE_HEAD 15cm short of its target. It is a preference now, weighted so that it
+settles ties between poses that both reach and yields to anything that does not.
+
+Joints are not enough either. An upper arm can have its shoulder and its elbow
+both outside the torso and its middle four centimetres inside it, so both limb
+segments are sampled along their length. A contralateral reach still overlaps
+the chest by about 1.3cm, which is the mannequin having no give rather than a
+solver failure; a real arm flattens.
+
+Three locations -- NOSE, CHEEK and BROW -- do not reach their targets, by 1.1 to
+1.5cm. Those points are inside the head, and a wrist cannot be. They resolve to
+the nearest reachable point outside it and are only meant to be used with a
+contact site, which re-solves and does reach them.
+
+## The notation says a thing once
+
+Three shorthands, each earning its place by removing a duplication that was
+already producing bugs:
+
+- **symmetry: mirror** -- the non-dominant hand does what the dominant one does.
+  WHAT was two identical five-keyframe tracks, maintained in parallel.
+- **symmetry: alternate** -- the non-dominant hand is at time t where the
+  dominant hand is at (duration - t). Time-reversal, not a phase offset: for an
+  oscillating sign it is true alternation, for a one-way movement it is the
+  hands travelling in opposite directions, and unlike a phase offset it is well
+  defined on any track with no wrap-around ambiguity at the ends.
+- **base** -- a non-dominant hand that holds one configuration throughout.
+- **repeat** -- an interval played several times.
+
+`expandSign` turns all four back into the explicit form, and it is the only
+place that knows about them. That is what makes the claim testable: the sugar is
+exactly the desugaring, and the tests state each expansion in full.
+
+The first version of `repeat` emitted only the extra copies and not the cycle as
+written, so every repeating sign played one cycle fewer than it asked for, with
+a long slow drift where the first cycle should have been. The linter did not
+catch it -- it was comparing the wrong two times -- and neither did the eye. A
+test that stated the expected keyframe list in full caught it immediately.
+
+## The linter is what makes a hundred signs possible
+
+At twenty signs a person can watch every one. At a hundred they cannot, and the
+failure is not a sign that looks slightly off -- it is a hand inside a head, or
+two signs that compile to the same motion, and nobody notices for a month.
+
+So every property that can be decided from geometry is decided on every commit:
+timing and stroke bounds, name resolution, repeat continuity, whether a contact
+site lands where it was aimed, whether a one-handed sign leaves the other hand
+alone, hands occupying the same space, limbs inside the body, whether the sign
+moves at all, peak wrist speed, elbow posture, and pairwise distinctness.
+
+Thresholds are calibrated rather than guessed where there is data to calibrate
+against. Peak wrist speed across the library has a median of 0.76 m/s and a 90th
+percentile of 1.42, so the warning sits at 1.8.
+
+It found, among others: HELLO's wrist 3.5cm inside the chest once the salute
+was aimed by its fingertips; DEAF's finger cutting through the head between the
+ear and the mouth; a C hand whose curled fingers went through the throat; two
+handshapes that were duplicates of letters (POINT is the letter Z, and is now
+declared as an alias so they cannot drift apart; CLAW measured 6mm from the
+letter C, which would have rendered every CLAW sign as a C).
+
+**What it cannot check is the only thing that finally matters.** No amount of
+geometry will catch a sign that is fluent, smooth, well separated and simply not
+the ASL for the word. Every entry stays `unvalidated` however clean the report.
+
+## Distinctness has to be a trajectory
+
+Comparing signs at the middle of the stroke seemed reasonable and is not. GO and
+COME are the same hands in the same place travelling in opposite directions:
+measured at the midpoint they are **0.0cm apart**. ASL distinguishes many pairs
+by direction alone, so a check that cannot see direction is blind to exactly the
+pairs it exists for. Signs are compared as five points through the stroke,
+divided by the sample count so the number still reads as metres.
+
+## Coverage, measured against a list we did not choose
+
+Scoring a vocabulary against a word list chosen alongside it only proves the two
+agree. The 2,000 most frequent English words (see `data/english/README.md`) were
+fixed long before this project and have no connection to ASL.
+
+Of the 100 most frequent English words, the system has an answer for 75% by
+type and 92% weighted by frequency; at 2,000 words it is 13% and 65%. "An
+answer" means a sign, a stated substitution, or a word deliberately dropped --
+not a word spelled letter by letter.
+
+Getting there needed a category that did not exist. Prepositions and
+conjunctions were being fingerspelled, and spelling "w-i-t-h" is not what a
+signer does, it is what a system does when it has run out of ideas. ASL carries
+those in space and on the face. They are dropped now, with a notice that says so
+in different words from the notice for "ASL does not sign this" -- the first is
+a roadmap item, the second is a fact about the language, and running them
+together would hide the roadmap. That distinction alone is the difference
+between answering 10% of the top 2,000 and answering 63%.
+
+## What the notation still cannot say
+
+Honest gaps, in rough order of how much they matter:
+
+- **Directional verbs.** GIVE-you and GIVE-me are one sign aimed at two places.
+  There are no loci, so every verb is signed at its citation form.
+- **Numbers**, and therefore anything counted or timed precisely.
+- **Classifiers**, which is most of how ASL describes shape, movement and
+  arrangement.
+- **Internal movement of the fingers** -- wiggling, releasing -- is approximated
+  by alternating between two whole handshapes.
+- **Facial grammar** is carried in the data as spans and rendered only as head
+  movement, because the mannequin has no face.
+- **Contact** is positional, not physical: two hands that should touch are
+  placed near each other and nothing enforces it.
+- **Non-manual mouth morphemes**, which distinguish real minimal pairs.

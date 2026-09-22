@@ -2,12 +2,12 @@
 
 Text-to-ASL. A user types English; a 3D avatar signs it.
 
-This repository contains **Milestones 1 to 5**: a rigged placeholder avatar, the
-animated manual alphabet, a small library of lexical signs, an English-to-ASL
-sentence pipeline, and the offline motion pipeline that will eventually replace
-the hand-authored signs with extracted motion. There is no backend and no
-accounts — by design. See `docs/architecture.md` for why the build order runs
-this way.
+This repository contains **Milestones 1 to 6**: a rigged placeholder avatar, the
+animated manual alphabet, a hundred lexical signs, an English-to-ASL sentence
+pipeline, the offline motion pipeline that will eventually replace the
+hand-authored signs with extracted motion, and a linter that makes a vocabulary
+this size reviewable at all. There is no backend and no accounts — by design.
+See `docs/architecture.md` for why the build order runs this way.
 
 **The extraction stage has never been run against video.** ASL Citizen is
 licence-gated, and the reconstruction stack it needs wants a GPU and gated
@@ -23,9 +23,11 @@ pnpm dev          # http://localhost:5173
 ```
 
 ```bash
-pnpm test         # 91 assertions across the skeleton, handshapes and timing
+pnpm test         # 200 assertions across the skeleton, handshapes, signs and timing
 pnpm typecheck
 pnpm build
+pnpm lint:signs   # geometric checks over the whole sign library
+pnpm coverage     # how much ordinary English the lexicon answers for
 ```
 
 ## What works today
@@ -40,16 +42,37 @@ Type a sentence; the avatar signs it.
 - **Honesty**: every departure from what you typed — a dropped word, a
   substituted sign, a word it had to spell — is reported, and marked in the
   sentence itself.
-- **Twenty lexical signs**, one- and two-handed, plus all 26 letters with J/Z
-  movement and double-letter bounces.
+- **A hundred lexical signs**, one- and two-handed, plus all 26 letters with
+  J/Z movement and double-letter bounces. Browse them in the Vocabulary tab:
+  each carries its description, the English that reaches it, and how far it
+  should be trusted.
+- **Words ASL carries in space** — prepositions, conjunctions, "it", "this" —
+  are dropped with a notice that says so, rather than spelled out. Of the 100
+  most frequent English words the system has an answer for 92% weighted by
+  frequency; `pnpm coverage` prints the table.
 - **Non-manual markers** as a parallel track: yes/no and WH questions and
   negation, rendered as head movement.
 - Play, pause, scrub, five speeds, a gloss toggle, and click any word or gloss
   to replay that sign. Orbit and zoom, clamped so the hands stay readable.
 
-**The sign vocabulary is placeholder.** It was authored from written
-descriptions by someone who is not a fluent signer and reviewed by no Deaf
-signer. It exists to exercise the pipeline, not to teach ASL.
+**The sign vocabulary is placeholder.** All hundred signs were authored from
+written descriptions by someone who is not a fluent signer and reviewed by no
+Deaf signer. They exist to exercise the pipeline, not to teach ASL. Going from
+twenty to a hundred did not make them more trustworthy; it made the machinery
+around them measurable.
+
+## How a hundred signs stay reviewable
+
+Nobody can watch a hundred signs on every commit, so `pnpm lint:signs` decides
+everything that geometry can decide: hands inside the head or chest, limbs
+through the torso, a contact point that misses the landmark it names, a repeated
+movement whose cycle does not close, two signs that compile to the same motion,
+wrist speeds that read as a snap, a one-handed sign that moves the other hand.
+Errors fail the test suite; warnings are judgement calls and are printed.
+
+It cannot check the one thing that matters most. A sign can be smooth, distinct,
+anatomically sound and simply not the ASL for the word, and only a Deaf reviewer
+will catch that. Every entry stays `unvalidated` however clean the report.
 
 ## How handshapes are verified
 
@@ -63,6 +86,8 @@ more than twice `U` does, `G` and `H` must point the fingers across the body.
 pnpm handshapes:report   # measured geometry for all 26 letters
 pnpm solve:locations     # re-solve signing-space locations
 pnpm export:data         # skeleton, handshapes, signs and lexicon as JSON
+pnpm lint:signs          # geometric checks over the sign library
+pnpm coverage            # English coverage against an independent frequency list
 pnpm screenshot          # visual QC via headless Chromium (dev server must be running)
 ```
 
@@ -82,9 +107,9 @@ subtlest letters in the set and are worth a reviewer's attention first.
 | `packages/motion-format` | Canonical skeleton, quaternion maths, forward kinematics, VRM retarget map |
 | `packages/engine` | Handshapes, postures, signs, sequencer, lexicon, translation, playback clock |
 | `packages/renderer-three` | Three.js adapter and the procedural mannequin |
-| `data/` | Exported skeleton and handshape JSON, for the future motion pipeline |
+| `data/` | Exported skeleton, handshape and sign JSON for the motion pipeline, and the English frequency list coverage is measured against |
 | `pipeline/` | Python: landmarks, solver, handshape prior, smoothing, QC, export |
-| `tools/` | QC report, data export, screenshot harness |
+| `tools/` | QC report, sign linter, coverage measurement, data export, screenshot harness |
 
 `packages/engine` must never import a renderer or anything browser-specific.
 That one rule is what keeps the desktop and mobile paths open.
@@ -94,4 +119,5 @@ That one rule is what keeps the desktop and mobile paths open.
 Accounts, a backend, the video-extraction pipeline, a face rig, numbers,
 classifiers, spatial referencing, and a real avatar. Each is scheduled in the
 architecture report, and none is needed to prove that the runtime produces
-legible signing.
+legible signing. `docs/architecture.md` ends with the list of things the sign
+notation still cannot express, which is the honest version of this section.

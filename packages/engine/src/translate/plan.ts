@@ -15,7 +15,8 @@
 
 import type { LetterSegment } from '../fingerspell.js';
 import { sequence, samplePrepared, type Prepared, type SequenceItem, type Sequence } from '../sequencer.js';
-import { FUNCTION_WORDS, WH_WORDS, type LexiconEntry } from '../lexicon/entries.js';
+import { signDefinition } from '../signs/library.js';
+import { FUNCTION_WORDS, SPATIALLY_EXPRESSED, WH_WORDS, type LexiconEntry } from '../lexicon/entries.js';
 import { MAX_PHRASE_WORDS, hasLemma, resolveConcept, type Resolution } from '../lexicon/resolve.js';
 import { isQuestion, tokenise, trailingPauseMs, type Token } from './normalize.js';
 import type { Pose } from '@signflow/motion-format';
@@ -42,7 +43,7 @@ export interface PlanSegment {
 }
 
 export interface PlanNotice {
-  readonly kind: 'substitution' | 'fingerspelled' | 'ambiguous' | 'dropped' | 'reordered';
+  readonly kind: 'substitution' | 'fingerspelled' | 'ambiguous' | 'dropped' | 'spatial' | 'reordered';
   readonly message: string;
   readonly segmentIndex?: number;
 }
@@ -143,11 +144,17 @@ export function translate(input: string, options: TranslateOptions = {}): {
   const question = isQuestion(input);
 
   const dropped: string[] = [];
+  const spatial: string[] = [];
   const kept = tokens.filter((t) => {
-    // A word only counts as a function word if we have no sign for it. "no"
-    // and "do" look alike to a stop list and are not alike in ASL.
-    if (FUNCTION_WORDS.has(t.lemma) && !hasLemma(t.lemma)) {
+    // A word only counts as droppable if we have no sign for it. "no" and "do"
+    // look alike to a stop list and are not alike in ASL.
+    if (hasLemma(t.lemma)) return true;
+    if (FUNCTION_WORDS.has(t.lemma)) {
       dropped.push(t.text);
+      return false;
+    }
+    if (SPATIALLY_EXPRESSED.has(t.lemma)) {
+      spatial.push(t.text);
       return false;
     }
     return true;
@@ -223,6 +230,12 @@ export function translate(input: string, options: TranslateOptions = {}): {
       message: `Dropped ${dropped.map((w) => `“${w}”`).join(', ')} — ASL does not sign them.`,
     });
   }
+  if (spatial.length > 0) {
+    notices.push({
+      kind: 'spatial',
+      message: `Left out ${spatial.map((w) => `“${w}”`).join(', ')} — ASL carries these in space or on the face, which this does not build yet.`,
+    });
+  }
   if (reordered) {
     notices.push({ kind: 'reordered', message: 'Moved the question word to the end, as ASL does.' });
   }
@@ -254,6 +267,49 @@ export function translate(input: string, options: TranslateOptions = {}): {
       glossLine: segments.map((s) => s.gloss).join(' '),
       durationMs: built.sequence.durationMs,
       isQuestion: question,
+    },
+  };
+}
+
+/**
+ * A plan holding one sign on its own, for previewing the library.
+ *
+ * Goes through the same sequencer as a sentence, so what a preview shows is
+ * what that sign looks like inside one -- lead-in from rest, stroke, release --
+ * rather than a separate playback path that could drift from the real one.
+ */
+export function planSign(signId: string, options: TranslateOptions = {}): {
+  plan: ASLPlan;
+  prepared: readonly Prepared[];
+  sequence: Sequence;
+} {
+  const definition = signDefinition(signId);
+  if (!definition) throw new Error(`Unknown sign "${signId}"`);
+
+  const built = sequence([{ kind: 'sign', signId }], {
+    speed: options.speed ?? 1,
+    hand: options.hand ?? 'right',
+  });
+  const segment = built.sequence.segments[0]!;
+  const source = definition.gloss;
+
+  return {
+    prepared: built.prepared,
+    sequence: built.sequence,
+    plan: {
+      source,
+      segments: [{
+        ...segment,
+        sourceSpan: [0, source.length],
+        sourceText: source,
+        resolution: 'direct',
+      }],
+      nmmSpans: [],
+      notices: [],
+      ambiguities: [],
+      glossLine: definition.gloss,
+      durationMs: built.sequence.durationMs,
+      isQuestion: false,
     },
   };
 }

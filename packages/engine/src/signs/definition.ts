@@ -7,10 +7,19 @@
  * parameters ASL phonology itself describes signs with, which is what lets the
  * same entries later carry ASL-LEX metadata and act as the prior for extracted
  * motion.
+ *
+ * The three shorthands below (symmetry, base, repeat) are not conveniences for
+ * their own sake. Each replaces a duplication that was already producing bugs
+ * at twenty signs and would have produced more at a hundred: a mirrored sign
+ * whose two tracks drift apart under editing, a static base hand rewritten for
+ * every sign that uses one, a repeated movement copied out cycle by cycle.
+ * `expandSign` turns each of them back into the explicit form, so the sugar is
+ * exactly the desugaring and nothing downstream has to know about it.
  */
 
 import type { LocationName } from './locations.generated.js';
 import type { OrientationName } from './orientation.js';
+import type { ContactSite } from './reach.js';
 
 export interface SignKeyframe {
   readonly atMs: number;
@@ -18,6 +27,35 @@ export interface SignKeyframe {
   /** A letter id (A-Z) or a name from SIGN_HANDSHAPES. */
   readonly handshape: string;
   readonly orientation?: OrientationName;
+  /**
+   * Which part of the hand sits at the location. Defaults to the wrist, which
+   * is what the solved location table states literally; a sign made at the face
+   * wants the finger or the palm that touches it, or the hand ends up a whole
+   * hand's length past the landmark it names.
+   */
+  readonly contact?: ContactSite;
+}
+
+/**
+ * How the non-dominant hand follows the dominant one.
+ *
+ * `mirror` is the symmetric case: both hands do the same thing at the same
+ * time, which mirroring across the midline already expresses.
+ *
+ * `alternate` is time-reversal -- the non-dominant hand is at time t where the
+ * dominant hand is at (duration - t). For an oscillating sign that is true
+ * alternation, one hand rising as the other falls; for a one-way movement it is
+ * the hands travelling in opposite directions. Both are real ASL patterns, and
+ * unlike a phase offset it is well defined on any track, with no wrap-around
+ * ambiguity at the ends.
+ */
+export type Symmetry = 'mirror' | 'alternate';
+
+/** A repeated movement: the interval [fromMs, toMs] is played `times` times. */
+export interface Repeat {
+  readonly fromMs: number;
+  readonly toMs: number;
+  readonly times: number;
 }
 
 /**
@@ -49,11 +87,20 @@ export interface SignDefinition {
   readonly strokeStartMs: number;
   readonly strokeEndMs: number;
   readonly dominant: readonly SignKeyframe[];
-  /** Present only for two-handed signs. */
+  /**
+   * The non-dominant hand, written out. Use `symmetry` or `base` instead where
+   * one of them says it; this is for the hands that genuinely do different
+   * things.
+   */
   readonly nonDominant?: readonly SignKeyframe[];
+  /** The non-dominant hand derived from the dominant one. */
+  readonly symmetry?: Symmetry;
+  /** A non-dominant hand that holds one configuration throughout: a base hand. */
+  readonly base?: Omit<SignKeyframe, 'atMs'>;
+  readonly repeat?: Repeat;
   readonly provenance: SignProvenance;
 }
 
 export function isTwoHanded(sign: SignDefinition): boolean {
-  return (sign.nonDominant?.length ?? 0) > 0;
+  return (sign.nonDominant?.length ?? 0) > 0 || sign.symmetry !== undefined || sign.base !== undefined;
 }

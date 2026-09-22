@@ -37,7 +37,8 @@ export const ORIENTATIONS = {
   FINGERS_ACROSS: { description: 'Fingers toward the midline, palm toward the signer', fingers: [1, 0, 0], palm: [0, 0, -1] },
   FINGERS_ACROSS_DOWN: { description: 'Fingers toward the midline, palm down', fingers: [1, 0, 0], palm: [0, -1, 0] },
   FINGERS_DOWN: { description: 'Fingers down, palm toward the signer', fingers: [0, -1, 0], palm: [0, 0, -1] },
-  ANGLED_OUT: { description: 'Fingers up and outward, palm forward, as a salute sits', fingers: [-0.45, 0.89, 0], palm: [0, 0, 1] },
+  ANGLED_OUT: { description: 'Fingers up and away from the midline, palm forward', fingers: [-0.45, 0.89, 0], palm: [0, 0, 1] },
+  ANGLED_IN: { description: 'Fingers up and toward the midline, palm forward, as a salute sits', fingers: [0.45, 0.89, 0], palm: [0, 0, 1] },
   ANGLED_DOWN: { description: 'Fingers up and forward, palm forward and down', fingers: [0, 0.72, 0.69], palm: [0, -0.69, 0.72] },
 } as const satisfies Record<string, OrientationSpec>;
 
