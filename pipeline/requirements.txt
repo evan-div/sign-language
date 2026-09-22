@@ -1,0 +1,4 @@
+numpy>=1.26
+# Extraction only. The solver, prior and QC stages need nothing but numpy, so
+# the parts that are tested here stay installable without a vision stack.
+mediapipe>=0.10 ; extra == "extract"

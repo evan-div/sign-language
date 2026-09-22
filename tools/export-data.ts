@@ -15,11 +15,14 @@ import { fileURLToPath } from 'node:url';
 
 import {
   JOINTS, JOINT_COUNT, SKELETON_VERSION, TIP_SITES, CANONICAL_TO_VRM,
-  solveFK, tipPosition, jointPosition, vec3Distance, vec3Sub,
+  solveFK, tipPosition, jointPosition, vec3Distance, vec3Sub, quatFromEulerDeg,
 } from '../packages/motion-format/src/index.js';
 import { ASL_LETTERS, MOVING_LETTERS } from '../packages/engine/src/handshapes/letters.js';
 import { compileHandshape } from '../packages/engine/src/handshapes/compile.js';
 import { SIGNS } from '../packages/engine/src/signs/library.js';
+import { compileSign } from '../packages/engine/src/signs/compile.js';
+import { sampleClip } from '../packages/motion-format/src/index.js';
+import { SIGN_HANDSHAPES } from '../packages/engine/src/handshapes/sign-shapes.js';
 import { SOLVED_LOCATIONS } from '../packages/engine/src/signs/locations.generated.js';
 import { ORIENTATIONS } from '../packages/engine/src/signs/orientation.js';
 import { LEXICON, SYNONYMS } from '../packages/engine/src/lexicon/entries.js';
@@ -110,4 +113,119 @@ write('data/lexicon/english-to-sign.json', {
     + 'entry is ambiguous and the resolver refuses to choose for the user.',
   entries: LEXICON,
   synonyms: SYNONYMS,
+});
+
+/**
+ * Reference poses and the joint positions they produce.
+ *
+ * The motion pipeline implements forward kinematics again in Python, and two
+ * implementations of the same maths drift. This pins them together: the Python
+ * side asserts it reproduces these positions, so a change to the skeleton that
+ * breaks the pipeline fails a test rather than silently corrupting extracted
+ * motion.
+ */
+const referencePoses: Array<[string, Record<string, readonly [number, number, number, number]>]> = [
+  ['bind', {}],
+  ['elbow-90', { right_elbow: quatFromEulerDeg(90, 0, 0) }],
+  ['shoulder-twist', { right_shoulder: quatFromEulerDeg(31, -17, 44) }],
+  ['chain', {
+    right_shoulder: quatFromEulerDeg(12, 40, 18),
+    right_elbow: quatFromEulerDeg(28, -2, 4),
+    right_wrist: quatFromEulerDeg(-20, 35, 10),
+    right_index1: quatFromEulerDeg(50, 0, -8),
+    right_index2: quatFromEulerDeg(60, 0, 0),
+    right_thumb1: quatFromEulerDeg(-3, -50, 31),
+  }],
+];
+
+write('data/skeleton/fk-reference.json', {
+  version: SKELETON_VERSION,
+  note: 'Cross-implementation check. Each pose lists every joint\u2019s world position '
+    + 'under the reference forward-kinematics implementation in packages/motion-format.',
+  poses: referencePoses.map(([name, pose]) => {
+    const solved = solveFK(pose);
+    return {
+      name,
+      pose,
+      joints: Object.fromEntries(JOINTS.map((j, i) =>
+        [j.name, solved.positions[i]!.map((v) => Number(v.toFixed(9)))])),
+      tips: Object.fromEntries(TIP_SITES.map((t) =>
+        [t.name, tipPosition(solved, t.name).map((v) => Number(v.toFixed(9)))])),
+    };
+  }),
+});
+
+/**
+ * Handshapes as compiled joint rotations, not just as specs.
+ *
+ * The motion pipeline needs to compare an extracted hand against every known
+ * handshape, which means it needs the rotations, not the flex-and-spread
+ * parameters they came from. Exporting the compiled form keeps one compiler
+ * rather than growing a second one in Python that can drift from this one.
+ */
+const compiledHandshapes = Object.fromEntries(
+  [
+    ...Object.entries(ASL_LETTERS).map(([id, spec]) => [id, { kind: 'letter', spec }] as const),
+    ...Object.entries(SIGN_HANDSHAPES).map(([id, spec]) => [id, { kind: 'sign', spec }] as const),
+  ].map(([id, entry]) => {
+    const pose = compileHandshape(entry.spec, 'right');
+    return [id, {
+      kind: entry.kind,
+      description: entry.spec.description,
+      // Right hand. The left mirrors by negating the y and z components.
+      rotations: Object.fromEntries(
+        Object.entries(pose).map(([joint, q]) => [joint, q.map((v) => Number(v.toFixed(9)))]),
+      ),
+    }];
+  }),
+);
+
+write('data/handshapes/compiled.json', {
+  skeletonVersion: SKELETON_VERSION,
+  note: 'Compiled joint rotations for every known handshape, right hand. Used by the '
+    + 'motion pipeline to classify an extracted hand and to supply the handshape prior.',
+  handshapes: compiledHandshapes,
+});
+
+/**
+ * Authored signs sampled at 30fps, as ground truth for the motion pipeline.
+ *
+ * The pipeline has no video to work from here, so it tests itself by projecting
+ * a known pose out to landmarks, corrupting them, and solving back. These are
+ * the known poses: real signs rather than isolated handshapes, so the test
+ * covers a moving arm and a changing hand rather than a static fist.
+ */
+const FIXTURE_SIGNS = ['HELLO', 'NAME', 'THANK-YOU'];
+const FIXTURE_FPS = 30;
+
+write('data/signs/extraction-fixture.json', {
+  skeletonVersion: SKELETON_VERSION,
+  fps: FIXTURE_FPS,
+  note: 'Ground-truth frames for pipeline tests. Sampled from the authored signs, which '
+    + 'are themselves placeholders -- these exercise the extraction path, they do not '
+    + 'validate the signs.',
+  signs: FIXTURE_SIGNS.map((id) => {
+    const definition = SIGNS[id]!;
+    const clip = compileSign(definition);
+    const frameCount = Math.round((clip.durationMs / 1000) * FIXTURE_FPS) + 1;
+    return {
+      id,
+      gloss: definition.gloss,
+      durationMs: clip.durationMs,
+      strokeStartMs: clip.strokeStartMs,
+      strokeEndMs: clip.strokeEndMs,
+      /** The handshape the dominant hand holds through the stroke. */
+      dominantHandshape: definition.dominant[Math.floor(definition.dominant.length / 2)]!.handshape,
+      frames: Array.from({ length: frameCount }, (_, i) => {
+        const timeMs = (i / FIXTURE_FPS) * 1000;
+        return {
+          timeMs: Number(timeMs.toFixed(3)),
+          pose: Object.fromEntries(
+            Object.entries(sampleClip(clip, timeMs)).map(([joint, q]) =>
+              [joint, q.map((v) => Number(v.toFixed(9)))]),
+          ),
+        };
+      }),
+    };
+  }),
 });

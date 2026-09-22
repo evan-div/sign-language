@@ -2,11 +2,18 @@
 
 Text-to-ASL. A user types English; a 3D avatar signs it.
 
-This repository contains **Milestones 1 to 4**: a rigged placeholder avatar, the
-animated manual alphabet, a small library of lexical signs, and an
-English-to-ASL sentence pipeline. There is no backend, no accounts, and no
-motion-extraction pipeline yet — by design. See `docs/architecture.md` for why
-the build order runs this way.
+This repository contains **Milestones 1 to 5**: a rigged placeholder avatar, the
+animated manual alphabet, a small library of lexical signs, an English-to-ASL
+sentence pipeline, and the offline motion pipeline that will eventually replace
+the hand-authored signs with extracted motion. There is no backend and no
+accounts — by design. See `docs/architecture.md` for why the build order runs
+this way.
+
+**The extraction stage has never been run against video.** ASL Citizen is
+licence-gated, and the reconstruction stack it needs wants a GPU and gated
+model weights. Everything downstream of extraction is built and measured
+against synthesised landmarks; `pipeline/README.md` says exactly what that does
+and does not show.
 
 ## Quick start
 
@@ -76,6 +83,7 @@ subtlest letters in the set and are worth a reviewer's attention first.
 | `packages/engine` | Handshapes, postures, signs, sequencer, lexicon, translation, playback clock |
 | `packages/renderer-three` | Three.js adapter and the procedural mannequin |
 | `data/` | Exported skeleton and handshape JSON, for the future motion pipeline |
+| `pipeline/` | Python: landmarks, solver, handshape prior, smoothing, QC, export |
 | `tools/` | QC report, data export, screenshot harness |
 
 `packages/engine` must never import a renderer or anything browser-specific.
