@@ -1,0 +1,92 @@
+{
+  "note": "Non-manual markers: ASL grammar carried on the face and head. Named for what they do, not for how they are articulated, because each one is a bundle. The articulations below are a placeholder authored from descriptions, like the signs.",
+  "markers": {
+    "yes_no_question": {
+      "brows": "up",
+      "description": "Yes/no question: brows up, eyes widened, head forward.",
+      "face": {
+        "browInnerUp": 0.85,
+        "browOuterUpLeft": 0.9,
+        "browOuterUpRight": 0.9,
+        "eyeWideLeft": 0.5,
+        "eyeWideRight": 0.5
+      },
+      "head": [
+        8,
+        0,
+        0
+      ]
+    },
+    "wh_question": {
+      "brows": "down",
+      "description": "WH question: brows down and drawn together, eyes narrowed, head forward.",
+      "face": {
+        "browDownLeft": 0.9,
+        "browDownRight": 0.9,
+        "eyeSquintLeft": 0.45,
+        "eyeSquintRight": 0.45
+      },
+      "head": [
+        10,
+        0,
+        0
+      ]
+    },
+    "topic": {
+      "brows": "up",
+      "description": "Topic marker: brows up, head back, on the fronted phrase only.",
+      "face": {
+        "browInnerUp": 0.75,
+        "browOuterUpLeft": 0.8,
+        "browOuterUpRight": 0.8
+      },
+      "head": [
+        -6,
+        0,
+        0
+      ]
+    },
+    "conditional": {
+      "brows": "up",
+      "description": "Conditional clause: brows up, head tilted to one side.",
+      "face": {
+        "browInnerUp": 0.7,
+        "browOuterUpLeft": 0.75,
+        "browOuterUpRight": 0.75
+      },
+      "head": [
+        0,
+        0,
+        9
+      ]
+    },
+    "negation": {
+      "brows": "down",
+      "description": "Negation: head shaken, brows drawn down, mouth turned down.",
+      "face": {
+        "browDownLeft": 0.5,
+        "browDownRight": 0.5,
+        "mouthFrownLeft": 0.45,
+        "mouthFrownRight": 0.45
+      },
+      "oscillate": {
+        "axis": "yaw",
+        "degrees": 11,
+        "hz": 1.7
+      }
+    },
+    "affirmation": {
+      "brows": "none",
+      "description": "Affirmation: head nodded, lips pressed.",
+      "face": {
+        "mouthPressLeft": 0.4,
+        "mouthPressRight": 0.4
+      },
+      "oscillate": {
+        "axis": "pitch",
+        "degrees": 7,
+        "hz": 1.7
+      }
+    }
+  }
+}

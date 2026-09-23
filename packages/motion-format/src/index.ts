@@ -5,3 +5,4 @@ export * from './fk.js';
 export * from './retarget.js';
 export * from './clip-io.js';
 export * from './body.js';
+export * from './face.js';

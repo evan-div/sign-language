@@ -18,7 +18,7 @@ import { planFingerspell, sampleFingerspell, type FingerspellPlan, type LetterSe
 import { REST_POSTURE } from './postures.js';
 import type { Hand } from './handshapes/spec.js';
 import { compileSign } from './signs/compile.js';
-import { signDefinition } from './signs/library.js';
+import { resolveSign } from './signs/resolve-sign.js';
 
 export type SequenceItem =
   | { readonly kind: 'sign'; readonly signId: string }
@@ -107,7 +107,7 @@ export function signClip(signId: string, hand: Hand = 'right'): MotionClip {
   const key = `${signId}:${hand}`;
   const cached = clipCache.get(key);
   if (cached) return cached;
-  const definition = signDefinition(signId);
+  const definition = resolveSign(signId);
   if (!definition) throw new Error(`Unknown sign "${signId}"`);
   const clip = compileSign(definition, hand);
   clipCache.set(key, clip);
@@ -165,7 +165,7 @@ export function sequence(items: readonly SequenceItem[], options: SequenceOption
       const clip = signClip(item.signId, opts.hand);
       return {
         clip, kind: 'sign', signId: item.signId,
-        gloss: signDefinition(item.signId)?.gloss ?? item.signId,
+        gloss: resolveSign(item.signId)?.gloss ?? item.signId,
         strokeMs: strokeDuration(clip) / speed,
       };
     }

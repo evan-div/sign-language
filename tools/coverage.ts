@@ -12,9 +12,12 @@
  */
 
 import { readFileSync } from 'node:fs';
-import { FUNCTION_WORDS, SPATIALLY_EXPRESSED, resolveConcept, tokenise, SIGN_IDS, LEXICON } from '../packages/engine/src/index.js';
+import {
+  FUNCTION_WORDS, SPATIALLY_EXPRESSED, resolveConcept, tokenise, parseNumber,
+  numberSignId, resolveSign, SIGN_IDS, LEXICON,
+} from '../packages/engine/src/index.js';
 
-type Outcome = 'sign' | 'synonym' | 'ambiguous' | 'dropped' | 'spatial' | 'fingerspelled';
+type Outcome = 'sign' | 'number' | 'synonym' | 'ambiguous' | 'dropped' | 'spatial' | 'fingerspelled';
 
 const words = readFileSync('data/english/frequency-top2000.txt', 'utf8')
   .split('\n').map((w) => w.trim()).filter(Boolean);
@@ -22,6 +25,12 @@ const words = readFileSync('data/english/frequency-top2000.txt', 'utf8')
 function classify(word: string): Outcome {
   const token = tokenise(word)[0];
   if (!token) return 'dropped';
+
+  // Numbers are composed rather than looked up, so they are invisible to the
+  // lexicon and would otherwise be counted as gaps.
+  const number = parseNumber([word], 0);
+  if (number && resolveSign(numberSignId(number.value))) return 'number';
+
   const resolved = resolveConcept(token.lemma, undefined, word);
   if (resolved.resolution === 'fingerspelled') {
     // A word ASL does not sign is not a gap in the lexicon. The interface says
@@ -60,19 +69,20 @@ function report(limit: number): void {
   const pct = (n: number) => `${((n / slice.length) * 100).toFixed(0)}%`.padStart(4);
   const wpct = (n: number) => `${((n / totalWeight) * 100).toFixed(0)}%`.padStart(4);
   const row = (o: Outcome) => `${pct(counts.get(o) ?? 0)} ${wpct(weighted.get(o) ?? 0)}`;
-  const handled = (['sign', 'synonym', 'ambiguous', 'dropped', 'spatial'] as Outcome[])
+  const handled = (['sign', 'number', 'synonym', 'ambiguous', 'dropped', 'spatial'] as Outcome[])
     .reduce((a, o) => a + (counts.get(o) ?? 0), 0);
-  const handledW = (['sign', 'synonym', 'ambiguous', 'dropped', 'spatial'] as Outcome[])
+  const handledW = (['sign', 'number', 'synonym', 'ambiguous', 'dropped', 'spatial'] as Outcome[])
     .reduce((a, o) => a + (weighted.get(o) ?? 0), 0);
   console.log(
-    `${String(limit).padStart(5)}  ${row('sign')}  ${row('synonym')}  ${row('ambiguous')}  ` +
-    `${row('dropped')}  ${row('spatial')}  ${row('fingerspelled')}   ${pct(handled)} ${wpct(handledW)}`,
+    `${String(limit).padStart(5)}  ${row('sign')}  ${row('number')}  ${row('synonym')}  ` +
+    `${row('ambiguous')}  ${row('dropped')}  ${row('spatial')}  ${row('fingerspelled')}   ` +
+    `${pct(handled)} ${wpct(handledW)}`,
   );
 }
 
 console.log(`${SIGN_IDS.length} signs, ${LEXICON.length} lexicon entries\n`);
-console.log('        signed       synonym    ambiguous     dropped      spatial      spelled      answered');
-console.log('  top   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok');
+console.log('        signed      number      synonym    ambiguous     dropped      spatial      spelled      answered');
+console.log('  top   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok');
 for (const limit of [100, 250, 500, 1000, 2000]) report(limit);
 
 console.log('\n"type" counts each word once; "tok" weights by 1/rank, as a stand-in for');

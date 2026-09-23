@@ -1,0 +1,356 @@
+{
+  "note": "Digit handshapes. Seven of the ten are shapes the lexical signs already needed; only 3, 6 and 7 were added for numbers. Palm orientation for 1-5 versus 6-9 is a convention this project chose and a reviewer should check first.",
+  "digits": {
+    "0": "O",
+    "1": "POINT",
+    "2": "V",
+    "3": "NUM_3",
+    "4": "FOUR",
+    "5": "OPEN_5",
+    "6": "NUM_6",
+    "7": "NUM_7",
+    "8": "OPEN_8",
+    "9": "F"
+  },
+  "ten": "THUMB_OUT",
+  "maxComposable": 999999,
+  "incorporatingSigns": [
+    "WEEK",
+    "DAY"
+  ],
+  "maxIncorporated": 9,
+  "examples": {
+    "0": {
+      "id": "NUM_0",
+      "gloss": "0",
+      "description": "The number 0.",
+      "durationMs": 240,
+      "strokeStartMs": 48,
+      "strokeEndMs": 240,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "O",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "O",
+          "orientation": "PALM_OUT"
+        }
+      ],
+      "held": true,
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    },
+    "5": {
+      "id": "NUM_5",
+      "gloss": "5",
+      "description": "The number 5.",
+      "durationMs": 240,
+      "strokeStartMs": 48,
+      "strokeEndMs": 240,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_IN"
+        }
+      ],
+      "held": true,
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    },
+    "11": {
+      "id": "NUM_11",
+      "gloss": "11",
+      "description": "The number 11, flicked. Approximated.",
+      "durationMs": 520,
+      "strokeStartMs": 80,
+      "strokeEndMs": 520,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 130,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "X",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 260,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 390,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "X",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 520,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "POINT",
+          "orientation": "PALM_IN"
+        }
+      ],
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Numbers 11-15 move inside the hand -- a flick, a bend -- which this notation cannot express. Approximated by alternating two handshapes."
+      }
+    },
+    "16": {
+      "id": "NUM_16",
+      "gloss": "16",
+      "description": "The number 16: the 6 hand turned over.",
+      "durationMs": 620,
+      "strokeStartMs": 80,
+      "strokeEndMs": 620,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_6",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_6",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_6",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_6",
+          "orientation": "PALM_OUT"
+        }
+      ],
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    },
+    "20": {
+      "id": "NUM_20",
+      "gloss": "20",
+      "description": "The number 20: an L hand closing.",
+      "durationMs": 620,
+      "strokeStartMs": 80,
+      "strokeEndMs": 620,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "BENT_L",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "BENT_L",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "BABY_O",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "BABY_O",
+          "orientation": "PALM_OUT"
+        }
+      ],
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    },
+    "42": {
+      "id": "NUM_42",
+      "gloss": "42",
+      "description": "The number 42, as FOUR then V.",
+      "durationMs": 620,
+      "strokeStartMs": 80,
+      "strokeEndMs": 620,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FOUR",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "FOUR",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "V",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "V",
+          "orientation": "PALM_OUT"
+        }
+      ],
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    },
+    "305": {
+      "id": "NUM_305",
+      "gloss": "305",
+      "description": "The number 305, as NUM_3 then C then OPEN_5.",
+      "durationMs": 1000,
+      "strokeStartMs": 80,
+      "strokeEndMs": 1000,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_3",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_3",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "C",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "C",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 760,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 1000,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "OPEN_5",
+          "orientation": "PALM_IN"
+        }
+      ],
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    },
+    "2026": {
+      "id": "NUM_2026",
+      "gloss": "2026",
+      "description": "The number 2026, as V then M then V then NUM_6.",
+      "durationMs": 1380,
+      "strokeStartMs": 80,
+      "strokeEndMs": 1380,
+      "dominant": [
+        {
+          "atMs": 0,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "V",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 240,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "V",
+          "orientation": "PALM_IN"
+        },
+        {
+          "atMs": 380,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "M",
+          "orientation": "PALM_DOWN"
+        },
+        {
+          "atMs": 620,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "M",
+          "orientation": "PALM_DOWN"
+        },
+        {
+          "atMs": 760,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "V",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 1000,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "V",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 1140,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_6",
+          "orientation": "PALM_OUT"
+        },
+        {
+          "atMs": 1380,
+          "location": "NEUTRAL_HIGH",
+          "handshape": "NUM_6",
+          "orientation": "PALM_OUT"
+        }
+      ],
+      "provenance": {
+        "source": "generated",
+        "validation": "unvalidated",
+        "note": "Composed by rule from digit handshapes; idiomatic forms for 21-29, 66-69 and others are not special-cased."
+      }
+    }
+  }
+}

@@ -9,11 +9,15 @@ import { SentenceView } from './components/SentenceView.js';
 import { GlossView } from './components/GlossView.js';
 import { Notices } from './components/Notices.js';
 import { Vocabulary } from './components/Vocabulary.js';
+import { Markers } from './components/Markers.js';
 
 const EXAMPLES = [
   'hello my name is Evan',
   'what is your name?',
-  'thank you',
+  'are you deaf?',
+  'if you want, do you go?',
+  'I go three weeks',
+  'my phone is 5551234',
   'I love you',
   'you are right',
 ];
@@ -109,7 +113,7 @@ export function App() {
           <span className="mark" aria-hidden="true" />
           <h1>SignFlow</h1>
         </div>
-        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;6</p>
+        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;7</p>
       </header>
 
       <main className="main">
@@ -125,6 +129,7 @@ export function App() {
           <div className="viewport__caption">
             <SentenceView plan={plan} active={active} onSelect={replaySegment} />
             {showGloss && <GlossView plan={plan} active={active} onSelect={replaySegment} />}
+            <Markers plan={plan} timeMs={timeMs} />
           </div>
         </section>
 
@@ -195,8 +200,9 @@ export function App() {
             <strong>These signs are placeholders.</strong> They were authored from written
             descriptions by someone who is not a fluent signer and reviewed by no Deaf
             signer, so treat the vocabulary as a demonstration of the pipeline rather than
-            as ASL. Facial grammar is carried in the data but only rendered as head
-            movement &mdash; the placeholder mannequin has no face.
+            as ASL. The face carries sentence type &mdash; questions, negation, topics
+            &mdash; on a mannequin built of boxes, which is enough to tell the markers
+            apart and no more.
           </p>
         </section>
       </main>

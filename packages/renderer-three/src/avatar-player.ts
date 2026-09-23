@@ -8,13 +8,19 @@
  */
 
 import { Quaternion, type Object3D } from 'three';
-import { IDENTITY, JOINTS, type Pose, type Quat } from '@signflow/motion-format';
+import { IDENTITY, JOINTS, NEUTRAL_FACE, type FacePose, type Pose, type Quat } from '@signflow/motion-format';
 import { createMannequin, type Mannequin, type MannequinOptions } from './mannequin.js';
 
 export interface AvatarPlayer {
   readonly root: Object3D;
   /** Drive the avatar to a pose. Joints the pose omits return to rest. */
   applyPose(pose: Pose): void;
+  /**
+   * Drive the face from expression weights. Channels the pose omits return to
+   * neutral, for the same reason joints do: otherwise the previous frame's
+   * brow raise outlives the clause it belonged to.
+   */
+  applyFace(face: FacePose): void;
   dispose(): void;
 }
 
@@ -43,6 +49,10 @@ export class MannequinPlayer implements AvatarPlayer {
       this.scratch.set(q[0], q[1], q[2], q[3]);
       node.quaternion.copy(this.scratch);
     }
+  }
+
+  applyFace(face: FacePose = NEUTRAL_FACE): void {
+    this.mannequin.applyFace(face);
   }
 
   dispose(): void {

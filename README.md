@@ -2,8 +2,9 @@
 
 Text-to-ASL. A user types English; a 3D avatar signs it.
 
-This repository contains **Milestones 1 to 6**: a rigged placeholder avatar, the
-animated manual alphabet, a hundred lexical signs, an English-to-ASL sentence
+This repository contains **Milestones 1 to 7**: a rigged placeholder avatar with
+a face, the animated manual alphabet, a hundred lexical signs, numbers composed
+by rule, ASL's facial grammar scoped to clauses, an English-to-ASL sentence
 pipeline, the offline motion pipeline that will eventually replace the
 hand-authored signs with extracted motion, and a linter that makes a vocabulary
 this size reviewable at all. There is no backend and no accounts — by design.
@@ -23,7 +24,7 @@ pnpm dev          # http://localhost:5173
 ```
 
 ```bash
-pnpm test         # 200 assertions across the skeleton, handshapes, signs and timing
+pnpm test         # 244 assertions across the skeleton, handshapes, signs, face and timing
 pnpm typecheck
 pnpm build
 pnpm lint:signs   # geometric checks over the whole sign library
@@ -48,10 +49,15 @@ Type a sentence; the avatar signs it.
   should be trusted.
 - **Words ASL carries in space** — prepositions, conjunctions, "it", "this" —
   are dropped with a notice that says so, rather than spelled out. Of the 100
-  most frequent English words the system has an answer for 92% weighted by
+  most frequent English words the system has an answer for 93% weighted by
   frequency; `pnpm coverage` prints the table.
-- **Non-manual markers** as a parallel track: yes/no and WH questions and
-  negation, rendered as head movement.
+- **Facial grammar**, rendered rather than approximated: yes/no questions, WH
+  questions, topics, conditionals, negation and affirmation, each scoped to its
+  own clause. The face is a parallel track of ARKit-named weights, so a real
+  avatar consumes it with a lookup table.
+- **Numbers**, composed by rule rather than authored: 0 to 999,999, with the
+  number folded into the sign it counts where ASL does that ("three weeks" is
+  one sign made with a three handshape).
 - Play, pause, scrub, five speeds, a gloss toggle, and click any word or gloss
   to replay that sign. Orbit and zoom, clamped so the hands stay readable.
 
@@ -107,7 +113,7 @@ subtlest letters in the set and are worth a reviewer's attention first.
 | `packages/motion-format` | Canonical skeleton, quaternion maths, forward kinematics, VRM retarget map |
 | `packages/engine` | Handshapes, postures, signs, sequencer, lexicon, translation, playback clock |
 | `packages/renderer-three` | Three.js adapter and the procedural mannequin |
-| `data/` | Exported skeleton, handshape and sign JSON for the motion pipeline, and the English frequency list coverage is measured against |
+| `data/` | Exported skeleton, handshape, sign, face and number JSON for the motion pipeline, and the English frequency list coverage is measured against |
 | `pipeline/` | Python: landmarks, solver, handshape prior, smoothing, QC, export |
 | `tools/` | QC report, sign linter, coverage measurement, data export, screenshot harness |
 
@@ -116,8 +122,8 @@ That one rule is what keeps the desktop and mobile paths open.
 
 ## Not built yet, deliberately
 
-Accounts, a backend, the video-extraction pipeline, a face rig, numbers,
-classifiers, spatial referencing, and a real avatar. Each is scheduled in the
+Accounts, a backend, the video-extraction pipeline, classifiers, spatial
+referencing, mouth morphemes, and a real avatar. Each is scheduled in the
 architecture report, and none is needed to prove that the runtime produces
 legible signing. `docs/architecture.md` ends with the list of things the sign
 notation still cannot express, which is the honest version of this section.

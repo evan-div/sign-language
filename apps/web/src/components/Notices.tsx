@@ -12,6 +12,7 @@ const ICON: Record<string, string> = {
   ambiguous: '?',
   dropped: '−',
   spatial: '⌖',
+  incorporated: '⊕',
   reordered: '↦',
 };
 

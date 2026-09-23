@@ -33,7 +33,8 @@ const THUMB_ROUNDED: ThumbSpec = { metacarpal: [7, -10, 37], proximal: [1, 0, 0]
 
 /** Solved, like the letter thumbs: leaves the thumb pointing [0.20 0.97 0.15]. */
 const THUMB_UP: ThumbSpec = { metacarpal: [-10, -60, 40], proximal: [0, 0, 0], distal: [0, 0, 0] };
-const THUMB_PINCH_LOW: ThumbSpec = { metacarpal: [10, -24, 52], proximal: [26, 0, 0], distal: [18, 0, 0] };
+/** Solved for contact, like the 6 and 7 thumbs: leaves a 0.0cm gap, not 2.6cm. */
+const THUMB_PINCH_LOW: ThumbSpec = { metacarpal: [34, -45, 52], proximal: [23, 0, 0], distal: [19, 0, 0] };
 
 const OPEN = { flex: STRAIGHT } as const;
 const CLOSED = { flex: CURLED } as const;
@@ -98,7 +99,7 @@ export const SIGN_HANDSHAPES: Readonly<Record<string, HandshapeSpec>> = Object.f
   /** Middle fingertip meeting the thumb, the rest extended: the "open 8". */
   OPEN_8: {
     id: 'OPEN_8', description: 'Middle finger bent to the thumb, the others extended.',
-    index: OPEN, middle: { flex: [0.55, 0.5, 0.35] }, ring: OPEN, pinky: OPEN,
+    index: OPEN, middle: { flex: [0.79, 0.5, 0.35] }, ring: OPEN, pinky: OPEN,
     thumb: THUMB_PINCH_LOW, spread: 0.4,
   },
   /** Index curled onto the thumb, the rest closed: the "baby O". */
@@ -116,6 +117,30 @@ export const SIGN_HANDSHAPES: Readonly<Record<string, HandshapeSpec>> = Object.f
   FOUR: {
     id: 'FOUR', description: 'Four fingers extended and spread, thumb across the palm.',
     index: OPEN, middle: OPEN, ring: OPEN, pinky: OPEN, thumb: THUMB_TUCKED_IN, spread: 1,
+  },
+  /**
+   * Thumb, index and middle extended: the number 3.
+   *
+   * Not the letter W, which extends index, middle and ring with the thumb
+   * holding the little finger down. The two are a classic minimal pair and the
+   * distinctness test keeps them apart.
+   */
+  NUM_3: {
+    id: 'NUM_3', description: 'Thumb, index and middle extended, ring and little closed.',
+    index: { ...OPEN, spread: 0.55 }, middle: { ...OPEN, spread: -0.1 },
+    ring: CLOSED, pinky: CLOSED, thumb: THUMB_SPREAD,
+  },
+  /** Little finger meeting the thumb, the other three extended: the number 6. */
+  NUM_6: {
+    id: 'NUM_6', description: 'Little finger meeting the thumb, the other three extended.',
+    index: OPEN, middle: OPEN, ring: OPEN, pinky: { flex: [0.54, 0.86, 0.06] },
+    thumb: { metacarpal: [22, -18, 94], proximal: [22, 0, 0], distal: [17, 0, 0] }, spread: 0.35,
+  },
+  /** Ring finger meeting the thumb, the other three extended: the number 7. */
+  NUM_7: {
+    id: 'NUM_7', description: 'Ring finger meeting the thumb, the other three extended.',
+    index: OPEN, middle: OPEN, ring: { flex: [0.79, 0.5, 0.36] }, pinky: OPEN,
+    thumb: { metacarpal: [37, -20, 75], proximal: [25, 0, 0], distal: [4, 0, 0] }, spread: 0.35,
   },
   /** A fist with the thumb standing up. */
   THUMB_OUT: {

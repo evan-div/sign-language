@@ -26,7 +26,8 @@ import {
   type BufferGeometry,
   type Material,
 } from 'three';
-import { JOINTS, CANONICAL_TO_VRM, type Vec3 } from '@signflow/motion-format';
+import { JOINTS, CANONICAL_TO_VRM, type FacePose, type Vec3 } from '@signflow/motion-format';
+import { createFaceRig, type FaceRig } from './face-rig.js';
 
 export interface MannequinOptions {
   readonly skinColor?: string;
@@ -37,6 +38,8 @@ export interface Mannequin {
   readonly root: Group;
   /** Canonical joint name -> the Object3D carrying that joint's rotation. */
   readonly joints: ReadonlyMap<string, Object3D>;
+  /** Drive the face from ARKit-named expression weights. */
+  applyFace(face: FacePose): void;
   dispose(): void;
 }
 
@@ -142,11 +145,19 @@ export function createMannequin(options: MannequinOptions = {}): Mannequin {
     }
   }
 
+  // The face rides on the head joint, so it follows head rotation for free --
+  // which matters, because a headshake and a brow raise are often the same
+  // marker and have to move together.
+  const face: FaceRig = createFaceRig({ skin });
+  joints.get('head')!.add(face.group);
+
   return {
     root,
     joints,
+    applyFace(weights) { face.apply(weights); },
     dispose() {
       geometries.forEach((g) => g.dispose());
+      face.dispose();
       skin.dispose();
       accent.dispose();
     },

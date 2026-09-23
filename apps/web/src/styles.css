@@ -562,3 +562,31 @@ button { font: inherit; cursor: pointer; }
 
 .vocab__provenance--reviewed { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
 .vocab__provenance--expert-validated { background: rgba(5, 150, 105, 0.12); color: #059669; }
+
+/* --- non-manual markers ------------------------------------------------ */
+
+.markers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+/* Listed inactive and lit when live, so the reader can see a marker coming and
+   see how far it reaches, rather than watching labels appear and vanish. */
+.marker {
+  padding: 2px 8px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  border-radius: 999px;
+  color: var(--text-muted, #8b93a1);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  opacity: 0.55;
+  transition: opacity 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.marker--active {
+  border-color: rgba(124, 154, 255, 0.55);
+  color: #9db4ff;
+  opacity: 1;
+}

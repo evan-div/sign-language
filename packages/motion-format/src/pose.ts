@@ -8,6 +8,7 @@
 
 import { IDENTITY, quatSlerp, type Quat } from './quat.js';
 import { JOINT_INDEX } from './skeleton.js';
+import { sampleFaceTrack, NEUTRAL_FACE, type FaceKeyframe, type FacePose } from './face.js';
 
 /** Joint name -> local rotation. Joints left out are at their rest rotation. */
 export type Pose = Readonly<Record<string, Quat>>;
@@ -69,6 +70,12 @@ export interface MotionClip {
   readonly keyframes: readonly Keyframe[];
   readonly strokeStartMs?: number;
   readonly strokeEndMs?: number;
+  /**
+   * The face, on its own timeline. Sparse and usually absent: a brow raise
+   * spans a clause while the hands change six times underneath it, so tying
+   * the two together would make every facial change a whole-body keyframe.
+   */
+  readonly faceKeyframes?: readonly FaceKeyframe[];
   readonly provenance?: Provenance;
 }
 
@@ -82,6 +89,11 @@ export interface Provenance {
   readonly dataset?: string;
   readonly license?: string;
   readonly method?: string;
+}
+
+/** Sample a clip's face track at a time. Neutral when the clip carries none. */
+export function sampleClipFace(clip: MotionClip, timeMs: number): FacePose {
+  return clip.faceKeyframes ? sampleFaceTrack(clip.faceKeyframes, timeMs) : NEUTRAL_FACE;
 }
 
 /** Sample a clip at a time, slerping between the surrounding keyframes. */

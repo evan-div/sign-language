@@ -317,8 +317,8 @@ Scoring a vocabulary against a word list chosen alongside it only proves the two
 agree. The 2,000 most frequent English words (see `data/english/README.md`) were
 fixed long before this project and have no connection to ASL.
 
-Of the 100 most frequent English words, the system has an answer for 75% by
-type and 92% weighted by frequency; at 2,000 words it is 13% and 65%. "An
+Of the 100 most frequent English words, the system has an answer for 76% by
+type and 93% weighted by frequency; at 2,000 words it is 13% and 65%. "An
 answer" means a sign, a stated substitution, or a word deliberately dropped --
 not a word spelled letter by letter.
 
@@ -347,3 +347,116 @@ Honest gaps, in rough order of how much they matter:
 - **Contact** is positional, not physical: two hands that should touch are
   placed near each other and nothing enforces it.
 - **Non-manual mouth morphemes**, which distinguish real minimal pairs.
+
+## The face is a channel, not a joint
+
+A face is driven by named weights, not by rotations, and every avatar pipeline
+worth targeting -- VRM 1.0 expressions, ARKit, Live Link -- already speaks that
+vocabulary. So the face is a parallel track named the way ARKit names its
+blendshapes, and a real avatar can consume it with a lookup table rather than a
+translation layer.
+
+Keeping it parallel rather than folding it into the pose is not tidiness. A brow
+raise spans a clause while the hands change six times underneath it; one
+keyframe list would make every facial change a whole-body keyframe.
+
+Two rules differ from the joint pose on purpose. Weights compose by taking the
+**strongest** of each channel, where joints compose by replacement: a head can
+only be in one place, so two markers moving it have to resolve to one rotation,
+but two markers both raising the brows should raise them once rather than have
+the later cancel the stronger earlier one. And a weight outside 0..1 from an
+external clip is refused rather than clamped -- a weight of 3 means the producer
+is using degrees or a percentage, and clamping hides that behind a face that is
+merely wrong.
+
+## Markers are named for what they do
+
+A marker is a bundle. A yes/no question is raised brows AND widened eyes AND the
+head carried forward, so naming them by articulation -- `brow_raise` -- named one
+strand of a rope and left the rest unaccounted for. They are named for their
+grammatical function now, and the articulation is a table that can be argued
+with or replaced without renaming anything.
+
+Two things that table has to get right. A yes/no question and a WH question must
+differ in the **direction** the brows move, because that is the contrast ASL
+uses and two markers separated only by magnitude are unreadable. And topic and
+conditional are both brow raises, told apart by the head -- back for a topic,
+tilted for a conditional -- which is why the head is part of the bundle.
+
+Building the face rig proved the point twice over. The first version had the
+brow rotation inverted, so a question read as a scowl, and eyelids tall enough to
+cover the brows entirely, so every brow movement happened behind them. A raise
+and a furrow came out identical -- the one thing the rig exists to distinguish.
+Neither was visible in any test; both were obvious in a screenshot.
+
+## A marker without a scope is decoration
+
+Non-manual markers scope over clauses. A headshake that runs to the end of the
+input negates things the signer did not negate, and a question marker over a
+whole sentence tells the reader a conditional clause was part of the question.
+Before this, negation ran to the end and the question markers covered
+everything.
+
+So clauses are found -- from punctuation and a two-word list, not a parser -- and
+each marker is scoped to one: a conditional marks its own clause, a fronted
+phrase before a comma is taken as a topic, a question marks the **main** clause,
+and negation and affirmation run to the end of the clause they appear in.
+
+It is a rule, so it can be wrong, and it was: a leading "No," was being read as a
+topicalised noun phrase. The narrowest fix that answers it is that a clause
+consisting of nothing but yes or no gets no topic marker, which is written down
+where the marker is emitted rather than hidden in the clause finder.
+
+Markers can also genuinely contradict. "If it is not good, I stop" is a
+conditional, which raises the brows, containing a negation, which lowers them.
+The plan linter found it by noticing the overlap. A signer does not compromise:
+the brows stay up for the conditional and the negation is carried by the
+headshake, which is its obligatory part anyway. So a marker declares which way
+it pulls the brows, and a lowering marker yields its brows to a raising one
+while keeping its head movement.
+
+## Numbers come out as composition
+
+A signed number is a short sequence of handshapes in one place, which means it
+can be generated. The library does not grow by a thousand entries to cover a
+thousand numbers, and "42" needs nobody to have thought about 42 in advance.
+
+Seven of the ten digit handshapes already existed -- 0 is the letter O, 1 is the
+pointing hand, 2 is V, 9 is F, and 4, 5, 8 and 10 were shapes the lexical signs
+already needed. Only 3, 6 and 7 had to be added. That is the
+handshape-as-parameter bet paying out: a number is not a new kind of thing, it
+is the same parameter with a different value.
+
+Number incorporation is the sharper test. ASL signs "three weeks" as WEEK made
+with a three handshape -- one sign carrying both meanings -- and if a sign really
+is handshape, location, orientation and movement, incorporating a number should
+be substituting one parameter and nothing else. It is: the whole of
+incorporation is a map over keyframes.
+
+What the composer does not do is guess. Idiomatic forms for 21, 22, 23, 25 and
+the 60s have their own shapes that are not their digits in sequence, and they are
+not special-cased -- the general rule is stated and its exceptions are named.
+11 to 15 move **inside** the hand, a flick or a bend this notation cannot
+express, and are approximated by alternating two whole handshapes and marked as
+the weakest entries. Years read as pairs ("nineteen eighty-four"), ordinals,
+decimals, times and phone numbers are all signed differently and are not parsed
+at all; a number past what the composer builds is signed digit by digit, which is
+what ASL does for long strings anyway and is not the same as fingerspelling it,
+because digits are not letters.
+
+The palm-orientation convention -- 1 to 5 toward the signer, 6 to 9 toward the
+addressee -- is a choice, stated in one place, and near the top of what a Deaf
+reviewer should check first. A wrong palm is not a stylistic slip; for some
+numbers it is a different sign.
+
+## "Every sign moves" was false
+
+The linter's motion check flagged every single-digit number, because a signed 5
+is an open hand held up and nothing travels. That was the check being wrong, not
+the signs: ASL has signs that are a configuration presented in place. A sign can
+declare itself held, and the check then asks the question that still matters --
+whether the hand ever leaves rest -- rather than the one that does not.
+
+The same check caught a real fault in the same run. 99 composed as "the 9 hand,
+then the 9 hand" shows the reader a single 9; it measured zero fingertip travel
+across the whole sign. Doubled digits shift sideways now, which is what ASL does.

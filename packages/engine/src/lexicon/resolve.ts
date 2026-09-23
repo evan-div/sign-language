@@ -8,7 +8,15 @@
 
 import { LEXICON, SYNONYMS, type LexiconEntry } from './entries.js';
 
-export type Resolution = 'direct' | 'synonym' | 'ambiguous' | 'fingerspelled';
+export type Resolution =
+  | 'direct'
+  | 'synonym'
+  | 'ambiguous'
+  | 'fingerspelled'
+  /** A number, composed by rule rather than looked up. */
+  | 'number'
+  /** A number folded into the sign it counts, as ASL does. */
+  | 'incorporated';
 
 export interface ResolvedConcept {
   readonly resolution: Resolution;

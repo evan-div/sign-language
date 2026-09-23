@@ -46,7 +46,9 @@ function Rig({ plan, prepared, sequence, clock, onTime }: RigProps) {
 
   useFrame((_, delta) => {
     const timeMs = clock.tick(delta * 1000);
-    player.applyPose(samplePlan(plan, prepared, sequence, timeMs));
+    const { pose, face } = samplePlan(plan, prepared, sequence, timeMs);
+    player.applyPose(pose);
+    player.applyFace(face);
 
     // Throttle the React-facing update to roughly 20Hz.
     const now = performance.now();

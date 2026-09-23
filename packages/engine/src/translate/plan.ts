@@ -15,12 +15,14 @@
 
 import type { LetterSegment } from '../fingerspell.js';
 import { sequence, samplePrepared, type Prepared, type SequenceItem, type Sequence } from '../sequencer.js';
-import { signDefinition } from '../signs/library.js';
 import { FUNCTION_WORDS, SPATIALLY_EXPRESSED, WH_WORDS, type LexiconEntry } from '../lexicon/entries.js';
-import { MAX_PHRASE_WORDS, hasLemma, resolveConcept, type Resolution } from '../lexicon/resolve.js';
+import { MAX_PHRASE_WORDS, hasLemma, lookupLemma, resolveConcept, type Resolution } from '../lexicon/resolve.js';
 import { isQuestion, tokenise, trailingPauseMs, type Token } from './normalize.js';
+import { parseNumber } from '../numbers/parse.js';
+import { canIncorporate, incorporatedId } from '../numbers/incorporate.js';
+import { numberSignId, resolveSign } from '../signs/resolve-sign.js';
 import type { Pose } from '@signflow/motion-format';
-import { applyNonManual, type NmmSpan } from './nmm.js';
+import { applyNonManual, type NmmSpan, type NonManualResult } from './nmm.js';
 import type { Hand } from '../handshapes/spec.js';
 
 export interface PlanSegment {
@@ -43,7 +45,8 @@ export interface PlanSegment {
 }
 
 export interface PlanNotice {
-  readonly kind: 'substitution' | 'fingerspelled' | 'ambiguous' | 'dropped' | 'spatial' | 'reordered';
+  readonly kind: 'substitution' | 'fingerspelled' | 'ambiguous' | 'dropped' | 'spatial'
+    | 'reordered' | 'incorporated';
   readonly message: string;
   readonly segmentIndex?: number;
 }
@@ -81,6 +84,60 @@ interface Concept {
   readonly resolution: Resolution;
   readonly substitutedFrom?: string;
   readonly senses?: readonly LexiconEntry[];
+  /** Index into the clause list. Set after matching, before reordering. */
+  clause?: number;
+  /** The value, for a number or an incorporated number. */
+  readonly value?: number;
+}
+
+/**
+ * A clause, as far as punctuation and a short word list can tell.
+ *
+ * Non-manual markers scope over clauses, not over sentences, and a marker with
+ * the wrong scope is not a smaller mistake than a missing one -- a headshake
+ * that runs to the end of the sentence negates things the signer did not negate.
+ * Before this, negation ran to the end of the input and the question markers
+ * covered everything including a conditional clause that should have carried
+ * its own.
+ *
+ * This is punctuation and a two-word list, not a parser, and it will get long
+ * sentences wrong. It is written down as a rule so it can be argued with.
+ */
+interface ClauseSpan {
+  /** Character offsets into the original input. */
+  readonly from: number;
+  readonly to: number;
+  readonly kind: 'main' | 'conditional' | 'topic';
+}
+
+/** Words that introduce a conditional clause in English. */
+const CONDITIONAL_MARKERS: ReadonlySet<string> = new Set(['if', 'suppose', 'unless']);
+
+export function findClauses(input: string): ClauseSpan[] {
+  const pieces: Array<{ from: number; to: number }> = [];
+  let start = 0;
+  for (let i = 0; i < input.length; i++) {
+    if (input[i] === ',' || input[i] === ';') {
+      pieces.push({ from: start, to: i });
+      start = i + 1;
+    }
+  }
+  pieces.push({ from: start, to: input.length });
+
+  return pieces
+    .filter((piece) => /[\p{L}\p{N}]/u.test(input.slice(piece.from, piece.to)))
+    .map((piece, index, all) => {
+      const text = input.slice(piece.from, piece.to).trim().toLowerCase();
+      const firstWord = text.split(/[^\p{L}']+/u).filter(Boolean)[0] ?? '';
+      if (CONDITIONAL_MARKERS.has(firstWord)) {
+        return { ...piece, kind: 'conditional' as const };
+      }
+      // A comma-separated phrase before the main clause, with no conditional
+      // word, is taken to be a fronted topic. That is the common case in
+      // written English for the thing ASL topicalises, and it is a guess.
+      if (index < all.length - 1) return { ...piece, kind: 'topic' as const };
+      return { ...piece, kind: 'main' as const };
+    });
 }
 
 /**
@@ -92,10 +149,63 @@ interface Concept {
  */
 function matchConcepts(tokens: readonly Token[], senseChoices: Record<string, string>): Concept[] {
   const concepts: Concept[] = [];
+  const words = tokens.map((t) => t.text);
   let i = 0;
 
   while (i < tokens.length) {
     let matched = false;
+
+    // Numbers first. "forty-two" is one number across one token and "three
+    // hundred forty two" is one number across four, and neither is in the
+    // lexicon: they are composed. Trying the lexicon first would match "one"
+    // and "hundred" as separate concepts and lose the number.
+    const number = parseNumber(words, i);
+    if (number) {
+      const group = tokens.slice(i, i + number.length);
+      const span: [number, number] = [group[0]!.span[0], group[group.length - 1]!.span[1]];
+      const text = group.map((t) => t.text).join(' ');
+      const unit = tokens[i + number.length];
+
+      // "three weeks" is one sign in ASL, not two: WEEK made with a three
+      // handshape. Incorporation is checked before the number stands alone.
+      const unitSign = unit ? lookupLemma(unit.lemma)[0]?.signId : undefined;
+      if (unit && unitSign && canIncorporate(unitSign, number.value)) {
+        concepts.push({
+          tokens: [...group, unit],
+          span: [span[0], unit.span[1]],
+          text: `${text} ${unit.text}`,
+          signId: incorporatedId(unitSign, number.value),
+          resolution: 'incorporated',
+          value: number.value,
+        });
+        i += number.length + 1;
+        continue;
+      }
+
+      const composed = numberSignId(number.value);
+      if (resolveSign(composed)) {
+        concepts.push({ tokens: group, span, text, signId: composed, resolution: 'number', value: number.value });
+        i += number.length;
+        continue;
+      }
+
+      // Past what the composer builds, a number is signed digit by digit --
+      // which is what ASL does for anything long anyway, and is not the same as
+      // fingerspelling it, because digits are not letters.
+      const digits = [...String(number.value)];
+      digits.forEach((digit, at) => {
+        concepts.push({
+          tokens: group,
+          span: at === 0 ? span : [span[1], span[1]],
+          text: at === 0 ? text : '',
+          signId: numberSignId(Number(digit)),
+          resolution: 'number',
+          value: Number(digit),
+        });
+      });
+      i += number.length;
+      continue;
+    }
 
     for (let span = Math.min(MAX_PHRASE_WORDS, tokens.length - i); span >= 1 && !matched; span--) {
       const group = tokens.slice(i, i + span);
@@ -161,6 +271,13 @@ export function translate(input: string, options: TranslateOptions = {}): {
   });
 
   let concepts = matchConcepts(kept, senseChoices);
+
+  const clauses = findClauses(input);
+  for (const concept of concepts) {
+    const at = concept.span[0];
+    const found = clauses.findIndex((c) => at >= c.from && at < c.to);
+    concept.clause = found < 0 ? clauses.length - 1 : found;
+  }
 
   // WH-movement: ASL puts the question word at the end of the clause.
   let reordered = false;
@@ -230,6 +347,14 @@ export function translate(input: string, options: TranslateOptions = {}): {
       message: `Dropped ${dropped.map((w) => `“${w}”`).join(', ')} — ASL does not sign them.`,
     });
   }
+  const incorporated = segments.filter((s) => s.resolution === 'incorporated');
+  if (incorporated.length > 0) {
+    notices.push({
+      kind: 'incorporated',
+      message: `Signed ${incorporated.map((s) => `“${s.sourceText}”`).join(', ')} as one sign `
+        + 'with the number in the handshape, as ASL does.',
+    });
+  }
   if (spatial.length > 0) {
     notices.push({
       kind: 'spatial',
@@ -244,14 +369,51 @@ export function translate(input: string, options: TranslateOptions = {}): {
   // live beside the segments rather than on them.
   const nmmSpans: NmmSpan[] = [];
   if (segments.length > 0) {
-    const last = segments.length - 1;
-    if (question) {
-      const wh = segments.some((s) => s.sourceText && WH_WORDS.has(s.sourceText.toLowerCase()));
-      nmmSpans.push({ type: wh ? 'brow_furrow' : 'brow_raise', fromIndex: 0, toIndex: last });
+    /** The final segment indices belonging to a clause, after reordering. */
+    const rangeOf = (clause: number): [number, number] | undefined => {
+      const indices = concepts
+        .map((c, i) => (c.clause === clause ? i : -1))
+        .filter((i) => i >= 0);
+      if (indices.length === 0) return undefined;
+      return [Math.min(...indices), Math.max(...indices)];
+    };
+
+    for (let clause = 0; clause < clauses.length; clause++) {
+      const range = rangeOf(clause);
+      if (!range) continue;
+      const kind = clauses[clause]!.kind;
+      if (kind === 'conditional') nmmSpans.push({ type: 'conditional', fromIndex: range[0], toIndex: range[1] });
+      if (kind === 'topic') {
+        // "No, I go home" is not a topicalised noun phrase with a comma after
+        // it; it is a particle. A clause that is nothing but yes or no gets no
+        // topic marker, which is the narrowest rule that fixes the case
+        // punctuation alone cannot tell apart.
+        const onlyParticles = concepts
+          .filter((c) => c.clause === clause)
+          .every((c) => c.signId === 'NO' || c.signId === 'YES');
+        if (!onlyParticles) nmmSpans.push({ type: 'topic', fromIndex: range[0], toIndex: range[1] });
+      }
     }
-    const negation = segments.findIndex((s) => s.signId === 'NO');
-    if (negation >= 0) {
-      nmmSpans.push({ type: 'headshake', fromIndex: negation, toIndex: last });
+
+    // A question marks its MAIN clause, not the whole input: in "if you want,
+    // do you go?" the raised brows belong to the going, and the conditional
+    // clause carries its own marker.
+    if (question) {
+      const mainClause = clauses.findIndex((c) => c.kind === 'main');
+      const range = (mainClause >= 0 ? rangeOf(mainClause) : undefined)
+        ?? [0, segments.length - 1] as [number, number];
+      const wh = segments.some((s) => s.sourceText && WH_WORDS.has(s.sourceText.toLowerCase()));
+      nmmSpans.push({ type: wh ? 'wh_question' : 'yes_no_question', fromIndex: range[0], toIndex: range[1] });
+    }
+
+    // Negation and affirmation scope from their sign to the end of THEIR
+    // clause. Running a headshake to the end of the sentence negates things
+    // the signer did not negate.
+    for (const [signId, type] of [['NO', 'negation'], ['YES', 'affirmation']] as const) {
+      const at = concepts.findIndex((c) => c.signId === signId);
+      if (at < 0) continue;
+      const range = rangeOf(concepts[at]!.clause ?? 0);
+      nmmSpans.push({ type, fromIndex: at, toIndex: range ? range[1] : segments.length - 1 });
     }
   }
 
@@ -283,7 +445,7 @@ export function planSign(signId: string, options: TranslateOptions = {}): {
   prepared: readonly Prepared[];
   sequence: Sequence;
 } {
-  const definition = signDefinition(signId);
+  const definition = resolveSign(signId);
   if (!definition) throw new Error(`Unknown sign "${signId}"`);
 
   const built = sequence([{ kind: 'sign', signId }], {
@@ -314,13 +476,19 @@ export function planSign(signId: string, options: TranslateOptions = {}): {
   };
 }
 
-/** The pose for a plan at a time, with non-manual markers layered on. */
+/**
+ * The pose AND face for a plan at a time, with non-manual markers layered on.
+ *
+ * Returns both because they are one thing: a yes/no question is raised brows
+ * and a head carried forward, and a caller that could take the pose without the
+ * face would render half a marker.
+ */
 export function samplePlan(
   plan: ASLPlan,
   prepared: readonly Prepared[],
   seq: Sequence,
   timeMs: number,
-): Pose {
+): NonManualResult {
   return applyNonManual(samplePrepared(prepared, seq, timeMs), plan.segments, plan.nmmSpans, timeMs);
 }
 

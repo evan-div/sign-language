@@ -26,6 +26,11 @@ import { sampleClip } from '../packages/motion-format/src/index.js';
 import { SIGN_HANDSHAPES } from '../packages/engine/src/handshapes/sign-shapes.js';
 import { SOLVED_LOCATIONS } from '../packages/engine/src/signs/locations.generated.js';
 import { ORIENTATIONS } from '../packages/engine/src/signs/orientation.js';
+import { NMM_SPECS } from '../packages/engine/src/translate/nmm.js';
+import { DIGIT_HANDSHAPES, TEN_HANDSHAPE } from '../packages/engine/src/numbers/digits.js';
+import { INCORPORATING_SIGNS, MAX_INCORPORATED } from '../packages/engine/src/numbers/incorporate.js';
+import { numberSign, MAX_COMPOSABLE } from '../packages/engine/src/numbers/compose.js';
+import { FACE_CHANNELS } from '../packages/motion-format/src/index.js';
 import { LEXICON, SYNONYMS } from '../packages/engine/src/lexicon/entries.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -111,6 +116,31 @@ write('data/signs/library.json', {
     + 'shorthands are an authoring convenience, and a second implementation of them in '
     + 'Python would be a second chance to disagree with the first.',
   signs: Object.fromEntries(Object.entries(SIGNS).map(([id, sign]) => [id, expandSign(sign)])),
+});
+
+write('data/face/channels.json', {
+  note: 'The face channel, named as ARKit names its blendshapes so a real avatar can '
+    + 'consume the track with a lookup table. Weights run 0 to 1.',
+  channels: FACE_CHANNELS,
+});
+
+write('data/face/non-manual-markers.json', {
+  note: 'Non-manual markers: ASL grammar carried on the face and head. Named for what '
+    + 'they do, not for how they are articulated, because each one is a bundle. The '
+    + 'articulations below are a placeholder authored from descriptions, like the signs.',
+  markers: NMM_SPECS,
+});
+
+write('data/numbers/digits.json', {
+  note: 'Digit handshapes. Seven of the ten are shapes the lexical signs already needed; '
+    + 'only 3, 6 and 7 were added for numbers. Palm orientation for 1-5 versus 6-9 is a '
+    + 'convention this project chose and a reviewer should check first.',
+  digits: DIGIT_HANDSHAPES,
+  ten: TEN_HANDSHAPE,
+  maxComposable: MAX_COMPOSABLE,
+  incorporatingSigns: [...INCORPORATING_SIGNS],
+  maxIncorporated: MAX_INCORPORATED,
+  examples: Object.fromEntries([0, 5, 11, 16, 20, 42, 305, 2026].map((v) => [v, numberSign(v)])),
 });
 
 write('data/lexicon/english-to-sign.json', {

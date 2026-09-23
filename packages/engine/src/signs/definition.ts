@@ -98,6 +98,17 @@ export interface SignDefinition {
   /** A non-dominant hand that holds one configuration throughout: a base hand. */
   readonly base?: Omit<SignKeyframe, 'atMs'>;
   readonly repeat?: Repeat;
+  /**
+   * This sign is a configuration held in place, not a movement.
+   *
+   * "Every sign moves" turned out to be false the moment numbers arrived: a
+   * signed 5 is an open hand held up, and nothing travels. The linter's motion
+   * check flagged every single-digit number, which was the check being wrong
+   * rather than the signs. Declaring it makes the difference between a sign
+   * that is meant to be still and one that failed to move -- which is a real
+   * bug and still caught.
+   */
+  readonly held?: boolean;
   readonly provenance: SignProvenance;
 }
 

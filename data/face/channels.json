@@ -1,0 +1,27 @@
+{
+  "note": "The face channel, named as ARKit names its blendshapes so a real avatar can consume the track with a lookup table. Weights run 0 to 1.",
+  "channels": [
+    "browInnerUp",
+    "browOuterUpLeft",
+    "browOuterUpRight",
+    "browDownLeft",
+    "browDownRight",
+    "eyeWideLeft",
+    "eyeWideRight",
+    "eyeSquintLeft",
+    "eyeSquintRight",
+    "eyeBlinkLeft",
+    "eyeBlinkRight",
+    "jawOpen",
+    "mouthPucker",
+    "mouthFunnel",
+    "mouthPressLeft",
+    "mouthPressRight",
+    "mouthSmileLeft",
+    "mouthSmileRight",
+    "mouthFrownLeft",
+    "mouthFrownRight",
+    "cheekPuff",
+    "tongueOut"
+  ]
+}

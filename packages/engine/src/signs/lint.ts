@@ -67,6 +67,7 @@ export function signatureDistance(a: readonly number[], b: readonly number[]): n
 }
 
 const REST_LEFT_WRIST = jointPosition(solveFK(REST_POSTURE), 'left_wrist');
+const REST_RIGHT_WRIST = jointPosition(solveFK(REST_POSTURE), 'right_wrist');
 
 function knownHandshape(id: string): boolean {
   return letterSpec(id) !== undefined || SIGN_HANDSHAPES[id] !== undefined;
@@ -244,7 +245,19 @@ export function lintSign(sign: SignDefinition): Finding[] {
   if (isTwoHanded(sign) && worstHandGap.gap < 0.07) {
     add('warning', 'hands', `the wrists come within ${(worstHandGap.gap * 100).toFixed(1)}cm at ${worstHandGap.at}ms`, worstHandGap.gap);
   }
-  if (travel < 0.05) add('error', 'motion', `barely moves (${(travel * 100).toFixed(1)}cm of fingertip travel)`, travel);
+  if (sign.held) {
+    // A held sign does not travel, so the question is whether it is presented
+    // at all: a hand still at rest is a sign that did not happen.
+    const middle = sampled[Math.floor(sampled.length / 2)];
+    const raised = middle
+      ? vec3Distance(jointPosition(solveFK(middle.pose), 'right_wrist'), REST_RIGHT_WRIST)
+      : 0;
+    if (raised < 0.15) {
+      add('error', 'motion', `is held, but the hand never leaves rest (${(raised * 100).toFixed(1)}cm)`, raised);
+    }
+  } else if (travel < 0.05) {
+    add('error', 'motion', `barely moves (${(travel * 100).toFixed(1)}cm of fingertip travel)`, travel);
+  }
   // Calibrated, not guessed: across the library the peak wrist speed has a
   // median of 0.76 m/s and a 90th percentile of 1.42, so 1.8 m/s (3.6cm per
   // 20ms step) sits clear of ordinary signing and flags the outliers.
@@ -346,6 +359,54 @@ export function lintLexicon(): Finding[] {
         message: `shares the gloss "${sign.gloss}" with ${seen}` });
     } else glosses.set(sign.gloss, id);
   }
+  return found;
+}
+
+/**
+ * Checks on a translated plan rather than on a sign.
+ *
+ * Non-manual markers are the part of this system with no geometry to check, so
+ * they need their own rules: a marker that points at a segment which does not
+ * exist renders as nothing, and a sentence that is somehow both a yes/no
+ * question and a WH question would have the brows going two ways at once.
+ * Neither can be caught by looking at hands.
+ */
+export function lintPlan(plan: {
+  readonly source: string;
+  readonly segments: readonly { readonly index: number }[];
+  readonly nmmSpans: readonly { readonly type: string; readonly fromIndex: number; readonly toIndex: number }[];
+}): Finding[] {
+  const found: Finding[] = [];
+  const add = (check: string, message: string) =>
+    found.push({ severity: 'error', check, signId: plan.source, message });
+
+  const last = plan.segments.length - 1;
+  for (const span of plan.nmmSpans) {
+    if (span.fromIndex < 0 || span.toIndex > last) {
+      add('nmm', `${span.type} spans ${span.fromIndex}..${span.toIndex}, outside 0..${last}`);
+    }
+    if (span.fromIndex > span.toIndex) {
+      add('nmm', `${span.type} ends before it starts (${span.fromIndex}..${span.toIndex})`);
+    }
+  }
+
+  // Two markers that move the brows opposite ways. Not an error: the renderer
+  // resolves it by letting the raise win, which is what a signer does. Worth
+  // saying out loud, because which one wins is a linguistic claim.
+  const raises = plan.nmmSpans.filter((s) => s.type === 'yes_no_question' || s.type === 'topic' || s.type === 'conditional');
+  const lowers = plan.nmmSpans.filter((s) => s.type === 'wh_question' || s.type === 'negation');
+  for (const up of raises) {
+    for (const down of lowers) {
+      if (up.fromIndex <= down.toIndex && down.fromIndex <= up.toIndex) {
+        found.push({
+          severity: 'warning', check: 'nmm', signId: plan.source,
+          message: `${up.type} and ${down.type} overlap; the brows follow ${up.type} and `
+            + `${down.type} keeps its head movement`,
+        });
+      }
+    }
+  }
+
   return found;
 }
 

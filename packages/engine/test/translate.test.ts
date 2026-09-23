@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { solveFK, jointPosition, vec3Distance, validatePose, quatRotateVec3 } from '@signflow/motion-format';
+import { solveFK, jointPosition, vec3Distance, validatePose, validateFace,
+  quatRotateVec3 } from '@signflow/motion-format';
 import {
-  translate, samplePlan, activePlanSegment, tokenise, resolveConcept,
-  LEXICON, SYNONYMS, SIGNS,
+  translate, samplePlan, activePlanSegment, activeNonManual, tokenise, resolveConcept,
+  lintPlan, LEXICON, SYNONYMS, SIGNS,
 } from '../src/index.js';
 
 const glossOf = (input: string) => translate(input).plan.glossLine;
@@ -170,26 +171,57 @@ describe('non-manual markers', () => {
   it('marks a yes/no question across the whole clause', () => {
     const plan = planOf('are you deaf?');
     expect(plan.nmmSpans).toHaveLength(1);
-    expect(plan.nmmSpans[0]).toMatchObject({ type: 'brow_raise', fromIndex: 0, toIndex: 1 });
+    expect(plan.nmmSpans[0]).toMatchObject({ type: 'yes_no_question', fromIndex: 0, toIndex: 1 });
   });
 
   it('marks a WH question differently', () => {
-    expect(planOf('what is your name?').nmmSpans[0]!.type).toBe('brow_furrow');
+    expect(planOf('what is your name?').nmmSpans[0]!.type).toBe('wh_question');
   });
 
   it('marks negation from the negated sign onward', () => {
     const plan = planOf('no');
-    expect(plan.nmmSpans[0]).toMatchObject({ type: 'headshake', fromIndex: 0 });
+    expect(plan.nmmSpans[0]).toMatchObject({ type: 'negation', fromIndex: 0 });
   });
 
   it('leaves a statement unmarked', () => {
     expect(planOf('hello my name is Evan').nmmSpans).toHaveLength(0);
   });
 
+  it('marks a conditional clause separately from the main clause', () => {
+    // The marker on "if you want" is not the marker on "I go", and running one
+    // over both is not a smaller mistake than missing one: it tells the reader
+    // the whole sentence is hypothetical.
+    const plan = planOf('if you want, I go');
+    const kinds = plan.nmmSpans.map((s) => s.type);
+    expect(kinds).toContain('conditional');
+    const conditional = plan.nmmSpans.find((s) => s.type === 'conditional')!;
+    expect(conditional.toIndex).toBeLessThan(plan.segments.length - 1);
+  });
+
+  it('keeps a question marker on the main clause only', () => {
+    const plan = planOf('if you want, do you go?');
+    const question = plan.nmmSpans.find((s) => s.type === 'yes_no_question')!;
+    const conditional = plan.nmmSpans.find((s) => s.type === 'conditional')!;
+    expect(question.fromIndex).toBeGreaterThan(conditional.toIndex);
+  });
+
+  it('marks a fronted phrase as a topic', () => {
+    const plan = planOf('my mother, I love');
+    expect(plan.nmmSpans.map((s) => s.type)).toContain('topic');
+  });
+
+  it('stops a headshake at the end of its own clause', () => {
+    // Negation that runs to the end of the input negates things the signer did
+    // not negate.
+    const plan = planOf('no, I go home');
+    const negation = plan.nmmSpans.find((s) => s.type === 'negation')!;
+    expect(negation.toIndex).toBeLessThan(plan.segments.length - 1);
+  });
+
   it('actually moves the head, and only inside the span', () => {
     const { plan, prepared, sequence } = translate('are you deaf?');
     const headYaw = (t: number) => {
-      const pose = samplePlan(plan, prepared, sequence, t);
+      const { pose } = samplePlan(plan, prepared, sequence, t);
       return quatRotateVec3(pose.head ?? [0, 0, 0, 1], [0, 0, 1]);
     };
     const inside = headYaw((plan.segments[0]!.strokeStartMs + plan.segments[0]!.strokeEndMs) / 2);
@@ -200,21 +232,78 @@ describe('non-manual markers', () => {
   });
 });
 
+describe('the face carries the marker', () => {
+  const faceAt = (input: string, at: 'middle' | 'start' | 'end' = 'middle') => {
+    const { plan, prepared, sequence } = translate(input);
+    const t = at === 'start' ? 0
+      : at === 'end' ? plan.durationMs
+      : (plan.segments[0]!.strokeStartMs + plan.segments[0]!.strokeEndMs) / 2;
+    return samplePlan(plan, prepared, sequence, t).face;
+  };
+
+  it('raises the brows for a yes/no question and lowers them for a WH question', () => {
+    // The contrast ASL uses is the DIRECTION the brows move. Two markers that
+    // differed only in magnitude would be unreadable, so this asserts they move
+    // opposite ways rather than that they differ.
+    const yesNo = faceAt('are you deaf?');
+    const wh = faceAt('what is your name?');
+    expect(yesNo.browInnerUp ?? 0).toBeGreaterThan(0.5);
+    expect(yesNo.browDownLeft ?? 0).toBe(0);
+    expect(wh.browDownLeft ?? 0).toBeGreaterThan(0.5);
+    expect(wh.browInnerUp ?? 0).toBe(0);
+  });
+
+  it('leaves the face neutral in a statement', () => {
+    expect(faceAt('hello my name is Evan')).toEqual({});
+  });
+
+  it('returns the face to neutral by the end', () => {
+    expect(faceAt('are you deaf?', 'end')).toEqual({});
+  });
+
+  it('emits only valid face weights across the whole clip', () => {
+    const { plan, prepared, sequence } = translate('if you want, do you go?');
+    for (let t = 0; t <= plan.durationMs; t += 13) {
+      expect(validateFace(samplePlan(plan, prepared, sequence, t).face), `at ${t}ms`).toEqual([]);
+    }
+  });
+
+  it('takes the stronger weight where two markers overlap', () => {
+    // A conditional and a question both raise the brows. Overlapping them must
+    // raise the brows once, at the stronger of the two.
+    const { plan, prepared, sequence } = translate('if you want, do you go?');
+    let peak = 0;
+    for (let t = 0; t <= plan.durationMs; t += 13) {
+      peak = Math.max(peak, samplePlan(plan, prepared, sequence, t).face.browInnerUp ?? 0);
+    }
+    expect(peak).toBeGreaterThan(0.8);
+    expect(peak).toBeLessThanOrEqual(1);
+  });
+
+  it('names the markers active at a time, for the interface', () => {
+    const { plan, prepared, sequence } = translate('what is your name?');
+    void prepared; void sequence;
+    const mid = (plan.segments[0]!.strokeStartMs + plan.segments[0]!.strokeEndMs) / 2;
+    expect(activeNonManual(plan.segments, plan.nmmSpans, mid)).toContain('wh_question');
+    expect(activeNonManual(plan.segments, plan.nmmSpans, plan.durationMs)).toEqual([]);
+  });
+});
+
 describe('plan playback', () => {
   const built = () => translate('hello my name is Evan');
 
   it('emits a valid pose at every point', () => {
     const { plan, prepared, sequence } = built();
     for (let t = 0; t <= plan.durationMs; t += 13) {
-      expect(validatePose(samplePlan(plan, prepared, sequence, t)), `at ${t}ms`).toEqual([]);
+      expect(validatePose(samplePlan(plan, prepared, sequence, t).pose), `at ${t}ms`).toEqual([]);
     }
   });
 
   it('moves continuously with the markers layered on', () => {
     const { plan, prepared, sequence } = translate('what is your name?');
-    let previous = solveFK(samplePlan(plan, prepared, sequence, 0));
+    let previous = solveFK(samplePlan(plan, prepared, sequence, 0).pose);
     for (let t = 4; t <= plan.durationMs; t += 4) {
-      const current = solveFK(samplePlan(plan, prepared, sequence, t));
+      const current = solveFK(samplePlan(plan, prepared, sequence, t).pose);
       for (const joint of ['right_wrist', 'left_wrist', 'head']) {
         expect(vec3Distance(jointPosition(previous, joint), jointPosition(current, joint)),
           `${joint} at ${t}ms`).toBeLessThan(0.010);
@@ -282,5 +371,96 @@ describe('English coverage', () => {
       return plan.notices.some((n) => n.kind === 'fingerspelled');
     });
     expect(spelled).toEqual([]);
+  });
+});
+
+describe('numbers in a sentence', () => {
+  it('reads digits and number words as the same number', () => {
+    expect(glossOf('42')).toBe('42');
+    expect(glossOf('forty-two')).toBe('42');
+    expect(glossOf('three hundred forty two')).toBe('342');
+  });
+
+  it('folds a number into the sign it counts, as ASL does', () => {
+    // "Three weeks" is one sign with a three handshape, not THREE then WEEK.
+    // This is the architecture's own claim under test: if a sign really is
+    // handshape plus location plus orientation plus movement, incorporation
+    // should be substituting one parameter.
+    const plan = planOf('three weeks');
+    expect(plan.glossLine).toBe('3-WEEK');
+    expect(plan.segments).toHaveLength(1);
+    expect(plan.notices.some((n) => n.kind === 'incorporated')).toBe(true);
+  });
+
+  it('stops incorporating past the range ASL does', () => {
+    expect(glossOf('nineteen weeks')).toBe('19 WEEK');
+  });
+
+  it('only incorporates into signs that take it', () => {
+    // English lets you say "three anything". ASL does not.
+    expect(glossOf('three books')).toBe('3 BOOK');
+  });
+
+  it('signs a long number digit by digit rather than spelling it', () => {
+    // Digits are not letters: fingerspelling a number would drop every
+    // character on the floor, because the manual alphabet has no 5.
+    expect(glossOf('5551234')).toBe('5 5 5 1 2 3 4');
+  });
+
+  it('leaves a number that is not one alone', () => {
+    expect(glossOf('hundred')).toBe('H-U-N-D-R-E-D');
+  });
+
+  it('plays a composed number through the same sequencer as everything else', () => {
+    const { plan, prepared, sequence } = translate('I go 5 days');
+    expect(plan.glossLine).toBe('ME GO 5-DAY');
+    for (let t = 0; t <= plan.durationMs; t += 17) {
+      expect(validatePose(samplePlan(plan, prepared, sequence, t).pose), `at ${t}ms`).toEqual([]);
+    }
+  });
+});
+
+describe('markers that contradict each other', () => {
+  it('keeps the brows raised through a negated conditional, and shakes the head', () => {
+    // "If it is not good, I stop" is a conditional (brows up) containing a
+    // negation (brows down). A signer does not compromise: the brows stay up
+    // and the negation is carried by the headshake, which is its obligatory
+    // part. The plan linter found this by noticing the two markers overlapped.
+    const { plan, prepared, sequence } = translate('if it is not good, I stop');
+    const conditional = plan.nmmSpans.find((s) => s.type === 'conditional')!;
+    const negation = plan.nmmSpans.find((s) => s.type === 'negation')!;
+    expect(conditional.fromIndex).toBeLessThanOrEqual(negation.toIndex);
+
+    const segment = plan.segments[negation.fromIndex]!;
+    const mid = (segment.strokeStartMs + segment.strokeEndMs) / 2;
+    const { face, pose } = samplePlan(plan, prepared, sequence, mid);
+    expect(face.browInnerUp ?? 0).toBeGreaterThan(0.4);
+    expect(face.browDownLeft ?? 0).toBe(0);
+    // The mouth still carries the negation, and so does the head.
+    expect(face.mouthFrownLeft ?? 0).toBeGreaterThan(0);
+    expect(pose.head).toBeDefined();
+  });
+
+  it('keeps the brows lowered when nothing raises them', () => {
+    const { plan, prepared, sequence } = translate('I do not know');
+    const negation = plan.nmmSpans.find((s) => s.type === 'negation')!;
+    const segment = plan.segments[negation.fromIndex]!;
+    const { face } = samplePlan(plan, prepared, sequence,
+      (segment.strokeStartMs + segment.strokeEndMs) / 2);
+    expect(face.browDownLeft ?? 0).toBeGreaterThan(0.3);
+  });
+
+  it('keeps every marker inside the segments it names', () => {
+    const problems: string[] = [];
+    for (const sentence of [
+      'what is your name?', 'if you want, do you go?', 'no, I go home',
+      'my mother, I love', 'yes I understand', 'I have three weeks',
+    ]) {
+      const plan = translate(sentence).plan;
+      for (const finding of lintPlan(plan).filter((f) => f.severity === 'error')) {
+        problems.push(`${sentence}: ${finding.message}`);
+      }
+    }
+    expect(problems).toEqual([]);
   });
 });

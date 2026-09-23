@@ -10,6 +10,7 @@
 
 import { JOINT_INDEX, SKELETON_VERSION } from './skeleton.js';
 import type { MotionClip, Keyframe, Pose, Provenance } from './pose.js';
+import { FACE_CHANNEL_SET, type FaceKeyframe, type FacePose } from './face.js';
 import type { Quat } from './quat.js';
 
 export interface ClipParseResult {
@@ -49,6 +50,38 @@ function parsePose(raw: unknown, where: string, errors: string[], warnings: stri
     pose[joint] = [x / length, y / length, z / length, w / length];
   }
   return pose;
+}
+
+/**
+ * The face track, parsed the way the pose is: unknown channels dropped with a
+ * warning, malformed weights refused.
+ *
+ * Out-of-range weights are an error rather than a clamp. A weight of 3 means
+ * the producer is using a different convention -- degrees, or a percentage --
+ * and clamping it to 1 would hide that behind a face that is merely wrong.
+ */
+function parseFace(raw: unknown, where: string, errors: string[], warnings: string[]): FacePose {
+  if (typeof raw !== 'object' || raw === null) {
+    errors.push(`${where}: face is not an object`);
+    return {};
+  }
+  const face: Record<string, number> = {};
+  for (const [channel, value] of Object.entries(raw as Record<string, unknown>)) {
+    if (!FACE_CHANNEL_SET.has(channel)) {
+      warnings.push(`${where}: ignoring unknown face channel "${channel}"`);
+      continue;
+    }
+    if (!isFiniteNumber(value)) {
+      errors.push(`${where}: face channel "${channel}" is not a number`);
+      continue;
+    }
+    if (value < 0 || value > 1) {
+      errors.push(`${where}: face channel "${channel}" is ${value}, outside 0..1`);
+      continue;
+    }
+    face[channel] = value;
+  }
+  return face as FacePose;
 }
 
 export function parseClip(raw: unknown): ClipParseResult {
@@ -92,6 +125,30 @@ export function parseClip(raw: unknown): ClipParseResult {
     });
   }
 
+  const faceKeyframes: FaceKeyframe[] = [];
+  if (input.faceKeyframes !== undefined) {
+    if (!Array.isArray(input.faceKeyframes)) {
+      errors.push('faceKeyframes is not an array');
+    } else {
+      let previousFace = -Infinity;
+      input.faceKeyframes.forEach((frame, i) => {
+        const where = `face keyframe ${i}`;
+        if (typeof frame !== 'object' || frame === null) {
+          errors.push(`${where}: not an object`);
+          return;
+        }
+        const { timeMs, face } = frame as Record<string, unknown>;
+        if (!isFiniteNumber(timeMs)) {
+          errors.push(`${where}: timeMs is not a number`);
+          return;
+        }
+        if (timeMs < previousFace) errors.push(`${where}: timeMs goes backwards`);
+        previousFace = timeMs;
+        faceKeyframes.push({ timeMs, face: parseFace(face, where, errors, warnings) });
+      });
+    }
+  }
+
   const durationMs = isFiniteNumber(input.durationMs)
     ? input.durationMs
     : keyframes.length > 0 ? keyframes[keyframes.length - 1]!.timeMs : 0;
@@ -131,6 +188,7 @@ export function parseClip(raw: unknown): ClipParseResult {
       durationMs,
       keyframes,
       ...stroke,
+      ...(faceKeyframes.length > 0 ? { faceKeyframes } : {}),
       ...(provenance ? { provenance } : {}),
     },
   };
