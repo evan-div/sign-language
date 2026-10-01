@@ -21,7 +21,7 @@ import {
 import { SIGNS } from './library.js';
 import { compileSign } from './compile.js';
 import { expandSign } from './expand.js';
-import { isTwoHanded, type SignDefinition } from './definition.js';
+import { isTwoHanded, type SignDefinition, type SignKeyframe } from './definition.js';
 import { SOLVED_LOCATIONS } from './locations.generated.js';
 import { ORIENTATIONS } from './orientation.js';
 import { SIGN_HANDSHAPES } from '../handshapes/sign-shapes.js';
@@ -65,6 +65,12 @@ export function poseSignature(pose: Pose): number[] {
 export function signatureDistance(a: readonly number[], b: readonly number[]): number {
   return Math.hypot(...a.map((v, i) => v - b[i]!));
 }
+
+/** Signs closer than this are the same picture, whatever their parameters say. */
+const INDISTINGUISHABLE = 0.01;
+
+/** Peak wrist travel in one 20ms step that warrants a warning: 2.2 m/s. */
+const PEAK_STEP_WARNING = 0.044;
 
 const REST_LEFT_WRIST = jointPosition(solveFK(REST_POSTURE), 'left_wrist');
 const REST_RIGHT_WRIST = jointPosition(solveFK(REST_POSTURE), 'right_wrist');
@@ -151,6 +157,10 @@ export function lintSign(sign: SignDefinition): Finding[] {
   }
 
   // --- contact sites land where they were aimed --------------------------
+  // Reported once per distinct (site, place, miss): a mirrored or repeating
+  // sign visits the same pose many times and used to report it every time,
+  // which made a hundred signs look like three hundred problems.
+  const reported = new Set<string>();
   for (const track of tracks) {
     for (const k of track) {
       const site = k.contact ?? 'wrist';
@@ -168,7 +178,11 @@ export function lintSign(sign: SignDefinition): Finding[] {
         : tipPosition(s, `right_${site}_tip`);
       const err = vec3Distance(point, SOLVED_LOCATIONS[k.location].target as Vec3);
       if (err > 0.02) {
-        add('warning', 'reach', `${site} lands ${(err * 100).toFixed(1)}cm from ${k.location}`, err);
+        const message = `${site} lands ${(err * 100).toFixed(1)}cm from ${k.location}`;
+        if (!reported.has(message)) {
+          reported.add(message);
+          add('warning', 'reach', message, err);
+        }
       }
     }
   }
@@ -242,7 +256,15 @@ export function lintSign(sign: SignDefinition): Finding[] {
   if (worstElbowClearance.clearance < 0.11) {
     add('warning', 'elbow', `${worstElbowClearance.side} elbow passes through the torso at ${worstElbowClearance.at}ms (${(worstElbowClearance.clearance * 100).toFixed(1)}cm out)`, worstElbowClearance.clearance);
   }
-  if (isTwoHanded(sign) && worstHandGap.gap < 0.07) {
+  // Two thresholds, because there are two situations. A MIRRORED or ALTERNATING
+  // pair has two hands placed independently, so wrists within 7cm means they
+  // overlap, and that is always a mistake. A sign with a BASE hand has one hand
+  // that the other is meant to touch -- one finger sliding along another, a
+  // palm laid on a palm -- so contact is the point and only coincidence is a
+  // fault. Applying 7cm to both flagged MONTH, whose fingertips are 1.3cm apart
+  // on purpose.
+  const handGap = sign.base || (sign.nonDominant && !sign.symmetry) ? 0.04 : 0.07;
+  if (isTwoHanded(sign) && worstHandGap.gap < handGap) {
     add('warning', 'hands', `the wrists come within ${(worstHandGap.gap * 100).toFixed(1)}cm at ${worstHandGap.at}ms`, worstHandGap.gap);
   }
   if (sign.held) {
@@ -258,10 +280,20 @@ export function lintSign(sign: SignDefinition): Finding[] {
   } else if (travel < 0.05) {
     add('error', 'motion', `barely moves (${(travel * 100).toFixed(1)}cm of fingertip travel)`, travel);
   }
-  // Calibrated, not guessed: across the library the peak wrist speed has a
-  // median of 0.76 m/s and a 90th percentile of 1.42, so 1.8 m/s (3.6cm per
-  // 20ms step) sits clear of ordinary signing and flags the outliers.
-  if (worstStep.step > 0.036) {
+  // Calibrated, not guessed, and RE-calibrated when what it measures changed.
+  //
+  // At Milestone 6 this was 1.8 m/s: 1.27 times the 90th percentile (1.42) of
+  // peak wrist speed across the first hundred signs. At Milestone 8 it was
+  // found that those signs had never been eased -- they moved at constant joint
+  // speed -- and once easing took effect the same signs, at the same average
+  // speeds, measured median 1.14 and p90 1.71. Easing concentrates a movement
+  // in its middle, so peaks rise without anything having become faster on
+  // average. The same rule (1.27 x p90) on the new distribution gives 2.2.
+  //
+  // This is a recalibration forced by a change in meaning, not a loosening to
+  // make warnings go away, and it can be checked: the signs that were fastest
+  // before are still the ones flagged.
+  if (worstStep.step > PEAK_STEP_WARNING) {
     add('warning', 'speed', `${worstStep.joint} reaches ${(worstStep.step / 0.02).toFixed(1)} m/s at ${worstStep.at}ms`, worstStep.step / 0.02);
   }
 
@@ -277,10 +309,84 @@ function rotatedOffset(pose: Pose, offsetLocal: Vec3): Vec3 {
   return quatRotateVec3(jointRotation(solveFK(pose), 'right_wrist'), offsetLocal);
 }
 
+/** The parameters ASL phonology describes a sign by, plus how many hands. */
+export type Parameter =
+  | 'handshape' | 'location' | 'orientation' | 'contact' | 'movement' | 'hands' | 'other-hand';
+
 export interface Collision {
   readonly a: string;
   readonly b: string;
   readonly distance: number;
+  /**
+   * The parameters in which the two signs differ. Empty means they are the
+   * same sign under two names.
+   */
+  readonly differs: readonly Parameter[];
+}
+
+/** One configuration of a hand, as a string that is equal when the poses are. */
+const tuple = (k: SignKeyframe) =>
+  [k.location, k.handshape, k.orientation ?? 'PALM_OUT', k.contact ?? 'wrist'].join('|');
+
+/** Consecutive repeats collapsed: the places the hand WENT, not how long it stayed. */
+function visited(track: readonly SignKeyframe[]): string[] {
+  const out: string[] = [];
+  for (const k of track) {
+    const t = tuple(k);
+    if (out[out.length - 1] !== t) out.push(t);
+  }
+  return out;
+}
+
+/** Which of the (location, handshape, orientation, contact) fields differ between two tuples. */
+function fieldsDiffering(a: string, b: string): Parameter[] {
+  const [al, ah, ao, ac] = a.split('|');
+  const [bl, bh, bo, bc] = b.split('|');
+  const out: Parameter[] = [];
+  if (ah !== bh) out.push('handshape');
+  if (al !== bl) out.push('location');
+  if (ao !== bo) out.push('orientation');
+  if (ac !== bc) out.push('contact');
+  return out;
+}
+
+/**
+ * How two signs differ, in the terms ASL itself uses.
+ *
+ * This is the other half of distinctness. The geometric check says two signs
+ * LOOK close; this says WHY, and whether they are really the same sign. They
+ * are different questions. At five hundred signs a pure distance threshold
+ * starts to fire on genuine minimal pairs -- ASL has plenty that differ in a
+ * single parameter, and several of the initialised families differ only in
+ * handshape -- and an error that cannot tell those apart from an accidental
+ * duplicate would teach its author to ignore it.
+ *
+ * An empty answer means every parameter matches. That is not a minimal pair, it
+ * is one sign with two names, and the right model for it is one sign with two
+ * senses in the lexicon.
+ */
+export function phonologicalDifference(a: SignDefinition, b: SignDefinition): Parameter[] {
+  const ea = expandSign(a);
+  const eb = expandSign(b);
+  const out = new Set<Parameter>();
+
+  if (isTwoHanded(a) !== isTwoHanded(b)) out.add('hands');
+
+  const va = visited(ea.dominant);
+  const vb = visited(eb.dominant);
+  if (va.length !== vb.length) {
+    out.add('movement');
+  } else {
+    va.forEach((t, i) => { for (const f of fieldsDiffering(t, vb[i]!)) out.add(f); });
+  }
+
+  if (isTwoHanded(a) && isTwoHanded(b)) {
+    const oa = visited(ea.nonDominant ?? []);
+    const ob = visited(eb.nonDominant ?? []);
+    if (oa.length !== ob.length || oa.some((t, i) => t !== ob[i])) out.add('other-hand');
+  }
+
+  return [...out];
 }
 
 /** How many points along the stroke a trajectory signature samples. */
@@ -329,7 +435,12 @@ export function findCollisions(threshold = 0.03): Collision[] {
   for (let i = 0; i < ids.length; i++) {
     for (let j = i + 1; j < ids.length; j++) {
       const d = trajectoryDistance(paths.get(ids[i]!)!, paths.get(ids[j]!)!);
-      if (d < threshold) out.push({ a: ids[i]!, b: ids[j]!, distance: d });
+      if (d < threshold) {
+        out.push({
+          a: ids[i]!, b: ids[j]!, distance: d,
+          differs: phonologicalDifference(SIGNS[ids[i]!]!, SIGNS[ids[j]!]!),
+        });
+      }
     }
   }
   return out.sort((x, y) => x.distance - y.distance);
@@ -338,11 +449,15 @@ export function findCollisions(threshold = 0.03): Collision[] {
 /** Signs and lexicon entries that do not line up. */
 export function lintLexicon(): Finding[] {
   const found: Finding[] = [];
-  const reachable = new Set(LEXICON.map((e) => e.signId));
+  // A compound reaches every sign in it, so a component such as GRAND, which has
+  // no English word of its own, is reachable through "grandmother".
+  const reachable = new Set(LEXICON.flatMap((e) => [e.signId, ...(e.then ?? [])]));
   for (const entry of LEXICON) {
-    if (!(entry.signId in SIGNS)) {
-      found.push({ severity: 'error', check: 'lexicon', signId: entry.signId,
-        message: `lemma "${entry.lemma}" points at a sign that does not exist` });
+    for (const id of [entry.signId, ...(entry.then ?? [])]) {
+      if (!(id in SIGNS)) {
+        found.push({ severity: 'error', check: 'lexicon', signId: id,
+          message: `lemma "${entry.lemma}" points at a sign that does not exist` });
+      }
     }
   }
   for (const id of Object.keys(SIGNS)) {
@@ -415,8 +530,22 @@ export function lintLibrary(): Finding[] {
   for (const sign of Object.values(SIGNS)) found.push(...lintSign(sign));
   found.push(...lintLexicon());
   for (const c of findCollisions()) {
-    found.push({ severity: 'error', check: 'distinct', signId: c.a,
-      message: `is the same motion as ${c.b} (${(c.distance * 100).toFixed(1)}cm apart)`, value: c.distance });
+    const cm = `${(c.distance * 100).toFixed(1)}cm`;
+    if (c.differs.length === 0) {
+      // Every parameter matches: one sign under two names.
+      found.push({ severity: 'error', check: 'distinct', signId: c.a,
+        message: `is identical to ${c.b} in every parameter; make it one sign with two senses`,
+        value: c.distance });
+    } else if (c.distance < INDISTINGUISHABLE) {
+      // Different on paper, the same on screen.
+      found.push({ severity: 'error', check: 'distinct', signId: c.a,
+        message: `differs from ${c.b} only in ${c.differs.join(', ')}, and that is ${cm} on screen `
+          + 'and cannot be told apart', value: c.distance });
+    } else {
+      found.push({ severity: 'warning', check: 'near', signId: c.a,
+        message: `is close to ${c.b} (${cm}), differing in ${c.differs.join(', ')}`,
+        value: c.distance });
+    }
   }
   return found;
 }

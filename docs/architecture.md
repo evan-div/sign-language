@@ -460,3 +460,75 @@ whether the hand ever leaves rest -- rather than the one that does not.
 The same check caught a real fault in the same run. 99 composed as "the 9 hand,
 then the 9 hand" shows the reader a single 9; it measured zero fingertip travel
 across the whole sign. Doubled digits shift sideways now, which is what ASL does.
+
+## Milestone 8: 301 signs, not 500
+
+The target was 500. **301 signs are authored.** The remaining ~200 could only
+have been written by guessing, and a guessed sign is worse than a fingerspelled
+word: it looks authoritative. `data/vocabulary/skipped.json` is the precise
+record. About 90 of the 230 commonest conversational words that still lack a
+sign are real ASL signs whose form I could not recall well enough to describe;
+the rest are words ASL does not sign one-to-one. `pnpm gap` regenerates the
+ranked list.
+
+Every one of the 301 is hand-authored from written descriptions and
+`unvalidated`. 158 are rated `approximate`, 141 `citation`, 2 `uncertain`. Those
+ratings are the author's self-assessment and nothing more; the review pipeline
+below exists to find out whether they predict anything.
+
+### Findings worth keeping
+
+- **The easing never took effect (a latent M3 bug).** Keyframe easing was
+  specified but the sampler interpolated linearly. A "template speed" claim in
+  this milestone's first draft was false for 48 of 290 signs; chasing it found
+  the cause. Easing is now baked at 30ms with Hermite curves, with stops
+  (hand pauses) distinguished from pass-through keyframes. The lint threshold
+  was recalibrated afterwards, and the regression test asserts a rate, not a
+  shape.
+- **Template timing is an estimate.** Movement templates derive duration from
+  hand distance at 0.8 m/s, but the arm moves in joint space, so hand speed is
+  not constant. Where it matters, `pace` overrides it.
+- **Contractions inverted negation.** "I don't know" dropped the lemma "do" as
+  a function word and kept "n't" nowhere, so the sentence signed as its
+  opposite. `normalize.ts` now splits `n't` into stem + `not`. One existing
+  test had asserted the buggy output and was corrected.
+- **Contact sites needed a real model.** A sign says *which part of the hand*
+  lands on a place (`index`, `thumb`, `palm`...). The arm is re-solved at
+  compile time for that, with penetration terms for the upper arm and forearm.
+  The first QUEEN had its thumb 23cm off because the letter-hand wrist offset
+  was being counted. Remaining misses are listed by `pnpm lint:signs`: 33 reach
+  warnings, all under 11cm, most under 5cm.
+- **Distinctness is phonological as well as geometric.** Two signs can have
+  different trajectories and still differ in only one parameter (a minimal
+  pair); the linter reports which parameter differs. EAR and HEAR were
+  identical, so HEAR was deleted and mapped through the lexicon.
+- **Compounds, phrases and ambiguity live in the lexicon, not the library.**
+  SON is BOY+BABY, TEACHER is TEACH+PERSON; the plan expands them into grouped
+  segments and the UI shows the English word once.
+  "Good morning" and "how are you" are single phrase signs, which broke two
+  marker rules (they were read as a topic and a yes/no question) until
+  `DISCOURSE_PHRASES` and token-based WH detection were added.
+
+### Review pipeline (built, never fed real data)
+
+`pnpm review:packet` writes `docs/review/PACKET.md`, `data/review/packet.json`
+and a CSV for reviewers, ordered by author uncertainty. `pnpm review:ingest`
+validates returned verdicts (collecting every problem in one pass) and writes
+`verdicts.generated.ts`, which `assemble()` applies. Rules, in code: only
+`deaf-fluent` and `interpreter` credentials count; `incorrect` always wins;
+`expert-validated` needs two clean verdicts, one from a Deaf signer. It also
+reports the Wilson interval of the incorrect rate per fidelity rating, so we
+learn whether the ratings mean anything. **It has been tested on synthetic
+verdicts only. `VERDICTS` is empty: no Deaf reviewer has seen a single sign.**
+
+### Coverage
+
+Measured by `pnpm coverage` against two independent lists (web text; film
+subtitles as a proxy for conversation). Top 100 web words answered went from
+76% to 81% by type and 93% to 95% by frequency. Words that actually *have a
+sign* (not a drop or a spelling): 40% of the top 100 web words, 54% of the top
+500 subtitle words (47% by frequency). The subtitle list is new in this
+milestone, so there is no earlier figure for it. Still fingerspelled among the
+commonest speech words: well, let, back, something, way, never, mean, first,
+still, away, put, last, better, keep... — mostly words that need context-
+dependent signs, which the lexicon cannot yet choose between.

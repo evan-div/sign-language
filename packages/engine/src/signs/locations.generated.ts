@@ -208,6 +208,13 @@ export const SOLVED_LOCATIONS = {
     elbow: [30.3904, 34.8114, 61.423],
     wristCorrection: [-0.5318, -0.4766, -0.2937, 0.6354],
   },
+  STOMACH: {
+    description: "At the stomach",
+    target: [-0.06, 1.12, 0.16],
+    shoulder: [12.7216, 34.0608, 0.8572],
+    elbow: [107.9383, 16.9991, -27.5603],
+    wristCorrection: [-0.765, -0.4658, 0.1876, 0.4031],
+  },
   FACE_HIGH: {
     description: "In front of the face, off the midline so two hands clear each other",
     target: [-0.1, 1.6, 0.2],

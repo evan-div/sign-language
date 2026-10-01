@@ -107,8 +107,52 @@ export function keyframePose(keyframe: SignKeyframe, hand: Hand): Pose {
   };
 }
 
+/** The same configuration of the hand? Time aside, are two keyframes one pose. */
+function samePose(a: SignKeyframe, b: SignKeyframe): boolean {
+  return a.location === b.location && a.handshape === b.handshape
+    && (a.orientation ?? 'PALM_OUT') === (b.orientation ?? 'PALM_OUT')
+    && (a.contact ?? 'wrist') === (b.contact ?? 'wrist');
+}
+
+/**
+ * Which keyframes the hand comes to rest at.
+ *
+ * The first, the last, and any pose held across two keyframes are STOPS; a
+ * keyframe that differs from both its neighbours is a pass-through, a point the
+ * hand moves through on its way somewhere. The distinction is what makes easing
+ * correct. Easing every keyframe stops the hand dead at every point of an arc,
+ * which is robotic; easing none starts and stops it abruptly, which is also
+ * robotic, and is what this did for its first six milestones.
+ */
+function stopsOf(track: readonly SignKeyframe[]): boolean[] {
+  return track.map((k, i) => {
+    if (i === 0 || i === track.length - 1) return true;
+    return samePose(k, track[i - 1]!) || samePose(k, track[i + 1]!);
+  });
+}
+
+/**
+ * A cubic Hermite ease between two keyframes, with the hand's speed at each end
+ * either zero (a stop) or the segment's average (a pass-through).
+ *
+ * Both end speeds in {0, 1} give a monotonic curve, which is what keeps a
+ * pass-through from overshooting. 0 and 0 is the familiar smoothstep; 1 and 1
+ * is linear, so an arc's middle runs at constant speed; the mixed cases ease in
+ * or out only where the hand actually stops.
+ */
+export function hermiteEase(t: number, startSpeed: 0 | 1, endSpeed: 0 | 1): number {
+  const c = t < 0 ? 0 : t > 1 ? 1 : t;
+  const t2 = c * c;
+  const t3 = t2 * c;
+  return (-2 * t3 + 3 * t2)
+    + startSpeed * (t3 - 2 * t2 + c)
+    + endSpeed * (t3 - t2);
+}
+
 /** Sample one hand's keyframe track at a time, clamping past both ends. */
-function sampleTrack(track: readonly SignKeyframe[], hand: Hand, timeMs: number): Pose {
+function sampleTrack(
+  track: readonly SignKeyframe[], stops: readonly boolean[], hand: Hand, timeMs: number,
+): Pose {
   if (track.length === 0) return {};
   const first = track[0]!;
   if (timeMs <= first.atMs) return keyframePose(first, hand);
@@ -121,17 +165,25 @@ function sampleTrack(track: readonly SignKeyframe[], hand: Hand, timeMs: number)
     if (timeMs <= b.atMs) {
       const span = b.atMs - a.atMs;
       const t = span <= 0 ? 1 : (timeMs - a.atMs) / span;
-      return blendPoses(keyframePose(a, hand), keyframePose(b, hand), ease(t));
+      const eased = hermiteEase(t, stops[i] ? 0 : 1, stops[i + 1] ? 0 : 1);
+      return blendPoses(keyframePose(a, hand), keyframePose(b, hand), eased);
     }
   }
   return keyframePose(last, hand);
 }
 
-/** Smoothstep. Signs decelerate into their held positions rather than arriving linearly. */
-function ease(t: number): number {
-  const c = t < 0 ? 0 : t > 1 ? 1 : t;
-  return c * c * (3 - 2 * c);
-}
+/**
+ * How often a compiled clip is sampled between its keyframes, in ms.
+ *
+ * The compiled clip is played back by interpolating linearly between ITS
+ * keyframes, so the easing above only exists in the clip if it is baked in.
+ * Until Milestone 8 it was not: sampleTrack was evaluated only at the keyframe
+ * times themselves, where t is always 0 or 1, so the smoothstep the comment
+ * promised never took effect and every sign moved at constant joint speed.
+ * 30ms is fine enough that linear interpolation between baked frames is
+ * indistinguishable from the curve.
+ */
+const BAKE_STEP_MS = 30;
 
 export function compileSign(definition: SignDefinition, dominantHand: Hand = 'right'): MotionClip {
   // Symmetry, base hands and repetition are resolved once, here, so that
@@ -145,10 +197,22 @@ export function compileSign(definition: SignDefinition, dominantHand: Hand = 'ri
   for (const k of sign.dominant) times.add(k.atMs);
   for (const k of sign.nonDominant ?? []) times.add(k.atMs);
 
+  // Bake the easing in: add samples between the keyframes, so that the clip's
+  // own linear interpolation follows the curve rather than replacing it.
+  const anchors = [...times].sort((a, b) => a - b);
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const from = anchors[i]!;
+    const to = anchors[i + 1]!;
+    for (let t = from + BAKE_STEP_MS; t < to - BAKE_STEP_MS / 2; t += BAKE_STEP_MS) times.add(t);
+  }
+
+  const dominantStops = stopsOf(sign.dominant);
+  const nonDominantStops = sign.nonDominant ? stopsOf(sign.nonDominant) : [];
+
   const keyframes: Keyframe[] = [...times].sort((a, b) => a - b).map((timeMs) => {
-    const layers: Pose[] = [REST_POSTURE, sampleTrack(sign.dominant, dominantHand, timeMs)];
+    const layers: Pose[] = [REST_POSTURE, sampleTrack(sign.dominant, dominantStops, dominantHand, timeMs)];
     if (isTwoHanded(sign)) {
-      layers.push(sampleTrack(sign.nonDominant!, nonDominantHand, timeMs));
+      layers.push(sampleTrack(sign.nonDominant!, nonDominantStops, nonDominantHand, timeMs));
     }
     return { timeMs, pose: composePoses(...layers) };
   });

@@ -15,7 +15,7 @@
 
 import type { LetterSegment } from '../fingerspell.js';
 import { sequence, samplePrepared, type Prepared, type SequenceItem, type Sequence } from '../sequencer.js';
-import { FUNCTION_WORDS, SPATIALLY_EXPRESSED, WH_WORDS, type LexiconEntry } from '../lexicon/entries.js';
+import { DISCOURSE_PHRASES, FUNCTION_WORDS, NEGATING_SIGNS, SPATIALLY_EXPRESSED, WH_WORDS, type LexiconEntry } from '../lexicon/entries.js';
 import { MAX_PHRASE_WORDS, hasLemma, lookupLemma, resolveConcept, type Resolution } from '../lexicon/resolve.js';
 import { isQuestion, tokenise, trailingPauseMs, type Token } from './normalize.js';
 import { parseNumber } from '../numbers/parse.js';
@@ -42,6 +42,18 @@ export interface PlanSegment {
   readonly transitionInMs: number;
   /** Letters of a fingerspelled word. One timeline item, many sub-segments. */
   readonly letters?: readonly LetterSegment[];
+  /**
+   * Which English concept this segment belongs to. Several segments share one
+   * when a word is signed as a compound -- SON is BOY then BABY -- so the
+   * interface can light up the one word when either half is playing.
+   */
+  readonly group: number;
+  /**
+   * True for every segment of a compound after the first. Such a segment has an
+   * EMPTY source span, because the characters belong to the first one: giving
+   * both the same span would show the word twice in the sentence view.
+   */
+  readonly continuation?: boolean;
 }
 
 export interface PlanNotice {
@@ -88,6 +100,8 @@ interface Concept {
   clause?: number;
   /** The value, for a number or an incorporated number. */
   readonly value?: number;
+  /** Signs that follow `signId`, for a compound word. */
+  readonly then?: readonly string[];
 }
 
 /**
@@ -218,6 +232,7 @@ function matchConcepts(tokens: readonly Token[], senseChoices: Record<string, st
         span: [group[0]!.span[0], group[group.length - 1]!.span[1]],
         text: group.map((t) => t.text).join(' '),
         ...(resolved.signId ? { signId: resolved.signId } : {}),
+        ...(resolved.then ? { then: resolved.then } : {}),
         resolution: resolved.resolution,
         ...(resolved.senses ? { senses: resolved.senses } : {}),
       });
@@ -235,6 +250,7 @@ function matchConcepts(tokens: readonly Token[], senseChoices: Record<string, st
       span: token.span,
       text: token.text,
       ...(resolved.signId ? { signId: resolved.signId } : {}),
+      ...(resolved.then ? { then: resolved.then } : {}),
       resolution: resolved.resolution,
       ...(resolved.substitutedFrom ? { substitutedFrom: resolved.substitutedFrom } : {}),
     });
@@ -288,11 +304,24 @@ export function translate(input: string, options: TranslateOptions = {}): {
     reordered = true;
   }
 
-  const items: SequenceItem[] = concepts.map((c) =>
-    c.signId
-      ? { kind: 'sign', signId: c.signId }
-      : { kind: 'fingerspell', word: c.text },
-  );
+  // One English concept can be several signs, so items and concepts are no
+  // longer one-to-one. `itemConcept` is the way back: the concept each item
+  // came from, which is what the source spans and the clause scoping read.
+  const items: SequenceItem[] = [];
+  const itemConcept: number[] = [];
+  concepts.forEach((c, conceptIndex) => {
+    if (c.signId) {
+      items.push({ kind: 'sign', signId: c.signId });
+      itemConcept.push(conceptIndex);
+      for (const next of c.then ?? []) {
+        items.push({ kind: 'sign', signId: next });
+        itemConcept.push(conceptIndex);
+      }
+    } else {
+      items.push({ kind: 'fingerspell', word: c.text });
+      itemConcept.push(conceptIndex);
+    }
+  });
 
   const built = sequence(items, {
     speed: options.speed ?? 1,
@@ -301,11 +330,15 @@ export function translate(input: string, options: TranslateOptions = {}): {
   });
 
   const segments: PlanSegment[] = built.sequence.segments.map((s, index) => {
-    const concept = concepts[index]!;
+    const conceptIndex = itemConcept[index]!;
+    const concept = concepts[conceptIndex]!;
+    const continuation = index > 0 && itemConcept[index - 1] === conceptIndex;
     return {
       ...s,
-      sourceSpan: concept.span,
-      sourceText: concept.text,
+      group: conceptIndex,
+      ...(continuation ? { continuation: true } : {}),
+      sourceSpan: continuation ? [concept.span[1], concept.span[1]] as const : concept.span,
+      sourceText: continuation ? '' : concept.text,
       resolution: concept.resolution,
       ...(concept.substitutedFrom ? { substitutedFrom: concept.substitutedFrom } : {}),
       ...(concept.senses ? { senses: concept.senses } : {}),
@@ -316,6 +349,8 @@ export function translate(input: string, options: TranslateOptions = {}): {
   const ambiguities: Ambiguity[] = [];
 
   for (const segment of segments) {
+    // A compound is one English word and gets one notice, from its first sign.
+    if (segment.continuation) continue;
     if (segment.resolution === 'synonym') {
       notices.push({
         kind: 'substitution', segmentIndex: segment.index,
@@ -370,9 +405,10 @@ export function translate(input: string, options: TranslateOptions = {}): {
   const nmmSpans: NmmSpan[] = [];
   if (segments.length > 0) {
     /** The final segment indices belonging to a clause, after reordering. */
+    const clauseOf = (segmentIndex: number) => concepts[itemConcept[segmentIndex]!]!.clause;
     const rangeOf = (clause: number): [number, number] | undefined => {
-      const indices = concepts
-        .map((c, i) => (c.clause === clause ? i : -1))
+      const indices = segments
+        .map((_, i) => (clauseOf(i) === clause ? i : -1))
         .filter((i) => i >= 0);
       if (indices.length === 0) return undefined;
       return [Math.min(...indices), Math.max(...indices)];
@@ -388,10 +424,13 @@ export function translate(input: string, options: TranslateOptions = {}): {
         // it; it is a particle. A clause that is nothing but yes or no gets no
         // topic marker, which is the narrowest rule that fixes the case
         // punctuation alone cannot tell apart.
-        const onlyParticles = concepts
+        // A clause that is only a particle or a greeting is not a topic either.
+        // Checked on the CONCEPTS, in lemma form, because "good morning" is two
+        // signs and no single sign says it is a greeting.
+        const onlyDiscourse = concepts
           .filter((c) => c.clause === clause)
-          .every((c) => c.signId === 'NO' || c.signId === 'YES');
-        if (!onlyParticles) nmmSpans.push({ type: 'topic', fromIndex: range[0], toIndex: range[1] });
+          .every((c) => DISCOURSE_PHRASES.has(c.tokens.map((t) => t.lemma).join(' ')));
+        if (!onlyDiscourse) nmmSpans.push({ type: 'topic', fromIndex: range[0], toIndex: range[1] });
       }
     }
 
@@ -402,17 +441,24 @@ export function translate(input: string, options: TranslateOptions = {}): {
       const mainClause = clauses.findIndex((c) => c.kind === 'main');
       const range = (mainClause >= 0 ? rangeOf(mainClause) : undefined)
         ?? [0, segments.length - 1] as [number, number];
-      const wh = segments.some((s) => s.sourceText && WH_WORDS.has(s.sourceText.toLowerCase()));
+      // From the concepts' own tokens, not the text of a segment: "how are you"
+      // is signed HOW YOU, whose source text is "how you" and so never matched
+      // a WH word, and a WH question was marked as a yes/no question.
+      const wh = concepts.some((c) => c.tokens.some((t) => WH_WORDS.has(t.lemma)));
       nmmSpans.push({ type: wh ? 'wh_question' : 'yes_no_question', fromIndex: range[0], toIndex: range[1] });
     }
 
     // Negation and affirmation scope from their sign to the end of THEIR
     // clause. Running a headshake to the end of the sentence negates things
     // the signer did not negate.
-    for (const [signId, type] of [['NO', 'negation'], ['YES', 'affirmation']] as const) {
-      const at = concepts.findIndex((c) => c.signId === signId);
+    const markers: Array<[(id: string | undefined) => boolean, 'negation' | 'affirmation']> = [
+      [(id) => id !== undefined && NEGATING_SIGNS.has(id), 'negation'],
+      [(id) => id === 'YES', 'affirmation'],
+    ];
+    for (const [matches, type] of markers) {
+      const at = segments.findIndex((s) => matches(s.signId));
       if (at < 0) continue;
-      const range = rangeOf(concepts[at]!.clause ?? 0);
+      const range = rangeOf(clauseOf(at) ?? 0);
       nmmSpans.push({ type, fromIndex: at, toIndex: range ? range[1] : segments.length - 1 });
     }
   }
@@ -462,6 +508,7 @@ export function planSign(signId: string, options: TranslateOptions = {}): {
       source,
       segments: [{
         ...segment,
+        group: 0,
         sourceSpan: [0, source.length],
         sourceText: source,
         resolution: 'direct',

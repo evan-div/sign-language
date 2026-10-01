@@ -230,7 +230,12 @@ describe('the sign library', () => {
         const solved = solveFK(frame.pose);
         const apart = vec3Distance(
           jointPosition(solved, 'right_wrist'), jointPosition(solved, 'left_wrist'));
-        expect(apart, `${id} @${frame.timeMs}ms`).toBeGreaterThan(0.07);
+        // 7cm for a symmetric pair, where overlap is always a mistake; 4cm for
+        // a sign with a base hand, where one hand is MEANT to touch the other
+        // (MONTH slides one fingertip along another, 1.3cm apart on purpose)
+        // and only coincidence is a fault. See the same split in the linter.
+        const touching = sign.base !== undefined || (sign.nonDominant !== undefined && !sign.symmetry);
+        expect(apart, `${id} @${frame.timeMs}ms`).toBeGreaterThan(touching ? 0.04 : 0.07);
       }
     }
   });

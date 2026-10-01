@@ -23,3 +23,31 @@ third-party asset in this repository.
 type into a sign-language app skew more conversational than this, so treat the
 resulting coverage figure as a lower bound on everyday input and an upper bound
 on nothing.
+
+---
+
+# Conversational frequency list
+
+`subtitles-top3000.txt` is the 3,000 most frequent words in English film and TV
+subtitles, in rank order, as `word count` per line.
+
+**Provenance.** Derived from OpenSubtitles by the `hermitdave/FrequencyWords`
+project (`content/2018/en/en_50k.txt`). Only the top 3,000 are vendored.
+
+**Why a second list.** The web-text list above ranks "page", "search", "click"
+and "site" among the commonest English words, which says more about what the
+web is made of than about what a person would type into a sign-language app.
+Subtitles are speech, written down: they are heavy on "you", "I", "know",
+"want", "going", and light on navigation chrome. Coverage is reported against
+both, and the gap between the two numbers is itself informative about how much
+the first one flatters or punishes the vocabulary.
+
+**Licensing.** The upstream repository's data is CC BY-SA 4.0. It is used here
+only as a test fixture and to rank a selection; no shipped asset is derived from
+it, so the ShareAlike term does not reach the product. Confirm that reading
+before any commercial use, as with every other third-party asset here.
+
+**What it is not.** Subtitles skew to dialogue, profanity and proper names, and
+they are tokenised crudely (contractions split into fragments such as "don" and
+"t"). The gap-analysis tool filters those out rather than pretending they are
+words.

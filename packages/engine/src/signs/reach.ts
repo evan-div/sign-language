@@ -57,7 +57,13 @@ const armPose = (p: Arm): Pose => ({
  */
 export function contactOffset(spec: HandshapeSpec, site: ContactSite): Vec3 {
   if (site === 'wrist') return [0, 0, 0];
-  const solved = solveFK(compileHandshape(spec, 'right'));
+  // The letter's own wrist rotation is dropped, exactly as keyframePose drops
+  // it. G, H, P and Q carry a wrist angle as part of being that letter, which
+  // is a fingerspelling concern; a sign states its own orientation. Measuring
+  // the offset WITH that rotation left a sign using Q with a thumb contact
+  // 23cm from its target, and nothing had combined the two before QUEEN.
+  const { right_wrist: _letterWrist, ...fingers } = compileHandshape(spec, 'right');
+  const solved = solveFK(fingers);
   const wrist = jointPosition(solved, 'right_wrist');
 
   if (site === 'knuckles') return vec3Sub(jointPosition(solved, 'right_middle1'), wrist);

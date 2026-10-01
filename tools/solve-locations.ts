@@ -137,6 +137,7 @@ const LOCATIONS: Array<[string, Vec3, string]> = [
   ['SIDE_LOW',     [-0.27, 1.10, 0.20], 'Out to the dominant side and low'],
   ['CENTRE_HIGH',  [-0.03, 1.42, 0.26], 'Centred and high, in front of the chin'],
   ['OUT_FAR',      [-0.20, 1.28, 0.40], 'Well forward, where a sign pushes away to'],
+  ['STOMACH',      [-0.06, 1.12, 0.16], 'At the stomach'],
   ['FACE_HIGH',    [-0.10, 1.60, 0.20], 'In front of the face, off the midline so two hands clear each other'],
   ['FACE_LOW',     [-0.10, 1.44, 0.20], 'In front of the jaw, off the midline so two hands clear each other'],
 ];

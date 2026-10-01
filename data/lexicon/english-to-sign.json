@@ -622,6 +622,1099 @@
     {
       "lemma": "hers",
       "signId": "HE_SHE"
+    },
+    {
+      "lemma": "boy",
+      "signId": "BOY"
+    },
+    {
+      "lemma": "girl",
+      "signId": "GIRL"
+    },
+    {
+      "lemma": "baby",
+      "signId": "BABY"
+    },
+    {
+      "lemma": "marry",
+      "signId": "MARRY"
+    },
+    {
+      "lemma": "wedding",
+      "signId": "MARRY"
+    },
+    {
+      "lemma": "married",
+      "signId": "MARRY"
+    },
+    {
+      "lemma": "teach",
+      "signId": "TEACH"
+    },
+    {
+      "lemma": "uncle",
+      "signId": "UNCLE"
+    },
+    {
+      "lemma": "aunt",
+      "signId": "AUNT"
+    },
+    {
+      "lemma": "group",
+      "signId": "GROUP"
+    },
+    {
+      "lemma": "class",
+      "signId": "CLASS"
+    },
+    {
+      "lemma": "classroom",
+      "signId": "CLASS"
+    },
+    {
+      "lemma": "team",
+      "signId": "TEAM"
+    },
+    {
+      "lemma": "organization",
+      "signId": "ORGANIZATION"
+    },
+    {
+      "lemma": "organisation",
+      "signId": "ORGANIZATION"
+    },
+    {
+      "lemma": "doctor",
+      "signId": "DOCTOR"
+    },
+    {
+      "lemma": "dr",
+      "signId": "DOCTOR"
+    },
+    {
+      "lemma": "nurse",
+      "signId": "NURSE"
+    },
+    {
+      "lemma": "police",
+      "signId": "POLICE"
+    },
+    {
+      "lemma": "cop",
+      "signId": "POLICE"
+    },
+    {
+      "lemma": "king",
+      "signId": "KING"
+    },
+    {
+      "lemma": "queen",
+      "signId": "QUEEN"
+    },
+    {
+      "lemma": "boss",
+      "signId": "BOSS"
+    },
+    {
+      "lemma": "hearing",
+      "signId": "HEARING"
+    },
+    {
+      "lemma": "blind",
+      "signId": "BLIND"
+    },
+    {
+      "lemma": "eye",
+      "signId": "EYE"
+    },
+    {
+      "lemma": "ear",
+      "signId": "EAR"
+    },
+    {
+      "lemma": "hear",
+      "signId": "EAR"
+    },
+    {
+      "lemma": "nose",
+      "signId": "NOSE"
+    },
+    {
+      "lemma": "mouth",
+      "signId": "MOUTH"
+    },
+    {
+      "lemma": "tooth",
+      "signId": "TOOTH"
+    },
+    {
+      "lemma": "neck",
+      "signId": "NECK"
+    },
+    {
+      "lemma": "hair",
+      "signId": "HAIR"
+    },
+    {
+      "lemma": "face",
+      "signId": "FACE"
+    },
+    {
+      "lemma": "stomach",
+      "signId": "STOMACH"
+    },
+    {
+      "lemma": "body",
+      "signId": "BODY"
+    },
+    {
+      "lemma": "pain",
+      "signId": "PAIN"
+    },
+    {
+      "lemma": "hurt",
+      "signId": "PAIN"
+    },
+    {
+      "lemma": "medicine",
+      "signId": "MEDICINE"
+    },
+    {
+      "lemma": "hospital",
+      "signId": "HOSPITAL"
+    },
+    {
+      "lemma": "pregnant",
+      "signId": "PREGNANT"
+    },
+    {
+      "lemma": "die",
+      "signId": "DIE"
+    },
+    {
+      "lemma": "dead",
+      "signId": "DIE"
+    },
+    {
+      "lemma": "death",
+      "signId": "DIE"
+    },
+    {
+      "lemma": "strong",
+      "signId": "STRONG"
+    },
+    {
+      "lemma": "smile",
+      "signId": "SMILE"
+    },
+    {
+      "lemma": "laugh",
+      "signId": "LAUGH"
+    },
+    {
+      "lemma": "cry",
+      "signId": "CRY"
+    },
+    {
+      "lemma": "excited",
+      "signId": "EXCITED"
+    },
+    {
+      "lemma": "proud",
+      "signId": "PROUD"
+    },
+    {
+      "lemma": "surprised",
+      "signId": "SURPRISED"
+    },
+    {
+      "lemma": "surprise",
+      "signId": "SURPRISED"
+    },
+    {
+      "lemma": "scared",
+      "signId": "SCARED"
+    },
+    {
+      "lemma": "afraid",
+      "signId": "SCARED"
+    },
+    {
+      "lemma": "nervous",
+      "signId": "NERVOUS"
+    },
+    {
+      "lemma": "worry",
+      "signId": "WORRY"
+    },
+    {
+      "lemma": "hate",
+      "signId": "HATE"
+    },
+    {
+      "lemma": "bored",
+      "signId": "BORED"
+    },
+    {
+      "lemma": "thirsty",
+      "signId": "THIRSTY"
+    },
+    {
+      "lemma": "red",
+      "signId": "RED"
+    },
+    {
+      "lemma": "blue",
+      "signId": "BLUE"
+    },
+    {
+      "lemma": "green",
+      "signId": "GREEN"
+    },
+    {
+      "lemma": "yellow",
+      "signId": "YELLOW"
+    },
+    {
+      "lemma": "purple",
+      "signId": "PURPLE"
+    },
+    {
+      "lemma": "pink",
+      "signId": "PINK"
+    },
+    {
+      "lemma": "brown",
+      "signId": "BROWN"
+    },
+    {
+      "lemma": "black",
+      "signId": "BLACK"
+    },
+    {
+      "lemma": "white",
+      "signId": "WHITE"
+    },
+    {
+      "lemma": "orange",
+      "signId": "ORANGE"
+    },
+    {
+      "lemma": "color",
+      "signId": "COLOR"
+    },
+    {
+      "lemma": "colour",
+      "signId": "COLOR"
+    },
+    {
+      "lemma": "hot",
+      "signId": "HOT"
+    },
+    {
+      "lemma": "cold",
+      "signId": "COLD"
+    },
+    {
+      "lemma": "heavy",
+      "signId": "HEAVY"
+    },
+    {
+      "lemma": "fast",
+      "signId": "FAST"
+    },
+    {
+      "lemma": "slow",
+      "signId": "SLOW"
+    },
+    {
+      "lemma": "old",
+      "signId": "OLD"
+    },
+    {
+      "lemma": "young",
+      "signId": "YOUNG"
+    },
+    {
+      "lemma": "hard",
+      "signId": "HARD"
+    },
+    {
+      "lemma": "easy",
+      "signId": "EASY"
+    },
+    {
+      "lemma": "clean",
+      "signId": "CLEAN"
+    },
+    {
+      "lemma": "nice",
+      "signId": "CLEAN"
+    },
+    {
+      "lemma": "dirty",
+      "signId": "DIRTY"
+    },
+    {
+      "lemma": "quiet",
+      "signId": "QUIET"
+    },
+    {
+      "lemma": "ready",
+      "signId": "READY"
+    },
+    {
+      "lemma": "busy",
+      "signId": "BUSY"
+    },
+    {
+      "lemma": "important",
+      "signId": "IMPORTANT"
+    },
+    {
+      "lemma": "funny",
+      "signId": "FUNNY"
+    },
+    {
+      "lemma": "crazy",
+      "signId": "CRAZY"
+    },
+    {
+      "lemma": "wrong",
+      "signId": "WRONG"
+    },
+    {
+      "lemma": "fine",
+      "signId": "FINE"
+    },
+    {
+      "lemma": "fat",
+      "signId": "FAT"
+    },
+    {
+      "lemma": "have",
+      "signId": "HAVE"
+    },
+    {
+      "lemma": "get",
+      "signId": "GET"
+    },
+    {
+      "lemma": "send",
+      "signId": "SEND"
+    },
+    {
+      "lemma": "show",
+      "signId": "SHOW"
+    },
+    {
+      "lemma": "pay",
+      "signId": "PAY"
+    },
+    {
+      "lemma": "buy",
+      "signId": "BUY"
+    },
+    {
+      "lemma": "sell",
+      "signId": "SELL"
+    },
+    {
+      "lemma": "open",
+      "signId": "OPEN"
+    },
+    {
+      "lemma": "close",
+      "signId": "CLOSE"
+    },
+    {
+      "lemma": "push",
+      "signId": "PUSH"
+    },
+    {
+      "lemma": "pull",
+      "signId": "PULL"
+    },
+    {
+      "lemma": "walk",
+      "signId": "WALK"
+    },
+    {
+      "lemma": "travel",
+      "signId": "TRAVEL"
+    },
+    {
+      "lemma": "plane",
+      "signId": "PLANE"
+    },
+    {
+      "lemma": "airplane",
+      "signId": "PLANE"
+    },
+    {
+      "lemma": "sit",
+      "signId": "SIT"
+    },
+    {
+      "lemma": "stand",
+      "signId": "STAND"
+    },
+    {
+      "lemma": "dance",
+      "signId": "DANCE"
+    },
+    {
+      "lemma": "sing",
+      "signId": "SING"
+    },
+    {
+      "lemma": "song",
+      "signId": "SING"
+    },
+    {
+      "lemma": "music",
+      "signId": "SING"
+    },
+    {
+      "lemma": "listen",
+      "signId": "LISTEN"
+    },
+    {
+      "lemma": "feel",
+      "signId": "FEEL"
+    },
+    {
+      "lemma": "forget",
+      "signId": "FORGET"
+    },
+    {
+      "lemma": "decide",
+      "signId": "DECIDE"
+    },
+    {
+      "lemma": "choose",
+      "signId": "CHOOSE"
+    },
+    {
+      "lemma": "find",
+      "signId": "FIND"
+    },
+    {
+      "lemma": "try",
+      "signId": "TRY"
+    },
+    {
+      "lemma": "read",
+      "signId": "READ"
+    },
+    {
+      "lemma": "write",
+      "signId": "WRITE"
+    },
+    {
+      "lemma": "study",
+      "signId": "STUDY"
+    },
+    {
+      "lemma": "meet",
+      "signId": "MEET"
+    },
+    {
+      "lemma": "visit",
+      "signId": "VISIT"
+    },
+    {
+      "lemma": "change",
+      "signId": "CHANGE"
+    },
+    {
+      "lemma": "break",
+      "signId": "BREAK"
+    },
+    {
+      "lemma": "cut",
+      "signId": "CUT"
+    },
+    {
+      "lemma": "lose",
+      "signId": "LOSE"
+    },
+    {
+      "lemma": "cook",
+      "signId": "COOK"
+    },
+    {
+      "lemma": "start",
+      "signId": "START"
+    },
+    {
+      "lemma": "begin",
+      "signId": "START"
+    },
+    {
+      "lemma": "jump",
+      "signId": "JUMP"
+    },
+    {
+      "lemma": "fall",
+      "signId": "FALL"
+    },
+    {
+      "lemma": "born",
+      "signId": "BORN"
+    },
+    {
+      "lemma": "birth",
+      "signId": "BORN"
+    },
+    {
+      "lemma": "monday",
+      "signId": "MONDAY"
+    },
+    {
+      "lemma": "tuesday",
+      "signId": "TUESDAY"
+    },
+    {
+      "lemma": "wednesday",
+      "signId": "WEDNESDAY"
+    },
+    {
+      "lemma": "thursday",
+      "signId": "THURSDAY"
+    },
+    {
+      "lemma": "friday",
+      "signId": "FRIDAY"
+    },
+    {
+      "lemma": "saturday",
+      "signId": "SATURDAY"
+    },
+    {
+      "lemma": "sunday",
+      "signId": "SUNDAY"
+    },
+    {
+      "lemma": "summer",
+      "signId": "SUMMER"
+    },
+    {
+      "lemma": "winter",
+      "signId": "WINTER"
+    },
+    {
+      "lemma": "month",
+      "signId": "MONTH"
+    },
+    {
+      "lemma": "noon",
+      "signId": "NOON"
+    },
+    {
+      "lemma": "later",
+      "signId": "LATER"
+    },
+    {
+      "lemma": "always",
+      "signId": "ALWAYS"
+    },
+    {
+      "lemma": "bread",
+      "signId": "BREAD"
+    },
+    {
+      "lemma": "milk",
+      "signId": "MILK"
+    },
+    {
+      "lemma": "coffee",
+      "signId": "COFFEE"
+    },
+    {
+      "lemma": "meat",
+      "signId": "MEAT"
+    },
+    {
+      "lemma": "cheese",
+      "signId": "CHEESE"
+    },
+    {
+      "lemma": "apple",
+      "signId": "APPLE"
+    },
+    {
+      "lemma": "fruit",
+      "signId": "FRUIT"
+    },
+    {
+      "lemma": "vegetable",
+      "signId": "VEGETABLE"
+    },
+    {
+      "lemma": "dog",
+      "signId": "DOG"
+    },
+    {
+      "lemma": "cat",
+      "signId": "CAT"
+    },
+    {
+      "lemma": "bird",
+      "signId": "BIRD"
+    },
+    {
+      "lemma": "duck",
+      "signId": "DUCK"
+    },
+    {
+      "lemma": "horse",
+      "signId": "HORSE"
+    },
+    {
+      "lemma": "cow",
+      "signId": "COW"
+    },
+    {
+      "lemma": "pig",
+      "signId": "PIG"
+    },
+    {
+      "lemma": "mouse",
+      "signId": "MOUSE"
+    },
+    {
+      "lemma": "elephant",
+      "signId": "ELEPHANT"
+    },
+    {
+      "lemma": "bear",
+      "signId": "BEAR"
+    },
+    {
+      "lemma": "snake",
+      "signId": "SNAKE"
+    },
+    {
+      "lemma": "deer",
+      "signId": "DEER"
+    },
+    {
+      "lemma": "fish",
+      "signId": "FISH"
+    },
+    {
+      "lemma": "animal",
+      "signId": "ANIMAL"
+    },
+    {
+      "lemma": "sun",
+      "signId": "SUN"
+    },
+    {
+      "lemma": "moon",
+      "signId": "MOON"
+    },
+    {
+      "lemma": "star",
+      "signId": "STAR"
+    },
+    {
+      "lemma": "sky",
+      "signId": "SKY"
+    },
+    {
+      "lemma": "rain",
+      "signId": "RAIN"
+    },
+    {
+      "lemma": "snow",
+      "signId": "SNOW"
+    },
+    {
+      "lemma": "wind",
+      "signId": "WIND"
+    },
+    {
+      "lemma": "fire",
+      "signId": "FIRE"
+    },
+    {
+      "lemma": "tree",
+      "signId": "TREE"
+    },
+    {
+      "lemma": "flower",
+      "signId": "FLOWER"
+    },
+    {
+      "lemma": "weather",
+      "signId": "WEATHER"
+    },
+    {
+      "lemma": "world",
+      "signId": "WORLD"
+    },
+    {
+      "lemma": "room",
+      "signId": "ROOM"
+    },
+    {
+      "lemma": "door",
+      "signId": "DOOR"
+    },
+    {
+      "lemma": "bed",
+      "signId": "BED"
+    },
+    {
+      "lemma": "table",
+      "signId": "TABLE"
+    },
+    {
+      "lemma": "chair",
+      "signId": "CHAIR"
+    },
+    {
+      "lemma": "church",
+      "signId": "CHURCH"
+    },
+    {
+      "lemma": "road",
+      "signId": "ROAD"
+    },
+    {
+      "lemma": "street",
+      "signId": "ROAD"
+    },
+    {
+      "lemma": "thing",
+      "signId": "THING"
+    },
+    {
+      "lemma": "paper",
+      "signId": "PAPER"
+    },
+    {
+      "lemma": "game",
+      "signId": "GAME"
+    },
+    {
+      "lemma": "clothes",
+      "signId": "CLOTHES"
+    },
+    {
+      "lemma": "language",
+      "signId": "LANGUAGE"
+    },
+    {
+      "lemma": "answer",
+      "signId": "ANSWER"
+    },
+    {
+      "lemma": "problem",
+      "signId": "PROBLEM"
+    },
+    {
+      "lemma": "idea",
+      "signId": "IDEA"
+    },
+    {
+      "lemma": "life",
+      "signId": "LIFE"
+    },
+    {
+      "lemma": "god",
+      "signId": "GOD"
+    },
+    {
+      "lemma": "law",
+      "signId": "LAW"
+    },
+    {
+      "lemma": "train",
+      "signId": "TRAIN"
+    },
+    {
+      "lemma": "bike",
+      "signId": "BIKE"
+    },
+    {
+      "lemma": "bicycle",
+      "signId": "BIKE"
+    },
+    {
+      "lemma": "bathroom",
+      "signId": "BATHROOM"
+    },
+    {
+      "lemma": "toilet",
+      "signId": "BATHROOM"
+    },
+    {
+      "lemma": "restroom",
+      "signId": "BATHROOM"
+    },
+    {
+      "lemma": "library",
+      "signId": "LIBRARY"
+    },
+    {
+      "lemma": "kitchen",
+      "signId": "KITCHEN"
+    },
+    {
+      "lemma": "christmas",
+      "signId": "CHRISTMAS"
+    },
+    {
+      "lemma": "here",
+      "signId": "HERE"
+    },
+    {
+      "lemma": "many",
+      "signId": "MANY"
+    },
+    {
+      "lemma": "much",
+      "signId": "MUCH"
+    },
+    {
+      "lemma": "lot",
+      "signId": "MUCH"
+    },
+    {
+      "lemma": "nothing",
+      "signId": "NOTHING"
+    },
+    {
+      "lemma": "another",
+      "signId": "ANOTHER"
+    },
+    {
+      "lemma": "upward",
+      "signId": "UP"
+    },
+    {
+      "lemma": "upstairs",
+      "signId": "UP"
+    },
+    {
+      "lemma": "downward",
+      "signId": "DOWN"
+    },
+    {
+      "lemma": "downstairs",
+      "signId": "DOWN"
+    },
+    {
+      "lemma": "i love you",
+      "signId": "I_LOVE_YOU"
+    },
+    {
+      "lemma": "not know",
+      "signId": "DONT_KNOW"
+    },
+    {
+      "lemma": "son",
+      "signId": "BOY",
+      "then": [
+        "BABY"
+      ]
+    },
+    {
+      "lemma": "daughter",
+      "signId": "GIRL",
+      "then": [
+        "BABY"
+      ]
+    },
+    {
+      "lemma": "brother",
+      "signId": "BOY",
+      "then": [
+        "SAME_INDEX"
+      ]
+    },
+    {
+      "lemma": "sister",
+      "signId": "GIRL",
+      "then": [
+        "SAME_INDEX"
+      ]
+    },
+    {
+      "lemma": "grandmother",
+      "signId": "MOTHER",
+      "then": [
+        "GRAND"
+      ]
+    },
+    {
+      "lemma": "grandma",
+      "signId": "MOTHER",
+      "then": [
+        "GRAND"
+      ]
+    },
+    {
+      "lemma": "grandfather",
+      "signId": "FATHER",
+      "then": [
+        "GRAND"
+      ]
+    },
+    {
+      "lemma": "grandpa",
+      "signId": "FATHER",
+      "then": [
+        "GRAND"
+      ]
+    },
+    {
+      "lemma": "husband",
+      "signId": "MAN",
+      "then": [
+        "MARRY"
+      ]
+    },
+    {
+      "lemma": "wife",
+      "signId": "WOMAN",
+      "then": [
+        "MARRY"
+      ]
+    },
+    {
+      "lemma": "parent",
+      "signId": "MOTHER",
+      "then": [
+        "FATHER"
+      ]
+    },
+    {
+      "lemma": "teacher",
+      "signId": "TEACH",
+      "then": [
+        "PERSON"
+      ]
+    },
+    {
+      "lemma": "student",
+      "signId": "LEARN",
+      "then": [
+        "PERSON"
+      ]
+    },
+    {
+      "lemma": "lawyer",
+      "signId": "LAW",
+      "then": [
+        "PERSON"
+      ]
+    },
+    {
+      "lemma": "driver",
+      "signId": "CAR",
+      "then": [
+        "PERSON"
+      ]
+    },
+    {
+      "lemma": "everyone",
+      "signId": "ALL",
+      "then": [
+        "PERSON"
+      ]
+    },
+    {
+      "lemma": "everybody",
+      "signId": "ALL",
+      "then": [
+        "PERSON"
+      ]
+    },
+    {
+      "lemma": "breakfast",
+      "signId": "EAT",
+      "then": [
+        "MORNING"
+      ]
+    },
+    {
+      "lemma": "lunch",
+      "signId": "NOON",
+      "then": [
+        "EAT"
+      ]
+    },
+    {
+      "lemma": "dinner",
+      "signId": "EAT",
+      "then": [
+        "NIGHT"
+      ]
+    },
+    {
+      "lemma": "supper",
+      "signId": "EAT",
+      "then": [
+        "NIGHT"
+      ]
+    },
+    {
+      "lemma": "tonight",
+      "signId": "TODAY",
+      "then": [
+        "NIGHT"
+      ]
+    },
+    {
+      "lemma": "how you",
+      "signId": "HOW",
+      "then": [
+        "YOU"
+      ]
+    },
+    {
+      "lemma": "nice meet you",
+      "signId": "CLEAN",
+      "then": [
+        "MEET",
+        "YOU"
+      ]
+    },
+    {
+      "lemma": "good morning",
+      "signId": "GOOD",
+      "then": [
+        "MORNING"
+      ]
+    },
+    {
+      "lemma": "good night",
+      "signId": "GOOD",
+      "then": [
+        "NIGHT"
+      ]
+    },
+    {
+      "lemma": "see you later",
+      "signId": "SEE",
+      "then": [
+        "YOU",
+        "LATER"
+      ]
+    },
+    {
+      "lemma": "left",
+      "signId": "LEFT",
+      "sense": "the direction"
+    },
+    {
+      "lemma": "left",
+      "signId": "GO",
+      "sense": "went away"
     }
   ],
   "synonyms": {
@@ -631,12 +1724,10 @@
     "aid": "help",
     "excellent": "good",
     "great": "good",
-    "nice": "good",
     "adore": "love",
     "apologise": "sorry",
     "apologize": "sorry",
     "apologies": "sorry",
-    "study": "learn",
     "depart": "go",
     "leave": "go",
     "arrive": "come",
@@ -675,7 +1766,136 @@
     "cash": "money",
     "telephone": "phone",
     "companion": "friend",
-    "parent": "mother",
-    "infant": "child"
+    "quick": "fast",
+    "rapid": "fast",
+    "speedy": "fast",
+    "giant": "big",
+    "warm": "hot",
+    "boiling": "hot",
+    "cool": "cold",
+    "freezing": "cold",
+    "chilly": "cold",
+    "elderly": "old",
+    "youth": "young",
+    "joyful": "happy",
+    "upset": "sad",
+    "unhappy": "sad",
+    "frightened": "scared",
+    "terrified": "scared",
+    "anxious": "nervous",
+    "thrilled": "excited",
+    "shocked": "surprised",
+    "amazed": "surprised",
+    "boring": "bored",
+    "weep": "cry",
+    "grin": "smile",
+    "ache": "pain",
+    "sore": "pain",
+    "silent": "quiet",
+    "calm": "quiet",
+    "tough": "hard",
+    "difficult": "hard",
+    "simple": "easy",
+    "tidy": "clean",
+    "filthy": "dirty",
+    "messy": "dirty",
+    "prepared": "ready",
+    "occupied": "busy",
+    "critical": "important",
+    "vital": "important",
+    "major": "important",
+    "silly": "funny",
+    "hilarious": "funny",
+    "incorrect": "wrong",
+    "mistake": "wrong",
+    "take": "get",
+    "obtain": "get",
+    "receive": "get",
+    "grab": "get",
+    "own": "have",
+    "possess": "have",
+    "mail": "send",
+    "display": "show",
+    "demonstrate": "show",
+    "spend": "pay",
+    "purchase": "buy",
+    "shut": "close",
+    "stroll": "walk",
+    "hike": "walk",
+    "journey": "travel",
+    "trip": "travel",
+    "fly": "plane",
+    "flight": "plane",
+    "pick": "choose",
+    "select": "choose",
+    "determine": "decide",
+    "attempt": "try",
+    "encounter": "meet",
+    "alter": "change",
+    "switch": "change",
+    "smash": "break",
+    "slice": "cut",
+    "chop": "cut",
+    "bake": "cook",
+    "fry": "cook",
+    "boil": "cook",
+    "hop": "jump",
+    "leap": "jump",
+    "drop": "fall",
+    "commence": "start",
+    "afterwards": "later",
+    "eventually": "later",
+    "forever": "always",
+    "constantly": "always",
+    "midday": "noon",
+    "desk": "table",
+    "seat": "chair",
+    "highway": "road",
+    "stuff": "thing",
+    "object": "thing",
+    "item": "thing",
+    "page": "paper",
+    "document": "paper",
+    "clothing": "clothes",
+    "reply": "answer",
+    "respond": "answer",
+    "trouble": "problem",
+    "issue": "problem",
+    "lord": "god",
+    "subway": "train",
+    "cycle": "bike",
+    "earth": "world",
+    "globe": "world",
+    "planet": "world",
+    "aeroplane": "plane",
+    "jet": "plane",
+    "puppy": "dog",
+    "kitten": "cat",
+    "beef": "meat",
+    "steak": "meat",
+    "veggies": "vegetable",
+    "toast": "bread",
+    "medication": "medicine",
+    "drug": "medicine",
+    "pill": "medicine",
+    "illness": "sick",
+    "disease": "sick",
+    "plenty": "many",
+    "numerous": "many",
+    "several": "many",
+    "none": "nothing",
+    "sure": "true",
+    "really": "true",
+    "truly": "true",
+    "certainly": "true",
+    "wonderful": "good",
+    "fantastic": "good",
+    "awesome": "good",
+    "perfect": "good",
+    "lips": "mouth",
+    "throat": "neck",
+    "belly": "stomach",
+    "tummy": "stomach",
+    "infant": "baby"
   }
 }

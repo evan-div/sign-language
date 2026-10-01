@@ -590,3 +590,59 @@ button { font: inherit; cursor: pointer; }
   color: #9db4ff;
   opacity: 1;
 }
+
+/* --- vocabulary filters and fidelity badges ---------------------------- */
+
+.vocabulary__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.filter {
+  padding: 2px 9px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted, #8b93a1);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+  transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.filter:hover { color: var(--text, #e6e9ef); }
+
+.filter--active {
+  border-color: rgba(124, 154, 255, 0.55);
+  background: rgba(124, 154, 255, 0.12);
+  color: #9db4ff;
+}
+
+.filter__count { opacity: 0.6; }
+
+.vocab__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: center;
+  margin-top: 3px;
+}
+
+.vocab__badges .vocab__provenance { margin-top: 0; }
+
+/* The author's own suspicion, kept visibly separate from validation: one says
+   what the author thinks of the sign, the other says what a signer has said. */
+.vocab__fidelity {
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.vocab__fidelity--citation { color: #6b7a99; }
+.vocab__fidelity--approximate { color: #b08a3e; }
+.vocab__fidelity--uncertain { color: #d1675a; opacity: 1; }

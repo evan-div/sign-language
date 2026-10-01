@@ -22,6 +22,8 @@ export interface ResolvedConcept {
   readonly resolution: Resolution;
   /** Absent only when the word will be fingerspelled. */
   readonly signId?: string;
+  /** Signs that follow `signId`, for a compound. */
+  readonly then?: readonly string[];
   /** Every candidate, when the lemma has more than one sense. */
   readonly senses?: readonly LexiconEntry[];
   /** The English the sign actually means, when it differs from what was typed. */
@@ -57,13 +59,16 @@ export function resolveConcept(lemma: string, chosenSignId?: string, surface?: s
   const direct = lookupLemma(lemma);
 
   if (direct.length === 1) {
-    return { resolution: 'direct', signId: direct[0]!.signId };
+    const entry = direct[0]!;
+    return { resolution: 'direct', signId: entry.signId, ...(entry.then ? { then: entry.then } : {}) };
   }
 
   if (direct.length > 1) {
     // The user may already have picked a sense for this word.
     const chosen = chosenSignId && direct.find((e) => e.signId === chosenSignId);
-    if (chosen) return { resolution: 'direct', signId: chosen.signId, senses: direct };
+    if (chosen) {
+      return { resolution: 'direct', signId: chosen.signId, senses: direct, ...(chosen.then ? { then: chosen.then } : {}) };
+    }
     // Otherwise we play something so the sentence still runs, but say plainly
     // that it was not our call to make.
     return { resolution: 'ambiguous', signId: direct[0]!.signId, senses: direct };
@@ -74,14 +79,21 @@ export function resolveConcept(lemma: string, chosenSignId?: string, surface?: s
     if (!synonym) continue;
     const viaSynonym = lookupLemma(synonym);
     if (viaSynonym.length > 0) {
-      return { resolution: 'synonym', signId: viaSynonym[0]!.signId, substitutedFrom: synonym };
+      const entry = viaSynonym[0]!;
+      return {
+        resolution: 'synonym', signId: entry.signId, substitutedFrom: synonym,
+        ...(entry.then ? { then: entry.then } : {}),
+      };
     }
   }
 
   // A surface form may also be a lexicon entry the stemmer stepped past.
   if (surface && surface !== lemma) {
     const direct2 = lookupLemma(surface);
-    if (direct2.length === 1) return { resolution: 'direct', signId: direct2[0]!.signId };
+    if (direct2.length === 1) {
+      const entry = direct2[0]!;
+      return { resolution: 'direct', signId: entry.signId, ...(entry.then ? { then: entry.then } : {}) };
+    }
   }
 
   return { resolution: 'fingerspelled' };

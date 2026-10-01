@@ -1,0 +1,113 @@
+/**
+ * Take a filled-in review sheet and fold it into the library.
+ *
+ *   pnpm review:ingest data/review/review-sheet.csv
+ *   pnpm review:ingest returned.json --dry-run
+ *
+ * Reads CSV (what a reviewer fills in) or JSON (what a tool writes), validates
+ * every row before believing any of them, merges with the verdicts already
+ * recorded, and rewrites packages/engine/src/signs/verdicts.generated.ts. Rows
+ * with a blank verdict are skipped: an unreviewed row is not a verdict.
+ *
+ * With --dry-run nothing is written, and the report says what WOULD change. It
+ * also reports whether the author's own fidelity ratings predicted which signs
+ * were wrong -- the check that tells you whether to trust them at all.
+ */
+
+import { readFileSync, writeFileSync } from 'node:fs';
+import {
+  SIGNS, VERDICTS, validateVerdicts, reviewState, fidelityAgainstVerdicts, type Verdict,
+} from '../packages/engine/src/index.js';
+
+const args = process.argv.slice(2);
+const file = args.find((a) => !a.startsWith('--'));
+const dryRun = args.includes('--dry-run');
+if (!file) { console.error('usage: pnpm review:ingest <file.csv|file.json> [--dry-run]'); process.exit(2); }
+
+/** A small CSV reader: quoted fields, doubled quotes, embedded commas and newlines. */
+function parseCsv(text: string): Record<string, string>[] {
+  const rows: string[][] = [];
+  let row: string[] = []; let field = ''; let quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i]!;
+    if (quoted) {
+      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }
+      else if (c === '"') quoted = false;
+      else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n' || c === '\r') {
+      if (c === '\r' && text[i + 1] === '\n') i++;
+      row.push(field); field = '';
+      if (row.some((f) => f !== '')) rows.push(row);
+      row = [];
+    } else field += c;
+  }
+  row.push(field);
+  if (row.some((f) => f !== '')) rows.push(row);
+  const [header, ...body] = rows;
+  if (!header) return [];
+  return body.map((r) => Object.fromEntries(header.map((h, i) => [h.trim(), (r[i] ?? '').trim()])));
+}
+
+const text = readFileSync(file, 'utf8');
+const incoming: unknown = file.endsWith('.json') ? JSON.parse(text) : parseCsv(text);
+
+// A blank verdict means "not reviewed", which is not an error and not a verdict.
+const answered = (Array.isArray(incoming) ? incoming : [])
+  .filter((r) => typeof r === 'object' && r !== null && String((r as Record<string, unknown>).verdict ?? '').trim() !== '');
+const skipped = (Array.isArray(incoming) ? incoming.length : 0) - answered.length;
+
+const { verdicts: fresh, errors } = validateVerdicts(answered, new Set(Object.keys(SIGNS)));
+if (errors.length > 0) {
+  console.error(`${errors.length} problem${errors.length === 1 ? '' : 's'} in ${file}; nothing was changed:\n`);
+  for (const e of errors) console.error(`  ${e}`);
+  process.exit(1);
+}
+
+// Merge: the same reviewer on the same sign on the same day is one verdict.
+const key = (v: Verdict) => `${v.signId}|${v.reviewer}|${v.reviewedOn}`;
+const merged = new Map(VERDICTS.map((v) => [key(v), v]));
+for (const v of fresh) merged.set(key(v), v);
+const all = [...merged.values()].sort((a, b) => a.signId.localeCompare(b.signId) || a.reviewedOn.localeCompare(b.reviewedOn));
+
+console.log(`${fresh.length} verdicts accepted, ${skipped} blank rows skipped, ${all.length} on record in total.\n`);
+
+// What this changes about the library.
+const bySign = new Map<string, Verdict[]>();
+for (const v of all) (bySign.get(v.signId) ?? bySign.set(v.signId, []).get(v.signId)!).push(v);
+const tally = { unvalidated: 0, reviewed: 0, 'expert-validated': 0 } as Record<string, number>;
+let flagged = 0;
+for (const id of Object.keys(SIGNS)) {
+  const state = reviewState(bySign.get(id) ?? []);
+  tally[state.validation]!++;
+  if (state.flaggedIncorrect) flagged++;
+}
+console.log(`after this: ${tally.unvalidated} unvalidated, ${tally.reviewed} reviewed, ${tally['expert-validated']} expert-validated; ${flagged} flagged incorrect.`);
+
+const checks = fidelityAgainstVerdicts(SIGNS, all);
+if (checks.length > 0) {
+  console.log('\ndid the author’s own rating predict which signs were wrong?');
+  console.log('  rating        reviewed  wrong  rate    95% interval');
+  for (const c of checks.sort((a, b) => b.rate - a.rate)) {
+    console.log(`  ${c.fidelity.padEnd(12)} ${String(c.reviewed).padStart(8)}  ${String(c.incorrect).padStart(5)}  ${(c.rate * 100).toFixed(0).padStart(3)}%    ${(c.low * 100).toFixed(0)}-${(c.high * 100).toFixed(0)}%`);
+  }
+  console.log('  (a rate from a handful of signs is not a rate: read the interval, not the percentage)');
+}
+
+if (dryRun) { console.log('\n--dry-run: nothing written.'); process.exit(0); }
+
+const body = all.map((v) => '  ' + JSON.stringify(v)).join(',\n');
+writeFileSync('packages/engine/src/signs/verdicts.generated.ts', `/**
+ * GENERATED by tools/ingest-verdicts.ts -- do not edit by hand.
+ *
+ * What credentialed reviewers have said about the signs.
+ *
+ * Run \`pnpm review:ingest <file>\` with a filled-in verdicts file to add to it.
+ */
+
+import type { Verdict } from './review.js';
+
+export const VERDICTS: readonly Verdict[] = [${all.length ? '\n' + body + ',\n' : ''}];
+`);
+console.log('\nwrote packages/engine/src/signs/verdicts.generated.ts');

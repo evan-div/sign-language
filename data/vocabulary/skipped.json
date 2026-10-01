@@ -1,0 +1,1164 @@
+{
+  "note": "Words from the top of the two frequency lists that the system does NOT sign, with the reason. This is the vocabulary's edge made explicit: each was looked at and decided, not overlooked. Generated from `pnpm gap`; the reasons are the author's and are as unvalidated as the signs.",
+  "reasons": {
+    "register": "Profanity, violence and sexual terms. ASL has signs for these, but register and taboo are exactly where a hand-authored placeholder from a non-signer does the most harm if wrong, and where a Deaf reviewer's guidance on what is appropriate to sign matters most. Left fingerspelled pending that guidance; this is not a judgement about the words.",
+    "particle-or-adverb": "An English particle or adverb that ASL expresses through grammar, timing or non-manual markers rather than a lexical sign, or whose sign depends on context this translator does not model. Fingerspelling it would be wrong, but so would inventing a sign.",
+    "position-word": "A word of position or direction. ASL places these in signing space, and the notation has no spatial referencing yet, so it cannot say them. See the architecture notes' list of what the notation cannot say.",
+    "proper-noun-or-title": "A name, title or foreign word that is not vocabulary. Names are fingerspelled in ASL as a matter of course.",
+    "web-or-abstract": "An abstract or web-register noun with no single stable ASL sign, usually fingerspelled or signed by context. Common in the web-text frequency list and rare in speech.",
+    "reflexive": "A reflexive pronoun. ASL uses a different construction (typically the pronoun with an emphatic movement) that the notation cannot express.",
+    "unsure-of-form": "An everyday word that ASL has a sign for, and whose form the author could not recall well enough to author. Left fingerspelled on purpose: a spelled word is merely inelegant, whereas a confidently wrong sign teaches the wrong thing. First candidates for a reviewer or a dictionary source."
+  },
+  "skipped": [
+    {
+      "word": "well",
+      "rank": 1,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "back",
+      "rank": 2,
+      "reason": "position-word"
+    },
+    {
+      "word": "let",
+      "rank": 3,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "way",
+      "rank": 4,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "first",
+      "rank": 5,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "something",
+      "rank": 6,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "never",
+      "rank": 7,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "even",
+      "rank": 8,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "mean",
+      "rank": 9,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "free",
+      "rank": 10,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "last",
+      "rank": 11,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "still",
+      "rank": 12,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "use",
+      "rank": 13,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "anything",
+      "rank": 14,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "search",
+      "rank": 15,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "long",
+      "rank": 16,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "away",
+      "rank": 17,
+      "reason": "position-word"
+    },
+    {
+      "word": "information",
+      "rank": 18,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "business",
+      "rank": 19,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "better",
+      "rank": 20,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "put",
+      "rank": 21,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "next",
+      "rank": 22,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "place",
+      "rank": 23,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "keep",
+      "rank": 24,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "mr.",
+      "rank": 25,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "most",
+      "rank": 26,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "ever",
+      "rank": 27,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "best",
+      "rank": 28,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "site",
+      "rank": 29,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "guy",
+      "rank": 30,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "guys",
+      "rank": 31,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "course",
+      "rank": 32,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "believe",
+      "rank": 33,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "kind",
+      "rank": 34,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "care",
+      "rank": 35,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "stay",
+      "rank": 36,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "enough",
+      "rank": 37,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "contact",
+      "rank": 38,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "happened",
+      "rank": 39,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "remember",
+      "rank": 40,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "else",
+      "rank": 41,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "kill",
+      "rank": 42,
+      "reason": "register"
+    },
+    {
+      "word": "mind",
+      "rank": 43,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "top",
+      "rank": 44,
+      "reason": "position-word"
+    },
+    {
+      "word": "together",
+      "rank": 45,
+      "reason": "position-word"
+    },
+    {
+      "word": "number",
+      "rank": 46,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "already",
+      "rank": 47,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "date",
+      "rank": 48,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "since",
+      "rank": 49,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "yourself",
+      "rank": 50,
+      "reason": "reflexive"
+    },
+    {
+      "word": "part",
+      "rank": 51,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "once",
+      "rank": 52,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "move",
+      "rank": 53,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "end",
+      "rank": 54,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "head",
+      "rank": 55,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "hell",
+      "rank": 56,
+      "reason": "register"
+    },
+    {
+      "word": "view",
+      "rank": 57,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "actually",
+      "rank": 58,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "case",
+      "rank": 59,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "yet",
+      "rank": 60,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "service",
+      "rank": 61,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "state",
+      "rank": 62,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "set",
+      "rank": 63,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "hold",
+      "rank": 64,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "bit",
+      "rank": 65,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "miss",
+      "rank": 66,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "high",
+      "rank": 67,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "whole",
+      "rank": 68,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "shit",
+      "rank": 69,
+      "reason": "register"
+    },
+    {
+      "word": "online",
+      "rank": 70,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "run",
+      "rank": 71,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "list",
+      "rank": 72,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "few",
+      "rank": 73,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "matter",
+      "rank": 74,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "check",
+      "rank": 75,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "fuck",
+      "rank": 76,
+      "reason": "register"
+    },
+    {
+      "word": "price",
+      "rank": 77,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "bring",
+      "rank": 78,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "order",
+      "rank": 79,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "until",
+      "rank": 80,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "ago",
+      "rank": 81,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "full",
+      "rank": 82,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "guess",
+      "rank": 83,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "second",
+      "rank": 84,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "system",
+      "rank": 85,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "anyone",
+      "rank": 86,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "services",
+      "rank": 87,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "hope",
+      "rank": 88,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "hand",
+      "rank": 89,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "fucking",
+      "rank": 90,
+      "reason": "register"
+    },
+    {
+      "word": "company",
+      "rank": 91,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "turn",
+      "rank": 92,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "alone",
+      "rank": 93,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "heart",
+      "rank": 94,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "office",
+      "rank": 95,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "myself",
+      "rank": 96,
+      "reason": "reflexive"
+    },
+    {
+      "word": "line",
+      "rank": 97,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "soon",
+      "rank": 98,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "point",
+      "rank": 99,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "sex",
+      "rank": 100,
+      "reason": "register"
+    },
+    {
+      "word": "message",
+      "rank": 101,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "probably",
+      "rank": 102,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "killed",
+      "rank": 103,
+      "reason": "register"
+    },
+    {
+      "word": "health",
+      "rank": 104,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "late",
+      "rank": 105,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "far",
+      "rank": 106,
+      "reason": "position-word"
+    },
+    {
+      "word": "hours",
+      "rank": 107,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "power",
+      "rank": 108,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "party",
+      "rank": 109,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "means",
+      "rank": 110,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "minutes",
+      "rank": 111,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "story",
+      "rank": 112,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "minute",
+      "rank": 113,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "general",
+      "rank": 114,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "fun",
+      "rank": 115,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "special",
+      "rank": 116,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "public",
+      "rank": 117,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "side",
+      "rank": 118,
+      "reason": "position-word"
+    },
+    {
+      "word": "inside",
+      "rank": 119,
+      "reason": "position-word"
+    },
+    {
+      "word": "hit",
+      "rank": 120,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "deal",
+      "rank": 121,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "support",
+      "rank": 122,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "least",
+      "rank": 123,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "exactly",
+      "rank": 124,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "word",
+      "rank": 125,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "hands",
+      "rank": 126,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "happen",
+      "rank": 127,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "damn",
+      "rank": 128,
+      "reason": "register"
+    },
+    {
+      "word": "save",
+      "rank": 129,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "quite",
+      "rank": 130,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "report",
+      "rank": 131,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "whatever",
+      "rank": 132,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "country",
+      "rank": 133,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "chance",
+      "rank": 134,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "war",
+      "rank": 135,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "hotel",
+      "rank": 136,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "question",
+      "rank": 137,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "data",
+      "rank": 138,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "control",
+      "rank": 139,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "john",
+      "rank": 140,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "video",
+      "rank": 141,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "somebody",
+      "rank": 142,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "post",
+      "rank": 143,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "rest",
+      "rank": 144,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "add",
+      "rank": 145,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "dear",
+      "rank": 146,
+      "reason": "register"
+    },
+    {
+      "word": "anyway",
+      "rank": 147,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "almost",
+      "rank": 148,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "plan",
+      "rank": 149,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "either",
+      "rank": 150,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "blood",
+      "rank": 151,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "light",
+      "rank": 152,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "behind",
+      "rank": 153,
+      "reason": "position-word"
+    },
+    {
+      "word": "become",
+      "rank": 154,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "reason",
+      "rank": 155,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "half",
+      "rank": 156,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "front",
+      "rank": 157,
+      "reason": "position-word"
+    },
+    {
+      "word": "moment",
+      "rank": 158,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "fight",
+      "rank": 159,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "de",
+      "rank": 160,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "trust",
+      "rank": 161,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "return",
+      "rank": 162,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "shot",
+      "rank": 163,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "nobody",
+      "rank": 164,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "available",
+      "rank": 165,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "human",
+      "rank": 166,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "along",
+      "rank": 167,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "supposed",
+      "rank": 168,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "seems",
+      "rank": 169,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "air",
+      "rank": 170,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "fact",
+      "rank": 171,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "area",
+      "rank": 172,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "couple",
+      "rank": 173,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "policy",
+      "rank": 174,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "clear",
+      "rank": 175,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "security",
+      "rank": 176,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "store",
+      "rank": 177,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "truth",
+      "rank": 178,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "lady",
+      "rank": 179,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "anymore",
+      "rank": 180,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "outside",
+      "rank": 181,
+      "reason": "position-word"
+    },
+    {
+      "word": "possible",
+      "rank": 182,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "sort",
+      "rank": 183,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "sometimes",
+      "rank": 184,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "brought",
+      "rank": 185,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "past",
+      "rank": 186,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "wow",
+      "rank": 187,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "running",
+      "rank": 188,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "history",
+      "rank": 189,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "less",
+      "rank": 190,
+      "reason": "particle-or-adverb"
+    },
+    {
+      "word": "sound",
+      "rank": 191,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "american",
+      "rank": 192,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "whoa",
+      "rank": 193,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "hour",
+      "rank": 194,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "honey",
+      "rank": 195,
+      "reason": "register"
+    },
+    {
+      "word": "safe",
+      "rank": 196,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "research",
+      "rank": 197,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "cause",
+      "rank": 198,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "ma",
+      "rank": 199,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "gun",
+      "rank": 200,
+      "reason": "register"
+    },
+    {
+      "word": "million",
+      "rank": 201,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "type",
+      "rank": 202,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "questions",
+      "rank": 203,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "stupid",
+      "rank": 204,
+      "reason": "register"
+    },
+    {
+      "word": "hurry",
+      "rank": 205,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "address",
+      "rank": 206,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "words",
+      "rank": 207,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "program",
+      "rank": 208,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "future",
+      "rank": 209,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "ass",
+      "rank": 210,
+      "reason": "register"
+    },
+    {
+      "word": "win",
+      "rank": 211,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "em",
+      "rank": 212,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "act",
+      "rank": 213,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "united",
+      "rank": 214,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "captain",
+      "rank": 215,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "personal",
+      "rank": 216,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "poor",
+      "rank": 217,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "government",
+      "rank": 218,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "picture",
+      "rank": 219,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "south",
+      "rank": 220,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "mrs.",
+      "rank": 221,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "alive",
+      "rank": 222,
+      "reason": "unsure-of-form"
+    },
+    {
+      "word": "university",
+      "rank": 223,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "movie",
+      "rank": 224,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "tv",
+      "rank": 225,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "center",
+      "rank": 226,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "york",
+      "rank": 227,
+      "reason": "proper-noun-or-title"
+    },
+    {
+      "word": "ahead",
+      "rank": 228,
+      "reason": "position-word"
+    },
+    {
+      "word": "local",
+      "rank": 229,
+      "reason": "web-or-abstract"
+    },
+    {
+      "word": "follow",
+      "rank": 230,
+      "reason": "unsure-of-form"
+    }
+  ]
+}

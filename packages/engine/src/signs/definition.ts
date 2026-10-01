@@ -71,7 +71,33 @@ export interface SignProvenance {
   readonly source: 'hand-authored' | 'video-extraction' | 'mocap' | 'generated';
   readonly validation: 'unvalidated' | 'reviewed' | 'expert-validated';
   readonly note?: string;
+  /**
+   * The author's own estimate of how faithful the rendering is to the sign.
+   *
+   * This is a self-assessment by someone who is not a fluent signer, and it is
+   * unvalidated like everything else. What it is FOR is ordering: a reviewer
+   * with an afternoon should start with the signs the author already suspects.
+   * It must never be read as a confidence in the sign being correct ASL.
+   *
+   * - `citation`: the sign as the author understands its dictionary form,
+   *   expressed within what the notation can say.
+   * - `approximate`: the form is understood but the notation cannot express
+   *   part of it -- movement inside the hand, real contact between hands, a
+   *   wiggle -- so a stand-in is rendered.
+   * - `uncertain`: the author is working from a vague recollection of the
+   *   form. Rare by design: when unsure, a word should be left fingerspelled,
+   *   not signed wrongly.
+   */
+  readonly fidelity?: 'citation' | 'approximate' | 'uncertain';
 }
+
+/** Broad semantic areas, for browsing and for sampling a review. */
+export type SignCategory =
+  | 'pronoun' | 'question' | 'person' | 'family' | 'body' | 'health'
+  | 'food' | 'animal' | 'color' | 'quality' | 'feeling' | 'verb' | 'motion'
+  | 'communication' | 'technology' | 'place' | 'thing' | 'transport'
+  | 'time' | 'quantity' | 'nature' | 'work' | 'school' | 'society'
+  | 'greeting' | 'grammar' | 'religion' | 'sport' | 'clothing';
 
 export interface SignDefinition {
   readonly id: string;
@@ -109,6 +135,7 @@ export interface SignDefinition {
    * bug and still caught.
    */
   readonly held?: boolean;
+  readonly category?: SignCategory;
   readonly provenance: SignProvenance;
 }
 

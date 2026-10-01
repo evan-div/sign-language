@@ -113,7 +113,7 @@ export function App() {
           <span className="mark" aria-hidden="true" />
           <h1>SignFlow</h1>
         </div>
-        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;7</p>
+        <p className="tagline">Sentence prototype &middot; Milestones 1&ndash;8</p>
       </header>
 
       <main className="main">

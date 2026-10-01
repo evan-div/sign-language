@@ -13,7 +13,10 @@
     "screenshot": "node tools/screenshot.mjs",
     "solve:locations": "tsx tools/solve-locations.ts",
     "lint:signs": "tsx tools/lint-signs.ts",
-    "coverage": "tsx tools/coverage.ts"
+    "coverage": "tsx tools/coverage.ts",
+    "gap": "tsx tools/gap-analysis.ts",
+    "review:packet": "tsx tools/review-packet.ts",
+    "review:ingest": "tsx tools/ingest-verdicts.ts"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

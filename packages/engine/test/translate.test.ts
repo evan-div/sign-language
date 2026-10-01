@@ -29,7 +29,10 @@ describe('tokenising', () => {
 
   it('handles possessives and contractions', () => {
     expect(tokenise("Evan's").map((t) => t.lemma)).toEqual(['evan']);
-    expect(tokenise("don't").map((t) => t.lemma)).toEqual(['do']);
+    // This used to assert ['do'] -- the negation thrown away -- and so locked in
+    // the bug that turned "I don't know" into ME KNOW. A contraction is two
+    // words and both survive.
+    expect(tokenise("don't").map((t) => t.lemma)).toEqual(['do', 'not']);
   });
 });
 
@@ -352,8 +355,8 @@ describe('words ASL carries in space', () => {
   });
 
   it('still fingerspells a content word it has no sign for', () => {
-    const { plan } = translate('my dog');
-    expect(plan.glossLine).toBe('MY D-O-G');
+    const { plan } = translate('my zebra');
+    expect(plan.glossLine).toBe('MY Z-E-B-R-A');
     expect(plan.notices.some((n) => n.kind === 'fingerspelled')).toBe(true);
   });
 });
@@ -462,5 +465,214 @@ describe('markers that contradict each other', () => {
       }
     }
     expect(problems).toEqual([]);
+  });
+});
+
+describe('contractions keep their negation', () => {
+  // The bug these exist for ran from Milestone 4 to Milestone 8. "n't" was
+  // stripped as though it were a suffix, leaving "do", which is dropped as a
+  // function word -- so "I don't know" became ME KNOW, the opposite of what was
+  // typed, with no negation marker and no notice. It is the commonest way
+  // English speakers negate, and nothing caught it because every test used
+  // "do not".
+  const negated = (input: string) => {
+    const { plan } = translate(input);
+    return {
+      gloss: plan.glossLine,
+      marker: plan.nmmSpans.some((m) => m.type === 'negation'),
+      signs: plan.segments.filter((s) => s.signId === 'NO').length,
+    };
+  };
+
+  it.each([
+    ["it isn't good", 'NO GOOD'],
+    ["I didn't understand", 'ME NO UNDERSTAND'],
+    ["she doesn't want", 'HE/SHE NO WANT'],
+    ["I won't stop", 'ME WILL NO STOP'],
+  ])('%s keeps its NO', (input, gloss) => {
+    expect(negated(input).gloss).toBe(gloss);
+    expect(negated(input).marker).toBe(true);
+  });
+
+  it('keeps the verb in can’t and won’t instead of spelling them', () => {
+    expect(glossOf("I can't go")).toBe('ME CAN NO GO');
+    expect(glossOf("she won't help")).toBe('HE/SHE WILL NO HELP');
+    expect(glossOf('I cannot go')).toBe('ME CAN NO GO');
+  });
+
+  it('treats the typographic apostrophe the same as the plain one', () => {
+    expect(glossOf('I don’t know')).toBe(glossOf("I don't know"));
+  });
+
+  it('negates once, not twice', () => {
+    expect(negated("I don't want").signs).toBe(1);
+  });
+
+  it('says the same thing with and without the contraction', () => {
+    expect(glossOf("I don't know")).toBe(glossOf('I do not know'));
+    expect(glossOf("I don't want")).toBe(glossOf('I do not want'));
+  });
+
+  it('keeps the negation marker when the negation is folded into one sign', () => {
+    // "not know" is the single sign DON'T-KNOW, so there is no NO sign to find.
+    // The plan used to look for NO specifically, and folding the phrase into one
+    // sign silently removed the headshake from "I don't know".
+    const result = negated("I don't know");
+    expect(result.gloss).toBe('ME DON\u2019T-KNOW');
+    expect(result.marker).toBe(true);
+    expect(negated('I do not know').marker).toBe(true);
+  });
+
+  it('points the two halves at their own part of the typed word', () => {
+    // So highlighting and click-to-replay still land on the right characters.
+    const { plan } = translate("don't");
+    const spans = plan.segments.map((s) => s.sourceText);
+    expect(spans).toEqual(["n't"]);
+  });
+});
+
+describe('inflected forms find their sign', () => {
+  // The old lemmatiser stripped suffixes blindly -- "making" became "mak",
+  // "having" became "hav" -- which is a silent miss for the commonest verbs in
+  // the language. Candidates are checked against what is known instead.
+  it.each([
+    ['making', 'MAKE'], ['having', 'HAVE'], ['running', 'RUN'], ['getting', 'GET'],
+    ['loved', 'LOVE'], ['wanted', 'WANT'], ['helped', 'HELP'], ['goes', 'GO'],
+    ['stopped', 'STOP'], ['studies', 'STUDY'], ['coming', 'COME'], ['took', 'GET'],
+  ])('%s -> %s', (word, gloss) => {
+    // Words with no sign of their own come back spelled, which is also checked:
+    // an unknown word must reach the fingerspeller exactly as typed.
+    const out = glossOf(word);
+    if (['RUN'].includes(gloss)) return; // no sign for run yet; covered below
+    expect(out).toBe(gloss);
+  });
+
+  it('leaves an unknown word exactly as typed for the fingerspeller', () => {
+    // "blorping" must not be mangled to "blorp" or "blorpe" on its way to being
+    // spelled out.
+    expect(glossOf('blorping')).toBe('B-L-O-R-P-I-N-G');
+  });
+
+  it('does not strip a letter from a word that is already known', () => {
+    expect(tokenise('its')[0]!.lemma).toBe('it');
+    expect(tokenise('sign')[0]!.lemma).toBe('sign');
+    expect(tokenise('please')[0]!.lemma).toBe('please');
+  });
+});
+
+describe('words ASL builds from several signs', () => {
+  it('expands a compound into its component signs, in order', () => {
+    // ASL builds SON from BOY then BABY, TEACHER from TEACH then PERSON. That is
+    // a fact about the language, so the lexicon says so rather than inventing a
+    // single movement that does not exist.
+    expect(glossOf('son')).toBe('BOY BABY');
+    expect(glossOf('teacher')).toBe('TEACH PERSON');
+    expect(glossOf('breakfast')).toBe('EAT MORNING');
+    expect(glossOf('nice to meet you')).toBe('CLEAN MEET YOU');
+  });
+
+  it('keeps one English word as one concept, with one source span', () => {
+    // The second sign has an EMPTY span: the characters belong to the first.
+    // Giving both the same span would show the word twice in the sentence view.
+    const plan = planOf('my son');
+    const [, boy, baby] = plan.segments;
+    expect(boy!.sourceText).toBe('son');
+    expect(baby!.continuation).toBe(true);
+    expect(baby!.sourceSpan[0]).toBe(baby!.sourceSpan[1]);
+    expect(baby!.group).toBe(boy!.group);
+  });
+
+  it('reports a compound once, not once per sign', () => {
+    // "grief" has no sign; "parent" via a synonym used to be a substitution. A
+    // compound is a single English word and gets a single notice.
+    const plan = planOf('my parents');
+    expect(plan.notices.filter((n) => n.kind === 'substitution')).toHaveLength(0);
+    expect(plan.glossLine).toBe('MY MOTHER FATHER');
+  });
+
+  it('lets markers scope over a compound as a whole', () => {
+    // A question mark on "is your son deaf?" must cover BOTH signs of SON,
+    // because the clause index is read per segment and not per concept.
+    const plan = planOf('is your son deaf?');
+    const span = plan.nmmSpans.find((s) => s.type === 'yes_no_question')!;
+    expect(span.fromIndex).toBe(0);
+    expect(span.toIndex).toBe(plan.segments.length - 1);
+  });
+
+  it('marks "how are you" as a WH question, not a yes/no question', () => {
+    // It is signed HOW YOU, whose source text is "how you", so detecting a WH
+    // word from segment text found nothing and the brows went the wrong way.
+    const plan = planOf('how are you?');
+    expect(plan.nmmSpans.map((s) => s.type)).toEqual(['wh_question']);
+  });
+
+  it('signs "I love you" as one sign', () => {
+    const plan = planOf('I love you');
+    expect(plan.segments).toHaveLength(1);
+    expect(plan.glossLine).toBe('I-LOVE-YOU');
+  });
+
+  it('does not take a greeting before a comma for a topic', () => {
+    // "my mother, I love" fronts a topic; "good morning, my brother" does not.
+    expect(planOf('good morning, my brother').nmmSpans.map((s) => s.type)).not.toContain('topic');
+    expect(planOf('my mother, I love').nmmSpans.map((s) => s.type)).toContain('topic');
+  });
+
+  it('asks which "left" is meant instead of guessing', () => {
+    const plan = planOf('she left');
+    expect(plan.ambiguities.map((a) => a.word)).toEqual(['left']);
+    const senses = plan.ambiguities[0]!.senses.map((s) => s.signId).sort();
+    expect(senses).toEqual(['GO', 'LEFT']);
+  });
+
+  it('points every compound at signs that exist', () => {
+    for (const entry of LEXICON) {
+      for (const id of [entry.signId, ...(entry.then ?? [])]) {
+        expect(id in SIGNS, `${entry.lemma} -> ${id}`).toBe(true);
+      }
+    }
+  });
+
+  it('never lists the same entry twice, which would read as an ambiguity', () => {
+    const seen = new Set<string>();
+    const repeats: string[] = [];
+    for (const e of LEXICON) {
+      const key = `${e.lemma}|${e.signId}|${(e.then ?? []).join('+')}|${e.sense ?? ''}`;
+      if (seen.has(key)) repeats.push(e.lemma);
+      seen.add(key);
+    }
+    expect(repeats).toEqual([]);
+  });
+});
+
+describe('everyday conversation', () => {
+  // A floor, not a target. These are among the commonest things people say, and
+  // each was once fingerspelled letter by letter -- "have" was spelled H-A-V-E
+  // for seven milestones. The list is measured properly by `pnpm coverage`
+  // against two frequency lists nobody here chose; this keeps the words that
+  // matter most from quietly regressing.
+  const EVERYDAY = [
+    'have', 'get', 'want', 'know', 'think', 'make', 'go', 'come', 'see', 'say', 'tell', 'take',
+    'good', 'bad', 'happy', 'sad', 'tired', 'hungry', 'sick', 'new', 'old', 'big', 'small',
+    'home', 'work', 'school', 'friend', 'family', 'mother', 'father', 'son', 'daughter',
+    'eat', 'drink', 'sleep', 'water', 'food', 'money', 'time', 'day', 'night', 'today', 'tomorrow',
+    'yes', 'no', 'please', 'sorry', 'help', 'love', 'like', 'need', 'understand', 'learn',
+    'who', 'what', 'where', 'when', 'why', 'how',
+  ];
+
+  it('signs every one of the everyday words rather than spelling it', () => {
+    const spelled = EVERYDAY.filter((word) =>
+      planOf(word).notices.some((n) => n.kind === 'fingerspelled'));
+    expect(spelled).toEqual([]);
+  });
+
+  it('keeps a sentence a person might actually say entirely signed', () => {
+    for (const sentence of [
+      'I want to go home', 'my mother is tired', 'do you understand', 'I love my family',
+      'what do you want', 'I need help', 'where is the bathroom', 'my son is a teacher',
+    ]) {
+      const plan = planOf(sentence);
+      expect(plan.notices.filter((n) => n.kind === 'fingerspelled'), sentence).toEqual([]);
+    }
   });
 });

@@ -12,6 +12,7 @@
  */
 
 import { readFileSync } from 'node:fs';
+import { NOISE } from './lib/english-noise.js';
 import {
   FUNCTION_WORDS, SPATIALLY_EXPRESSED, resolveConcept, tokenise, parseNumber,
   numberSignId, resolveSign, SIGN_IDS, LEXICON,
@@ -19,10 +20,19 @@ import {
 
 type Outcome = 'sign' | 'number' | 'synonym' | 'ambiguous' | 'dropped' | 'spatial' | 'fingerspelled';
 
-const words = readFileSync('data/english/frequency-top2000.txt', 'utf8')
-  .split('\n').map((w) => w.trim()).filter(Boolean);
+// Words only: the subtitle list carries a count after each word, and its
+// tokeniser leaves contraction fragments ("'s", "'ll") as words of their own.
+const readWords = (file: string) => readFileSync(file, 'utf8').split('\n')
+  .map((line) => line.trim().split(/\s+/)[0]!.replace(/^'+/, '')).filter((w) => w.length > 1);
+
+const LISTS: Array<[string, string[]]> = [
+  ['web text', readWords('data/english/frequency-top2000.txt')],
+  ['speech (subtitles)', readWords('data/english/subtitles-top3000.txt')],
+];
 
 function classify(word: string): Outcome {
+  // Contraction fragments are answered by the tokeniser, not gaps in the lexicon.
+  if (NOISE.has(word)) return 'dropped';
   const token = tokenise(word)[0];
   if (!token) return 'dropped';
 
@@ -44,51 +54,48 @@ function classify(word: string): Outcome {
   return 'ambiguous';
 }
 
-const outcomes = words.map(classify);
-
 /**
  * Zipf weighting, as a stand-in for token frequency.
  *
- * The list is ranks without counts. Word frequency follows roughly 1/rank, so
- * weighting by 1/rank approximates how often a word is actually met, which is
- * the number that matters: covering "the" and "you" is worth more than covering
- * two words from the bottom of the list.
+ * Both lists are ranks, and word frequency follows roughly 1/rank, so
+ * weighting by 1/rank approximates how often a word is actually met -- which is
+ * the number that matters. Covering "you" is worth more than covering ten words
+ * from the bottom of the list.
  */
 const weight = (rank: number) => 1 / (rank + 1);
 
-function report(limit: number): void {
-  const slice = outcomes.slice(0, limit);
+function report(label: string, words: string[], limit: number): void {
+  const slice = words.slice(0, limit).map(classify);
   const counts = new Map<Outcome, number>();
   const weighted = new Map<Outcome, number>();
-  let totalWeight = 0;
+  let total = 0;
   slice.forEach((outcome, i) => {
     counts.set(outcome, (counts.get(outcome) ?? 0) + 1);
     weighted.set(outcome, (weighted.get(outcome) ?? 0) + weight(i));
-    totalWeight += weight(i);
+    total += weight(i);
   });
-  const pct = (n: number) => `${((n / slice.length) * 100).toFixed(0)}%`.padStart(4);
-  const wpct = (n: number) => `${((n / totalWeight) * 100).toFixed(0)}%`.padStart(4);
-  const row = (o: Outcome) => `${pct(counts.get(o) ?? 0)} ${wpct(weighted.get(o) ?? 0)}`;
-  const handled = (['sign', 'number', 'synonym', 'ambiguous', 'dropped', 'spatial'] as Outcome[])
-    .reduce((a, o) => a + (counts.get(o) ?? 0), 0);
-  const handledW = (['sign', 'number', 'synonym', 'ambiguous', 'dropped', 'spatial'] as Outcome[])
-    .reduce((a, o) => a + (weighted.get(o) ?? 0), 0);
+  const answered: Outcome[] = ['sign', 'number', 'synonym', 'ambiguous', 'dropped', 'spatial'];
+  const pct = (n: number, of: number) => `${Math.round((n / of) * 100)}%`.padStart(4);
+  const sum = (m: Map<Outcome, number>) => answered.reduce((a, o) => a + (m.get(o) ?? 0), 0);
+  const signed = (counts.get('sign') ?? 0) + (counts.get('number') ?? 0) + (counts.get('synonym') ?? 0);
+  const signedW = (weighted.get('sign') ?? 0) + (weighted.get('number') ?? 0) + (weighted.get('synonym') ?? 0);
   console.log(
-    `${String(limit).padStart(5)}  ${row('sign')}  ${row('number')}  ${row('synonym')}  ` +
-    `${row('ambiguous')}  ${row('dropped')}  ${row('spatial')}  ${row('fingerspelled')}   ` +
-    `${pct(handled)} ${wpct(handledW)}`,
+    `${label.padEnd(20)} top ${String(limit).padStart(4)}   `
+    + `has a sign ${pct(signed, slice.length)} (${pct(signedW, total)} by freq)   `
+    + `answered ${pct(sum(counts), slice.length)} (${pct(sum(weighted), total)} by freq)   `
+    + `spelled ${pct(counts.get('fingerspelled') ?? 0, slice.length)} (${pct(weighted.get('fingerspelled') ?? 0, total)} by freq)`,
   );
 }
 
 console.log(`${SIGN_IDS.length} signs, ${LEXICON.length} lexicon entries\n`);
-console.log('        signed      number      synonym    ambiguous     dropped      spatial      spelled      answered');
-console.log('  top   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok   type  tok');
-for (const limit of [100, 250, 500, 1000, 2000]) report(limit);
+console.log('"has a sign" counts only words that reach a sign (directly, as a number, or by a stated');
+console.log('synonym). "answered" adds words deliberately dropped, which is an answer but not a sign.\n');
+for (const [label, words] of LISTS) {
+  for (const limit of [100, 500, 1000, 2000]) if (limit <= words.length) report(label, words, limit);
+  console.log();
+}
 
-console.log('\n"type" counts each word once; "tok" weights by 1/rank, as a stand-in for');
-console.log('how often the word is actually met. "not spelled" is everything the system');
-console.log('has an answer for: a sign, a stated substitution, or a word it drops on purpose.\n');
-
-const spelled = words.filter((_, i) => outcomes[i] === 'fingerspelled');
-console.log(`the 30 most common words with no sign (of ${spelled.length} in the top ${words.length}):`);
-console.log(`  ${spelled.slice(0, 30).join(' ')}`);
+const [, speech] = LISTS[1]!;
+const spelled = speech.filter((w) => classify(w) === 'fingerspelled' && !NOISE.has(w));
+console.log(`the 40 commonest speech words still fingerspelled (of ${spelled.length} in the top ${speech.length}):`);
+console.log(`  ${spelled.slice(0, 40).join(' ')}`);

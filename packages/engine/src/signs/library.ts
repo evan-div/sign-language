@@ -15,6 +15,10 @@
  */
 
 import type { SignDefinition, SignProvenance } from './definition.js';
+import { LEGACY_META } from './vocab/legacy-meta.js';
+import { VOCABULARY } from './vocab/index.js';
+import { withReview } from './review.js';
+import { VERDICTS } from './verdicts.generated.js';
 
 const PLACEHOLDER: SignProvenance = {
   source: 'hand-authored',
@@ -22,7 +26,13 @@ const PLACEHOLDER: SignProvenance = {
   note: 'Authored from written descriptions; not reviewed by a Deaf signer.',
 };
 
-export const SIGNS: Readonly<Record<string, SignDefinition>> = Object.freeze({
+/**
+ * The first hundred signs, in the verbose notation they were written in.
+ *
+ * Left as written. They are joined by the vocabulary files under `vocab/`,
+ * which use the template layer, and the two are merged below.
+ */
+const FIRST_HUNDRED: Readonly<Record<string, SignDefinition>> = Object.freeze({
   HELLO: {
     id: 'HELLO', gloss: 'HELLO',
     description: 'Flat hand at the temple, moving out and away in a salute.',
@@ -1314,6 +1324,40 @@ export const SIGNS: Readonly<Record<string, SignDefinition>> = Object.freeze({
     ],
   },
 });
+
+/**
+ * Every authored sign, by id.
+ *
+ * A duplicate id is a thrown error at load, not a silent overwrite: with five
+ * hundred signs in a dozen files, two authors reaching for the same gloss is
+ * the likeliest mistake, and last-one-wins would hide it behind a sign that
+ * quietly changed.
+ */
+function assemble(): Readonly<Record<string, SignDefinition>> {
+  const out: Record<string, SignDefinition> = {};
+  const add = (sign: SignDefinition, origin: string) => {
+    if (out[sign.id]) throw new Error(`Duplicate sign id "${sign.id}" (second definition in ${origin})`);
+    out[sign.id] = sign;
+  };
+
+  for (const sign of Object.values(FIRST_HUNDRED)) {
+    const meta = LEGACY_META[sign.id];
+    if (!meta) throw new Error(`Sign "${sign.id}" has no entry in legacy-meta.ts`);
+    add({
+      ...sign,
+      category: meta[0],
+      provenance: { ...sign.provenance, fidelity: meta[1] },
+    }, 'library.ts');
+  }
+  for (const sign of VOCABULARY) add(sign, 'vocab/');
+
+  // Review state is applied last, from the recorded verdicts and nothing else:
+  // a sign's validation is derived, never typed in by hand.
+  for (const id of Object.keys(out)) out[id] = withReview(out[id]!, VERDICTS);
+  return Object.freeze(out);
+}
+
+export const SIGNS: Readonly<Record<string, SignDefinition>> = assemble();
 
 export function signDefinition(id: string): SignDefinition | undefined {
   return SIGNS[id];

@@ -21,7 +21,13 @@ interface Run {
  * the two together.
  */
 function toRuns(plan: ASLPlan): Run[] {
-  const ordered = [...plan.segments].sort((a, b) => a.sourceSpan[0] - b.sourceSpan[0]);
+  // A compound -- SON signed as BOY then BABY -- has several segments for one
+  // English word, and only the first owns any characters. The rest have empty
+  // spans and would render as empty buttons, so they are left out here; they
+  // still appear in the gloss line, where each sign is its own item.
+  const ordered = plan.segments
+    .filter((segment) => !segment.continuation)
+    .sort((a, b) => a.sourceSpan[0] - b.sourceSpan[0]);
   const runs: Run[] = [];
   let cursor = 0;
 
@@ -43,6 +49,8 @@ const RESOLUTION_TITLE: Record<string, string> = {
   synonym: 'A different word was signed — see the notes',
   fingerspelled: 'No sign for this word, so it is fingerspelled',
   ambiguous: 'More than one meaning — pick one below',
+  number: 'A number, composed from its digits',
+  incorporated: 'Signed as one sign with the number built into the handshape',
 };
 
 export function SentenceView({ plan, active, onSelect }: SentenceViewProps) {
@@ -57,9 +65,9 @@ export function SentenceView({ plan, active, onSelect }: SentenceViewProps) {
           <button
             key={run.key}
             type="button"
-            className={`word word--${run.segment.resolution}${active?.index === run.segment.index ? ' word--active' : ''}`}
+            className={`word word--${run.segment.resolution}${active?.group === run.segment.group ? ' word--active' : ''}`}
             onClick={() => onSelect(run.segment!)}
-            aria-current={active?.index === run.segment.index ? 'true' : undefined}
+            aria-current={active?.group === run.segment.group ? 'true' : undefined}
             title={RESOLUTION_TITLE[run.segment.resolution]}
             data-segment={run.segment.index}
           >

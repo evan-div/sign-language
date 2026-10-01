@@ -2,7 +2,7 @@
 
 Text-to-ASL. A user types English; a 3D avatar signs it.
 
-This repository contains **Milestones 1 to 7**: a rigged placeholder avatar with
+This repository contains **Milestones 1 to 8**: a rigged placeholder avatar with
 a face, the animated manual alphabet, a hundred lexical signs, numbers composed
 by rule, ASL's facial grammar scoped to clauses, an English-to-ASL sentence
 pipeline, the offline motion pipeline that will eventually replace the
@@ -29,6 +29,9 @@ pnpm typecheck
 pnpm build
 pnpm lint:signs   # geometric checks over the whole sign library
 pnpm coverage     # how much ordinary English the lexicon answers for
+pnpm gap          # the commonest speech words that still lack a sign
+pnpm review:packet   # regenerate the packet for Deaf reviewers
+pnpm review:ingest   # validate and apply returned verdicts
 ```
 
 ## What works today
@@ -43,13 +46,13 @@ Type a sentence; the avatar signs it.
 - **Honesty**: every departure from what you typed — a dropped word, a
   substituted sign, a word it had to spell — is reported, and marked in the
   sentence itself.
-- **A hundred lexical signs**, one- and two-handed, plus all 26 letters with
+- **301 lexical signs**, one- and two-handed, plus all 26 letters with
   J/Z movement and double-letter bounces. Browse them in the Vocabulary tab:
   each carries its description, the English that reaches it, and how far it
   should be trusted.
 - **Words ASL carries in space** — prepositions, conjunctions, "it", "this" —
   are dropped with a notice that says so, rather than spelled out. Of the 100
-  most frequent English words the system has an answer for 93% weighted by
+  most frequent English words the system has an answer for 95% weighted by
   frequency; `pnpm coverage` prints the table.
 - **Facial grammar**, rendered rather than approximated: yes/no questions, WH
   questions, topics, conditionals, negation and affirmation, each scoped to its
@@ -61,11 +64,14 @@ Type a sentence; the avatar signs it.
 - Play, pause, scrub, five speeds, a gloss toggle, and click any word or gloss
   to replay that sign. Orbit and zoom, clamped so the hands stay readable.
 
-**The sign vocabulary is placeholder.** All hundred signs were authored from
+**The sign vocabulary is placeholder.** All 301 signs were authored from
 written descriptions by someone who is not a fluent signer and reviewed by no
 Deaf signer. They exist to exercise the pipeline, not to teach ASL. Going from
-twenty to a hundred did not make them more trustworthy; it made the machinery
-around them measurable.
+twenty to 301 did not make them more trustworthy; it made the machinery
+around them measurable. Milestone 8 aimed at 500 and stopped at 301 rather
+than guess; `data/vocabulary/skipped.json` records what was left out. The
+review pipeline (`pnpm review:packet`, `pnpm review:ingest`) is built and has
+never received a real verdict.
 
 ## How a hundred signs stay reviewable
 
