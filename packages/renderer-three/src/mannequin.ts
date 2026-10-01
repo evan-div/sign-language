@@ -67,9 +67,12 @@ function radiusFor(jointName: string): number {
 
 /** Sleeve radius at the start and end of each arm segment. */
 const SLEEVE: Readonly<Record<string, readonly [number, number]>> = {
-  shoulder: [0.052, 0.044],
+  shoulder: [0.046, 0.043],
   elbow: [0.043, 0.032],
 };
+
+/** How far below the shoulder joint the sleeve is drawn from, in metres. */
+const SHOULDER_DROP = 0.032;
 
 /** The torso, as cross-sections in the spine1 frame (spine1 sits at y=1.05). */
 const TORSO: readonly Ring[] = [
@@ -78,11 +81,11 @@ const TORSO: readonly Ring[] = [
   { y: 0.07, rx: 0.132, rz: 0.088, cz: 0.002 },
   { y: 0.20, rx: 0.142, rz: 0.094, cz: 0.004 },
   { y: 0.29, rx: 0.157, rz: 0.098, cz: 0.006 },
-  { y: 0.330, rx: 0.166, rz: 0.088, cz: 0.002 },
-  { y: 0.358, rx: 0.150, rz: 0.080, cz: 0.001 },
-  { y: 0.382, rx: 0.095, rz: 0.064 },
-  { y: 0.402, rx: 0.060, rz: 0.054 },
-  { y: 0.412, rx: 0.056, rz: 0.052 },
+  { y: 0.335, rx: 0.172, rz: 0.088, cz: 0.002 },
+  { y: 0.360, rx: 0.152, rz: 0.078, cz: 0.001 },
+  { y: 0.378, rx: 0.104, rz: 0.066 },
+  { y: 0.392, rx: 0.064, rz: 0.056 },
+  { y: 0.400, rx: 0.056, rz: 0.052 },
 ];
 
 const UP = new Vector3(0, 1, 0);
@@ -152,12 +155,27 @@ export function createMannequin(options: MannequinOptions = {}): Mannequin {
     along(mesh, offset, length);
   };
 
-  /** A tapered sleeve segment, with a rounded joint at its start. */
+  /**
+   * A tapered sleeve segment, with a rounded joint at its start.
+   *
+   * The shoulder's drawn root sits a little below the joint it pivots on. The
+   * skeleton's shoulder is where reach is solved and cannot move, but drawn at
+   * that height the sleeve starts level with the base of the neck and the
+   * shoulders read as hunched. A few centimetres of offset is invisible when the
+   * arm moves and fixes the silhouette at rest.
+   */
   const addSleeve = (parentName: string, offset: Vec3, [r0, r1]: readonly [number, number]) => {
-    const length = Math.hypot(...offset);
+    const isShoulder = /_shoulder$/.test(parentName);
+    const root: Vec3 = [0, isShoulder ? -SHOULDER_DROP : 0, 0];
+    const span: Vec3 = [offset[0] - root[0], offset[1] - root[1], offset[2] - root[2]];
+    const length = Math.hypot(...span);
     const mesh = addMesh(parentName, new CylinderGeometry(r1, r0, length, 24, 1), cloth);
-    along(mesh, offset, length);
-    addMesh(parentName, new SphereGeometry(r0, 24, 16), cloth);
+    const direction = new Vector3(...span).normalize();
+    mesh.quaternion.copy(new Quaternion().setFromUnitVectors(UP, direction));
+    mesh.position.set(...root).addScaledVector(direction, length / 2);
+    // Flattened on top at the shoulder: a full sphere stands proud of the line.
+    const cap = addMesh(parentName, new SphereGeometry(r0, 24, 16), cloth, root);
+    if (isShoulder) cap.scale.set(1, 0.85, 1);
   };
 
   JOINTS.forEach((joint) => {
@@ -185,8 +203,8 @@ export function createMannequin(options: MannequinOptions = {}): Mannequin {
   // The neckline: a soft ring of the cuff colour where the neck leaves the top.
   const neckline = new TorusGeometry(0.056, 0.0085, 10, 36);
   neckline.rotateX(Math.PI / 2);
-  addMesh('neck', neckline, trim, [0, 0.002, 0.003]);
-  addMesh('neck', new CylinderGeometry(0.047, 0.053, 0.15, 24, 1), skin, [0, 0.035, 0.003]);
+  addMesh('neck', neckline, trim, [0, -0.012, 0.003]);
+  addMesh('neck', new CylinderGeometry(0.052, 0.058, 0.15, 24, 1), skin, [0, 0.035, 0.003]);
   addMesh('head', headGeometry(), skin);
   addMesh('head', hairGeometry(), hair);
 

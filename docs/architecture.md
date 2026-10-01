@@ -556,3 +556,11 @@ which is the one thing the face rig must not do. Features now follow face
 proportions and the hairline sits clear of the brow's travel. The default skin
 tone and clothing are options (`skinColor`, `accentColor`, `hairColor`), and this
 is still a placeholder for an authored VRM character.
+
+The shoulders read as hunched on the first pass, and it was the meshes, not the
+skeleton: the shoulder joint's height is about right for this rig (it is where
+every sign's reach is solved, so it cannot move), but full-sphere shoulder caps
+stood above a flat shoulder line level with the base of the neck. The sleeve is
+now drawn from 3cm below the joint it pivots on, with a flattened cap, and the
+torso's shoulder line slopes down from the neck. That is a drawing offset only;
+it does not touch the skeleton or any sign.
