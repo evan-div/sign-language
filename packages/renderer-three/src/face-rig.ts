@@ -9,7 +9,7 @@
  *
  * So the brows, eyes and mouth are built here and driven by the same
  * ARKit-named weights a real avatar would take. This is emphatically not a
- * face: it is four boxes and two spheres, sized for legibility at the default
+ * likeness: a few rounded bars and spheres, sized for legibility at the default
  * camera rather than for looking like anyone. What it has to get right is that
  * a brow raise and a brow furrow are TELLABLE APART at a glance, because that
  * distinction is the difference between two sentence types.
@@ -19,7 +19,7 @@
  */
 
 import {
-  BoxGeometry,
+  CapsuleGeometry,
   Color,
   Group,
   Mesh,
@@ -30,22 +30,21 @@ import {
   type Material,
 } from 'three';
 import { faceWeight, type FacePose } from '@signflow/motion-format';
+import { headPoint } from './shapes.js';
 
 /**
- * Where the features sit, in the head joint's local frame.
- *
- * The head is a sphere of radius 0.098 centred at (0, 0.055, 0.012), so
- * anything on its face has to be placed on that sphere rather than on a plane.
- * These are the surface points for the eyes, brows and mouth.
+ * A point on the head's surface for a direction out from its centre. Inset is
+ * in metres, so a feature can sit slightly proud of the skin or slightly in it.
  */
-const HEAD_CENTRE = [0, 0.055, 0.012] as const;
-const HEAD_RADIUS = 0.098;
-
-/** A point on the head's surface, given a direction from its centre. */
 function onHead(dx: number, dy: number, dz: number, inset = 0.004): [number, number, number] {
-  const length = Math.hypot(dx, dy, dz);
-  const r = (HEAD_RADIUS - inset) / length;
-  return [HEAD_CENTRE[0] + dx * r, HEAD_CENTRE[1] + dy * r, HEAD_CENTRE[2] + dz * r];
+  return headPoint(dx, dy, dz, 1 - inset / 0.098);
+}
+
+/** A capsule lying along X: a rounded bar, which reads as a brow or a lid. */
+function bar(length: number, radius: number): CapsuleGeometry {
+  const g = new CapsuleGeometry(radius, length, 4, 10);
+  g.rotateZ(Math.PI / 2);
+  return g;
 }
 
 export interface FaceRig {
@@ -66,15 +65,17 @@ interface Eye {
   readonly lid: Object3D;
   readonly ball: Object3D;
   readonly openY: number;
+  readonly openZ: number;
   readonly height: number;
 }
 
-export function createFaceRig(options: { skin: Material } ): FaceRig {
+export function createFaceRig(options: { skin: Material; hair: Material }): FaceRig {
   const geometries: BufferGeometry[] = [];
   const group = new Group();
   group.name = 'face';
 
-  const dark = new MeshStandardMaterial({ color: new Color('#2b2f36'), roughness: 0.8, metalness: 0 });
+  const dark = new MeshStandardMaterial({ color: new Color('#2a1e1b'), roughness: 0.55, metalness: 0 });
+  const lips = new MeshStandardMaterial({ color: new Color('#6e3a3d'), roughness: 0.6, metalness: 0 });
   const white = new MeshStandardMaterial({ color: new Color('#f3f1ee'), roughness: 0.5, metalness: 0 });
 
   const add = (geometry: BufferGeometry, material: Material, at: readonly [number, number, number]) => {
@@ -93,7 +94,7 @@ export function createFaceRig(options: { skin: Material } ): FaceRig {
   const eyes: Eye[] = [];
 
   for (const side of [1, -1] as const) {
-    const eyeAt = onHead(0.034 * side, 0.020, 0.073, 0.006);
+    const eyeAt = onHead(0.036 * side, 0.008, 0.073, 0.005);
     // The eye: a white ball with a dark iris in front of it, and a skin-coloured
     // lid that slides down over it. A lid that moves is the only part of this
     // that has to work, because squint and blink are grammar too.
@@ -108,31 +109,32 @@ export function createFaceRig(options: { skin: Material } ): FaceRig {
     // tall and rested 22mm up, which put it straight over the brows: every brow
     // movement happened behind it and a raise and a furrow looked identical,
     // which is the one thing this rig has to get right.
-    const lidGeometry = new BoxGeometry(0.040, 0.012, 0.012);
-    const lidHolder = add(lidGeometry, options.skin, [eyeAt[0], eyeAt[1] + 0.016, eyeAt[2] + 0.002]);
-    eyes.push({ lid: lidHolder, ball: ballHolder, openY: eyeAt[1] + 0.016, height: 0.012 });
+    const lidGeometry = bar(0.026, 0.0065);
+    const lidHolder = add(lidGeometry, options.skin, [eyeAt[0], eyeAt[1] + 0.024, eyeAt[2] - 0.009]);
+    eyes.push({ lid: lidHolder, ball: ballHolder, openY: eyeAt[1] + 0.024, openZ: eyeAt[2] - 0.009, height: 0.012 });
 
     // Placed relative to the eye rather than on the sphere. A point higher on
     // a sphere is also further BACK on it, so a brow positioned by latitude sat
     // 12mm behind the eyelid and was drawn over by it -- invisible at exactly
     // the moments it carries the grammar. Sitting a little proud of the head is
     // the better trade for a mannequin: it reads like a drawn-on brow.
-    const browAt: [number, number, number] = [eyeAt[0], eyeAt[1] + 0.030, eyeAt[2] + 0.004];
-    const browHolder = add(new BoxGeometry(0.042, 0.0105, 0.010), dark, browAt);
+    const surface = onHead(0.040 * side, 0.030, 0.073, -0.002);
+    const browAt: [number, number, number] = [eyeAt[0], surface[1], surface[2]];
+    const browHolder = add(bar(0.030, 0.0048), options.hair, browAt);
     brows.push({ node: browHolder, restY: browAt[1], restX: browAt[0], side });
   }
 
   // The mouth. Scaled rather than reshaped: a box that gets taller for jawOpen
   // and narrower for a pucker reads well enough at this size, and a mouth with
   // real corners would need a mesh this mannequin does not have.
-  const mouthAt = onHead(0, -0.036, 0.082, 0.002);
-  const mouth = add(new BoxGeometry(0.046, 0.009, 0.012), dark, mouthAt);
+  const mouthAt = onHead(0, -0.052, 0.082, 0.002);
+  const mouth = add(bar(0.030, 0.0048), lips, mouthAt);
 
   // Cheeks, for cheekPuff. Small enough to be invisible until they are used.
   const cheeks = [1, -1].map((side) =>
-    add(new SphereGeometry(0.019, 10, 8), options.skin, onHead(0.062 * side, -0.016, 0.052, 0.012)));
+    add(new SphereGeometry(0.019, 10, 8), options.skin, onHead(0.062 * side, -0.050, 0.052, 0.012)));
 
-  const tongue = add(new BoxGeometry(0.018, 0.006, 0.014), new MeshStandardMaterial({
+  const tongue = add(new CapsuleGeometry(0.004, 0.012, 3, 8), new MeshStandardMaterial({
     color: new Color('#b4646c'), roughness: 0.6,
   }), [mouthAt[0], mouthAt[1] - 0.004, mouthAt[2] + 0.004]);
   tongue.visible = false;
@@ -164,7 +166,10 @@ export function createFaceRig(options: { skin: Material } ): FaceRig {
         const squint = clamp01(faceWeight(face, i === 0 ? 'eyeSquintLeft' : 'eyeSquintRight'));
         const blink = clamp01(faceWeight(face, i === 0 ? 'eyeBlinkLeft' : 'eyeBlinkRight'));
         const closed = Math.max(blink, squint * 0.55);
-        eye.lid.position.y = eye.openY + eye.height * (0.28 * wide) - eye.height * 1.55 * closed;
+        eye.lid.position.y = eye.openY + eye.height * (0.28 * wide) - eye.height * 2.1 * closed;
+        // Tucked into the head while the eye is open, and brought out in front
+        // of the eyeball as it closes, so a lid is only seen when it is doing something.
+        eye.lid.position.z = eye.openZ + 0.018 * Math.min(1, closed * 2);
         const open = 1 + 0.18 * wide - 0.2 * closed;
         eye.ball.scale.set(1, open, 1);
       });
@@ -196,6 +201,7 @@ export function createFaceRig(options: { skin: Material } ): FaceRig {
     dispose(): void {
       geometries.forEach((g) => g.dispose());
       dark.dispose();
+      lips.dispose();
       white.dispose();
     },
   };

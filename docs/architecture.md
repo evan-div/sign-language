@@ -532,3 +532,27 @@ milestone, so there is no earlier figure for it. Still fingerspelled among the
 commonest speech words: well, let, back, something, way, never, mean, first,
 still, away, put, last, better, keep... — mostly words that need context-
 dependent signs, which the lexicon cannot yet choose between.
+
+## The stand-in avatar is dressed and shaped, still not a likeness
+
+The first mannequin was grey capsules on a box torso, with a bare sphere for a
+head. It read as a robot, and worse for the product, bare arms the same colour as
+the hands made the hands hard to pick out. It is now dressed the way interpreters
+dress: a plain dark top with long sleeves and bare hands, so the hands are the
+only skin below the neck.
+
+Everything is still rigid pieces parented to the same 55 joints (no skinning,
+no asset), so the rig and the face weights are unchanged. The torso is a lofted
+surface through a handful of cross-sections, the head an egg narrowing toward the
+chin, and `headPoint()` places every feature on that same surface so nothing
+floats or sinks when the shape is tuned.
+
+Two things went wrong on the way and are worth remembering. The loft's winding
+was inverted, so the torso showed its inside; it looked plausible enough to
+survive one round of review and was only caught by reading the black wedge at the
+shoulders. And the first face put the hairline on the brows, so a raised brow
+(yes/no question) vanished into the hair and looked identical to a neutral face,
+which is the one thing the face rig must not do. Features now follow face
+proportions and the hairline sits clear of the brow's travel. The default skin
+tone and clothing are options (`skinColor`, `accentColor`, `hairColor`), and this
+is still a placeholder for an authored VRM character.

@@ -201,7 +201,7 @@ export function App() {
             descriptions by someone who is not a fluent signer and reviewed by no Deaf
             signer, so treat the vocabulary as a demonstration of the pipeline rather than
             as ASL. The face carries sentence type &mdash; questions, negation, topics
-            &mdash; on a mannequin built of boxes, which is enough to tell the markers
+            &mdash; on a stand-in figure, which is enough to tell the markers
             apart and no more.
           </p>
         </section>

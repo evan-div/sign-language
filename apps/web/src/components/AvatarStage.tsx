@@ -108,9 +108,11 @@ export function AvatarStage({ plan, prepared, sequence, clock, onTime, resetSign
       gl={{ antialias: true }}
     >
       <color attach="background" args={['#0e1116']} />
-      <hemisphereLight intensity={0.55} groundColor="#1a1f28" color="#cdd8e6" />
+      <hemisphereLight intensity={0.95} groundColor="#242b36" color="#dfe7f2" />
       {/* Key light from the front-left, so knuckles cast readable shadows. */}
-      <directionalLight position={[1.4, 2.2, 2.0]} intensity={1.5} castShadow />
+      <directionalLight position={[1.4, 2.2, 2.0]} intensity={1.7} castShadow />
+      {/* Soft fill from the right, so the shadow side of the face and sleeves is not lost. */}
+      <directionalLight position={[-1.6, 1.2, 1.8]} intensity={0.55} color="#ffe9dc" />
       {/* Rim light: separates fingers from the palm and from the torso behind. */}
       <directionalLight position={[-1.8, 1.4, -1.6]} intensity={0.85} color="#8ab4ff" />
       <Rig plan={plan} prepared={prepared} sequence={sequence} clock={clock} onTime={onTime} />
