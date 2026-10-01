@@ -564,3 +564,14 @@ stood above a flat shoulder line level with the base of the neck. The sleeve is
 now drawn from 3cm below the joint it pivots on, with a flattened cap, and the
 torso's shoulder line slopes down from the neck. That is a drawing offset only;
 it does not touch the skeleton or any sign.
+
+The resting arms were also wrong, and this one was in the data, not the drawing.
+`REST_POSTURE` turned the shoulder the wrong way: the bind pose already has the
+upper arm 34 degrees out, and the old -10 degree rotation pushed it further, to
+44, so the wrists hung 40cm from the midline. It is now solved with forward
+kinematics (shoulder +24 degrees, elbow folding the forearm down and undoing the
+shoulder's tilt), so the arm hangs 10 degrees out and the wrist sits about 24cm
+from the midline, clear of the hip. Rest is the start and end of every utterance
+and the idle arm during one-handed signs and fingerspelling, so this changed the
+look of all of them. Lint, tests and the extraction fixture (which embeds the
+rest pose and was regenerated) were rechecked; nothing else moved.

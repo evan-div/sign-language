@@ -48,9 +48,21 @@ const SPELLING_ARM: Record<string, Quat> = {
   right_wrist: SPELLING_WRIST_CORRECTION,
 };
 
+/**
+ * Arms hanging at the sides, a little away from the body.
+ *
+ * Solved with forward kinematics rather than tuned by eye. The bind pose is a
+ * goalpost, with the upper arm already 34 degrees out and down, so the shoulder
+ * has to turn the arm IN: +24 degrees about Z leaves it 10 degrees from
+ * vertical. (An earlier value of -10 turned it the wrong way, to 44 degrees, and
+ * the wrists hung 40cm from the midline.) The shoulder's rotation carries the
+ * forearm with it, so the elbow undoes 30 degrees about Z after folding the
+ * forearm down, which leaves the forearm 6 degrees from vertical and the wrist
+ * about 24cm from the midline -- clear of the hip, but not a coat hanger.
+ */
 const RESTING_ARM: Record<string, Quat> = {
-  right_shoulder: quatFromEulerDeg(0, 0, -10),
-  right_elbow: quatFromEulerDeg(168, 0, 0),
+  right_shoulder: quatFromEulerDeg(0, 0, 24),
+  right_elbow: quatMultiply(quatFromEulerDeg(0, 0, -30), quatFromEulerDeg(168, 0, 0)),
   right_wrist: IDENTITY,
 };
 
