@@ -45,8 +45,8 @@ export interface SequenceOptions {
 
 const DEFAULTS = {
   transitionMs: 130,
-  leadInMs: 300,
-  tailMs: 380,
+  leadInMs: 170,
+  tailMs: 200,
   speed: 1,
   hand: 'right' as Hand,
   endPauseMs: 0,
@@ -55,7 +55,14 @@ const DEFAULTS = {
 /** Extra travel time per metre the hands have to cover. */
 const MS_PER_METRE = 850;
 const MIN_TRANSITION_MS = 140;
-const MAX_TRANSITION_MS = 640;
+/**
+ * The ceiling has to sit above the longest reach that matters, or distance stops
+ * deciding anything. Raising a hand from rest covers 17 to 86cm (median 47), and
+ * with the old base of 300ms and a 640ms ceiling about four signs in five were
+ * pinned to the ceiling: a flat hand at the stomach took exactly as long to
+ * raise as one held over the head.
+ */
+const MAX_TRANSITION_MS = 800;
 
 /**
  * How long the hands need to get from one pose to the next.

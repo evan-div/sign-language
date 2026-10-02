@@ -575,3 +575,25 @@ from the midline, clear of the hip. Rest is the start and end of every utterance
 and the idle arm during one-handed signs and fingerspelling, so this changed the
 look of all of them. Lint, tests and the extraction fixture (which embeds the
 rest pose and was regenerated) were rechecked; nothing else moved.
+
+## Lead-in and release now follow distance
+
+Transition time was meant to scale with how far the hands travel, and for hands
+coming up from rest it did not. The base time was 300ms with an 850ms-per-metre
+slope and a 640ms ceiling, but a raise from rest covers 17 to 86cm (median 47),
+so the ceiling was reached at about 40cm and 234 of 301 lead-ins and 277 of 301
+releases were exactly 640ms. A flat hand at the stomach took as long to raise as
+one held over the head. The comment on the function said otherwise, and nothing
+tested it.
+
+The rest bases are now 170ms (raise) and 200ms (lower) and the ceiling is 800ms,
+so the median is about what it was (566 and 596ms) but the range is real: 329 to
+800ms, rank-correlated 1.0 with distance, with 3 and 4 signs at the ceiling. The
+slope and the between-sign timing are unchanged. Ten sample sentences came out
+about 4% shorter, all of it in the lead-in and release.
+
+The test measures the distance actually travelled for every sign in the library
+and requires the time to follow it (rank correlation above 0.95, under a tenth
+of signs on the ceiling, and a real spread); on the old constants it measures
+0.58 and fails. Separately, the test timeout is now 30s: the whole-library tests
+take five or six seconds on a slow machine and were failing on speed alone.

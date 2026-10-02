@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   solveFK, jointPosition, tipPosition, vec3Distance, validatePose,
-  palmNormal, fingerDirection, penetrationDepth, segmentPenetration, type Vec3,
+  palmNormal, fingerDirection, penetrationDepth, segmentPenetration, sampleClip, type Vec3,
 } from '@signflow/motion-format';
 import {
   SIGNS, SIGN_IDS, signDefinition, compileSign, isTwoHanded,
@@ -321,6 +321,64 @@ describe('sequencing', () => {
     const oneToOne = sequence([{ kind: 'sign', signId: 'YOU' }, { kind: 'sign', signId: 'YOUR' }]);
     expect(oneToTwo.sequence.segments[1]!.transitionInMs)
       .toBeGreaterThan(oneToOne.sequence.segments[1]!.transitionInMs);
+  });
+
+  it('raises and lowers the hands for as long as the distance needs, not a flat time', () => {
+    // With a high base time and a low ceiling, four signs in five were pinned to
+    // the ceiling: a hand at the stomach took exactly as long to raise as one
+    // over the head. Time has to follow distance, so measure it against the
+    // distance actually travelled, over the whole library.
+    const sides = ['left', 'right'] as const;
+    const wrists = (pose: Parameters<typeof solveFK>[0]) => {
+      const solved = solveFK(pose);
+      return sides.map((side) => jointPosition(solved, `${side}_wrist`));
+    };
+    const rest = wrists(REST_POSTURE);
+    const travel = (pose: Parameters<typeof solveFK>[0]) =>
+      Math.max(...wrists(pose).map((p, i) => vec3Distance(p, rest[i]!)));
+
+    const rows = SIGN_IDS.map((id) => {
+      const clip = signClip(id);
+      const { sequence: seq, prepared } = sequence([{ kind: 'sign', signId: id }]);
+      return {
+        id,
+        inDistance: travel(sampleClip(clip, clip.strokeStartMs ?? 0)),
+        outDistance: travel(sampleClip(clip, clip.strokeEndMs ?? clip.durationMs)),
+        lead: prepared[0]!.segment.transitionInMs,
+        tail: seq.tailTravelMs,
+      };
+    });
+
+    const rank = (values: number[]) => {
+      const order = values.map((v, i) => [v, i] as const).sort((a, b) => a[0] - b[0]);
+      const ranks = new Array<number>(values.length);
+      order.forEach(([, i], k) => { ranks[i] = k; });
+      return ranks;
+    };
+    const spearman = (x: number[], y: number[]) => {
+      const a = rank(x);
+      const b = rank(y);
+      const mid = (x.length - 1) / 2;
+      let num = 0, da = 0, db = 0;
+      for (let i = 0; i < x.length; i++) {
+        num += (a[i]! - mid) * (b[i]! - mid);
+        da += (a[i]! - mid) ** 2;
+        db += (b[i]! - mid) ** 2;
+      }
+      return num / Math.sqrt(da * db);
+    };
+
+    for (const [distances, times] of [
+      [rows.map((r) => r.inDistance), rows.map((r) => r.lead)],
+      [rows.map((r) => r.outDistance), rows.map((r) => r.tail)],
+    ] as const) {
+      expect(spearman([...distances], [...times])).toBeGreaterThan(0.95);
+      // Few signs may sit on the ceiling. It was 234 of 301 and 277 of 301.
+      expect(times.filter((t) => t >= 799).length).toBeLessThan(rows.length * 0.1);
+      // And the spread has to be real: the nearest and the furthest reach should
+      // not take the same time to within a tenth of a second.
+      expect(Math.max(...times) - Math.min(...times)).toBeGreaterThan(250);
+    }
   });
 
   it('starts and ends at rest', () => {
